@@ -1,26 +1,25 @@
-{% extends "layout.html" %}
+{% extends "dashboard_layout.html" %}
 
-{% block title %}Forbidden - Employee Data Management System{% endblock %}
+{% block title %}403 - Access Forbidden{% endblock %}
 
-{% block content %}
-<div style="height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem;">
-    <div style="text-align: center; max-width: 600px;">
-        <div style="font-size: 6rem; color: var(--error); line-height: 1;">
-            403
-        </div>
-        <h1 style="margin-bottom: 1rem; color: var(--primary-dark);">Access Forbidden</h1>
-        <p style="margin-bottom: 2rem; color: var(--text-secondary);">
-            You don't have permission to access this page. This area is restricted.
+{% block dashboard_title %}Access Forbidden{% endblock %}
+
+{% block dashboard_content %}
+<div class="error-container text-center py-5">
+    <div class="error-code mb-4">
+        <span class="display-1 font-weight-bold text-danger">403</span>
+    </div>
+    <div class="error-message mb-4">
+        <h2>You don't have permission to access this page.</h2>
+        <p class="text-muted">
+            Sorry, but you don't have the necessary permissions to access this resource.
+            Please contact your administrator if you believe this is a mistake.
         </p>
-        
-        <div>
-            <a href="{{ url_for('index') }}" class="btn btn-primary">
-                <i class="fas fa-home mr-2"></i> Go to Home
-            </a>
-            <button onclick="window.history.back()" class="btn btn-outline-secondary ml-2">
-                <i class="fas fa-arrow-left mr-2"></i> Go Back
-            </button>
-        </div>
+    </div>
+    <div class="error-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-home mr-2"></i> Back to Home
+        </a>
     </div>
 </div>
 {% endblock %}

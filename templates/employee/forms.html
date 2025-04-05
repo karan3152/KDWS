@@ -8,7 +8,7 @@
 {{ super() }}
 <style>
     .pdf-preview {
-        min-height: 300px;
+        min-height: 200px;
         background-color: #f7fafc;
         border: 1px solid #e2e8f0;
         border-radius: 0.5rem;
@@ -17,155 +17,655 @@
         justify-content: center;
         margin-top: 1rem;
     }
+    
+    .document-card {
+        margin-bottom: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .document-card .card-header {
+        padding: 12px 15px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .document-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .document-type-table {
+        margin-bottom: 30px;
+    }
+    
+    .document-type-table .table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .document-type-table th {
+        background-color: #2C5282;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+    
+    .document-upload-button {
+        background-color: #48BB78;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .document-upload-button:hover {
+        background-color: #38A169;
+        transform: translateY(-1px);
+    }
+    
+    .document-progress {
+        height: 8px;
+        border-radius: 4px;
+        margin-top: 25px;
+        margin-bottom: 5px;
+    }
+    
+    .document-progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #4A5568;
+    }
 </style>
 {% endblock %}
 
 {% block dashboard_content %}
-<div class="row">
-    <div class="col-md-8">
-        <!-- Upload Form Section -->
-        <div class="form-uploader">
-            <div class="form-uploader-header">
-                <h4 class="form-uploader-title">Upload New Document</h4>
-                <p class="form-uploader-description">
-                    Upload PDF documents such as identity proof, address proof, educational certificates, or other required forms.
-                </p>
-            </div>
-            
-            <form method="POST" action="{{ url_for('employee_forms') }}" enctype="multipart/form-data" class="needs-validation">
-                {{ form.hidden_tag() }}
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="document_type" class="form-label">Document Type</label>
-                            {{ form.document_type(class="form-control", id="document_type") }}
-                            {% if form.document_type.errors %}
-                            <div class="invalid-feedback">
-                                {% for error in form.document_type.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="document_name" class="form-label">Document Name</label>
-                            {{ form.document_name(class="form-control", id="document_name", placeholder="Enter a descriptive name") }}
-                            {% if form.document_name.errors %}
-                            <div class="invalid-feedback">
-                                {% for error in form.document_name.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="document_file" class="form-label">Upload Document</label>
-                    <div class="upload-area">
-                        <div class="upload-icon">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                        </div>
-                        <div class="upload-text">Drag and drop your PDF file here or click to browse</div>
-                        <div class="upload-help">Maximum file size: 5MB</div>
-                    </div>
-                    
-                    {{ form.document_file(class="d-none", id="document_file", accept="application/pdf") }}
-                    {% if form.document_file.errors %}
-                    <div class="invalid-feedback d-block">
-                        {% for error in form.document_file.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-                
-                <div class="pdf-preview">
-                    <div class="text-center text-muted">
-                        <i class="far fa-file-pdf fa-3x mb-3"></i>
-                        <p>PDF preview will appear here</p>
-                    </div>
-                </div>
-                
-                <div class="form-group mt-4">
-                    {{ form.submit(class="btn btn-primary") }}
-                    <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <!-- Document Instructions -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Document Guidelines</h5>
-            </div>
-            <div class="card-body">
-                <p>Please follow these guidelines when uploading documents:</p>
-                <ul>
-                    <li>All documents must be in PDF format</li>
-                    <li>Maximum file size is 5MB per document</li>
-                    <li>Ensure all documents are clearly legible</li>
-                    <li>Complete all required fields before submission</li>
-                    <li>Review your documents before submitting</li>
-                </ul>
-                <p class="mt-3">For assistance, contact your HR department.</p>
-            </div>
-        </div>
-        
-        <!-- Your Uploaded Documents -->
+<div class="row mb-4">
+    <div class="col-md-12">
         <div class="card">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">Your Uploaded Documents</h5>
-            </div>
-            <div class="card-body p-0">
-                {% if documents %}
-                <ul class="list-group list-group-flush">
-                    {% for document in documents %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="font-weight-semibold">{{ document.document_name }}</div>
-                                <div class="small text-muted">
-                                    <span class="badge badge-info">{{ document.document_type | title }}</span>
-                                    <span>{{ document.upload_date.strftime('%b %d, %Y') }}</span>
-                                </div>
-                            </div>
-                            <div>
-                                {% if document.status == 'pending' %}
-                                    <span class="badge badge-warning">Pending</span>
-                                {% elif document.status == 'approved' %}
-                                    <span class="badge badge-success">Approved</span>
-                                {% elif document.status == 'rejected' %}
-                                    <span class="badge badge-danger">Rejected</span>
-                                {% endif %}
-                                <a href="{{ url_for('view_document', document_id=document.id) }}" class="btn btn-sm btn-outline-primary ml-2">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <div class="text-center p-4">
-                    <i class="far fa-folder-open fa-3x text-muted mb-3"></i>
-                    <p>You haven't uploaded any documents yet.</p>
+            <div class="card-body">
+                <h5 class="card-title">Document Completion Status</h5>
+                <div class="progress document-progress">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ completion_percentage }}%;" 
+                         aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="document-progress-text">
+                    <span>{{ completion_percentage }}% completed</span>
+                    <span>{{ missing_docs|length }} documents remaining</span>
+                </div>
+                
+                {% if missing_docs %}
+                <div class="alert alert-warning mt-3">
+                    <h6 class="alert-heading">Required Documents Missing</h6>
+                    <p>Please upload the following required documents:</p>
+                    <ul class="mb-0">
+                        {% for doc_type in missing_docs %}
+                        <li>{{ doc_type|replace('_', ' ')|title }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Identity Documents Section -->
+<div class="document-type-table">
+    <h4>Identity Documents</h4>
+    
+    <!-- Aadhar Card Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">Aadhar Card</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.aadhar %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.aadhar.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.aadhar.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <strong>Aadhar Number:</strong> {{ documents.aadhar.document_number }}
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.aadhar.status == 'pending' %}badge-warning{% elif documents.aadhar.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.aadhar.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.aadhar.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_aadhar') }}" enctype="multipart/form-data">
+                        {{ aadhar_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('aadhar_file').click();">
+                            Replace Document
+                        </button>
+                        {{ aadhar_form.document_file(id="aadhar_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_aadhar') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ aadhar_form.hidden_tag() }}
+                            
+                            <div class="form-group">
+                                <label>Aadhar Number</label>
+                                {{ aadhar_form.document_number(class="form-control", placeholder="Enter 12 digit Aadhar number") }}
+                            </div>
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-id-card fa-3x text-primary mb-3"></i>
+                                <p>Upload your Aadhar card in PDF or image format</p>
+                                <button type="button" class="btn document-upload-button" onclick="document.getElementById('aadhar_file').click();">
+                                    Select Document
+                                </button>
+                                {{ aadhar_form.document_file(id="aadhar_file", class="d-none", onchange="showFileName(this, 'aadhar_filename')") }}
+                                <p id="aadhar_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload Aadhar</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- PAN Card Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">PAN Card</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.pan %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.pan.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.pan.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <strong>PAN Number:</strong> {{ documents.pan.document_number }}
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.pan.status == 'pending' %}badge-warning{% elif documents.pan.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.pan.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.pan.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_pan') }}" enctype="multipart/form-data">
+                        {{ pan_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('pan_file').click();">
+                            Replace Document
+                        </button>
+                        {{ pan_form.document_file(id="pan_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_pan') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ pan_form.hidden_tag() }}
+                            
+                            <div class="form-group">
+                                <label>PAN Number</label>
+                                {{ pan_form.document_number(class="form-control", placeholder="Enter 10 character PAN number") }}
+                            </div>
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-id-card fa-3x text-primary mb-3"></i>
+                                <p>Upload your PAN card in PDF or image format</p>
+                                <button type="button" class="btn document-upload-button" onclick="document.getElementById('pan_file').click();">
+                                    Select Document
+                                </button>
+                                {{ pan_form.document_file(id="pan_file", class="d-none", onchange="showFileName(this, 'pan_filename')") }}
+                                <p id="pan_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload PAN</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- Photo Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">Passport Size Photo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.photo %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.photo.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.photo.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.photo.status == 'pending' %}badge-warning{% elif documents.photo.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.photo.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.photo.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Photo
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data">
+                        {{ photo_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('photo_file').click();">
+                            Replace Photo
+                        </button>
+                        {{ photo_form.document_file(id="photo_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ photo_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-user fa-3x text-primary mb-3"></i>
+                                <p>Upload a passport size photo (JPG, PNG formats only)</p>
+                                <button type="button" class="btn document-upload-button" onclick="document.getElementById('photo_file').click();">
+                                    Select Photo
+                                </button>
+                                {{ photo_form.document_file(id="photo_file", class="d-none", onchange="showFileName(this, 'photo_filename')") }}
+                                <p id="photo_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload Photo</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Bank Details Section -->
+<div class="document-type-table">
+    <h4>Bank Details</h4>
+    
+    <!-- Bank Passbook Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">Bank Passbook</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.passbook %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.passbook.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.passbook.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <strong>Account Number:</strong> {{ documents.passbook.document_number }}<br>
+                        <strong>Bank Name:</strong> {{ documents.passbook.bank_name }}<br>
+                        <strong>IFSC Code:</strong> {{ documents.passbook.ifsc_code }}
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.passbook.status == 'pending' %}badge-warning{% elif documents.passbook.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.passbook.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.passbook.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Passbook
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_passbook') }}" enctype="multipart/form-data">
+                        {{ passbook_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('passbook_file').click();">
+                            Replace Document
+                        </button>
+                        {{ passbook_form.document_file(id="passbook_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_passbook') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ passbook_form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Account Number</label>
+                                        {{ passbook_form.document_number(class="form-control", placeholder="Enter your account number") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Bank Name</label>
+                                        {{ passbook_form.bank_name(class="form-control", placeholder="Bank name") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>IFSC Code</label>
+                                        {{ passbook_form.ifsc_code(class="form-control", placeholder="IFSC code") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-university fa-3x text-primary mb-3"></i>
+                                <p>Upload the first page of your passbook or a cancelled cheque</p>
+                                <button type="button" class="btn document-upload-button" onclick="document.getElementById('passbook_file').click();">
+                                    Select Document
+                                </button>
+                                {{ passbook_form.document_file(id="passbook_file", class="d-none", onchange="showFileName(this, 'passbook_filename')") }}
+                                <p id="passbook_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload Passbook</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- PF Forms Section -->
+<div class="document-type-table">
+    <h4>PF Forms</h4>
+    
+    <!-- Joining Form Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">Joining Application Form</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.joining_form %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.joining_form.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.joining_form.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.joining_form.status == 'pending' %}badge-warning{% elif documents.joining_form.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.joining_form.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.joining_form.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_joining_form') }}" enctype="multipart/form-data">
+                        {{ joining_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('joining_form_file').click();">
+                            Replace Document
+                        </button>
+                        {{ joining_form.document_file(id="joining_form_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_joining_form') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ joining_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+                                <p>Upload your completed Joining Application Form</p>
+                                <a href="{{ url_for('static', filename='forms/1 New Joining Application.pdf') }}" class="btn btn-outline-secondary mb-3" target="_blank">
+                                    Download Blank Form
+                                </a>
+                                <button type="button" class="btn document-upload-button d-block mx-auto" onclick="document.getElementById('joining_form_file').click();">
+                                    Select Completed Form
+                                </button>
+                                {{ joining_form.document_file(id="joining_form_file", class="d-none", onchange="showFileName(this, 'joining_form_filename')") }}
+                                <p id="joining_form_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload Form</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- PF Form Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">PF Form 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.pf_form %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.pf_form.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.pf_form.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.pf_form.status == 'pending' %}badge-warning{% elif documents.pf_form.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.pf_form.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.pf_form.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_pf_form') }}" enctype="multipart/form-data">
+                        {{ pf_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('pf_form_file').click();">
+                            Replace Document
+                        </button>
+                        {{ pf_form.document_file(id="pf_form_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_pf_form') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ pf_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+                                <p>Upload your completed PF Form 2</p>
+                                <a href="{{ url_for('static', filename='forms/2 PF From 2 Revised.pdf') }}" class="btn btn-outline-secondary mb-3" target="_blank">
+                                    Download Blank Form
+                                </a>
+                                <button type="button" class="btn document-upload-button d-block mx-auto" onclick="document.getElementById('pf_form_file').click();">
+                                    Select Completed Form
+                                </button>
+                                {{ pf_form.document_file(id="pf_form_file", class="d-none", onchange="showFileName(this, 'pf_form_filename')") }}
+                                <p id="pf_form_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload Form</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- Form 1 Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">Form 1 - Nomination & Declaration Form</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.form1 %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.form1.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.form1.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.form1.status == 'pending' %}badge-warning{% elif documents.form1.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.form1.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.form1.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_form1') }}" enctype="multipart/form-data">
+                        {{ form1_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('form1_file').click();">
+                            Replace Document
+                        </button>
+                        {{ form1_form.document_file(id="form1_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_form1') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ form1_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+                                <p>Upload your completed Form 1 - Nomination & Declaration Form</p>
+                                <a href="{{ url_for('static', filename='forms/3 Form 1 Nomination & Declaration Form.pdf') }}" class="btn btn-outline-secondary mb-3" target="_blank">
+                                    Download Blank Form
+                                </a>
+                                <button type="button" class="btn document-upload-button d-block mx-auto" onclick="document.getElementById('form1_file').click();">
+                                    Select Completed Form
+                                </button>
+                                {{ form1_form.document_file(id="form1_file", class="d-none", onchange="showFileName(this, 'form1_filename')") }}
+                                <p id="form1_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload Form</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- Form 11 Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-primary text-white">Form 11</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.form11 %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.form11.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.form11.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.form11.status == 'pending' %}badge-warning{% elif documents.form11.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.form11.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.form11.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_form11') }}" enctype="multipart/form-data">
+                        {{ form11_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('form11_file').click();">
+                            Replace Document
+                        </button>
+                        {{ form11_form.document_file(id="form11_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_form11') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ form11_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+                                <p>Upload your completed Form 11</p>
+                                <a href="{{ url_for('static', filename='forms/4 Form11Revised.pdf') }}" class="btn btn-outline-secondary mb-3" target="_blank">
+                                    Download Blank Form
+                                </a>
+                                <button type="button" class="btn document-upload-button d-block mx-auto" onclick="document.getElementById('form11_file').click();">
+                                    Select Completed Form
+                                </button>
+                                {{ form11_form.document_file(id="form11_file", class="d-none", onchange="showFileName(this, 'form11_filename')") }}
+                                <p id="form11_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Upload Form</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
 
 {% block dashboard_js %}
-<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
-<script src="{{ url_for('static', filename='js/pdf_handler.js') }}"></script>
+<script>
+    function showFileName(input, elementId) {
+        const fileName = input.files[0].name;
+        document.getElementById(elementId).textContent = fileName;
+        
+        // If this is a form with auto-submit, don't submit immediately on selection
+        if (!input.form.classList.contains('upload-form')) {
+            input.form.submit();
+        }
+    }
+</script>
 {% endblock %}

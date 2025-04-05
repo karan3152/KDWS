@@ -1,26 +1,25 @@
-{% extends "layout.html" %}
+{% extends "dashboard_layout.html" %}
 
-{% block title %}Page Not Found - Employee Data Management System{% endblock %}
+{% block title %}404 - Page Not Found{% endblock %}
 
-{% block content %}
-<div style="height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem;">
-    <div style="text-align: center; max-width: 600px;">
-        <div style="font-size: 6rem; color: var(--primary); line-height: 1;">
-            404
-        </div>
-        <h1 style="margin-bottom: 1rem; color: var(--primary-dark);">Page Not Found</h1>
-        <p style="margin-bottom: 2rem; color: var(--text-secondary);">
-            The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+{% block dashboard_title %}Page Not Found{% endblock %}
+
+{% block dashboard_content %}
+<div class="error-container text-center py-5">
+    <div class="error-code mb-4">
+        <span class="display-1 font-weight-bold text-danger">404</span>
+    </div>
+    <div class="error-message mb-4">
+        <h2>Oops! The page you're looking for doesn't exist.</h2>
+        <p class="text-muted">
+            The page you requested could not be found. It might have been removed, 
+            renamed, or is temporarily unavailable.
         </p>
-        
-        <div>
-            <a href="{{ url_for('index') }}" class="btn btn-primary">
-                <i class="fas fa-home mr-2"></i> Go to Home
-            </a>
-            <button onclick="window.history.back()" class="btn btn-outline-secondary ml-2">
-                <i class="fas fa-arrow-left mr-2"></i> Go Back
-            </button>
-        </div>
+    </div>
+    <div class="error-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-home mr-2"></i> Back to Home
+        </a>
     </div>
 </div>
 {% endblock %}

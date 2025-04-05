@@ -82,14 +82,51 @@ class Document(db.Model):
     """Model for storing uploaded PDFs and other documents."""
     id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee_profile.id'), nullable=False)
-    document_type = db.Column(db.String(50), nullable=False)
+    document_type = db.Column(db.String(50), nullable=False)  # 'aadhar', 'pan', 'photo', 'passbook', 'joining_form', 'pf_form', 'form1', 'form11'
     document_name = db.Column(db.String(100), nullable=False)
     file_path = db.Column(db.String(255), nullable=False)
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     
+    # Additional metadata for specific document types
+    document_number = db.Column(db.String(50))  # For Aadhar, PAN numbers, Bank account
+    bank_name = db.Column(db.String(100))  # For passbook
+    ifsc_code = db.Column(db.String(20))   # For passbook
+    issue_date = db.Column(db.Date)  # For date of issue if applicable
+    expiry_date = db.Column(db.Date)  # For documents with expiry
+    
     def __repr__(self):
         return f'<Document {self.document_name}>'
+        
+# Define constant for document types for consistency across the application
+class DocumentTypes:
+    AADHAR = 'aadhar'
+    PAN = 'pan'
+    PHOTO = 'photo'
+    PASSBOOK = 'passbook'
+    JOINING_FORM = 'joining_form'
+    PF_FORM = 'pf_form'
+    FORM1 = 'form1'
+    FORM11 = 'form11'
+    
+    @classmethod
+    def all_types(cls):
+        """Return a list of all document types."""
+        return [
+            cls.AADHAR, 
+            cls.PAN, 
+            cls.PHOTO, 
+            cls.PASSBOOK,
+            cls.JOINING_FORM,
+            cls.PF_FORM,
+            cls.FORM1,
+            cls.FORM11
+        ]
+    
+    @classmethod
+    def get_required_types(cls):
+        """Return a list of required document types."""
+        return [cls.AADHAR, cls.PAN, cls.PHOTO, cls.PASSBOOK]
 
 class PasswordResetToken(db.Model):
     """Model for password reset tokens."""

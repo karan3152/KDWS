@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, TextAreaField, FileField
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, TextAreaField, FileField, HiddenField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional
-from models import User, EmployeeProfile
+from models import User, EmployeeProfile, DocumentTypes
 
 class LoginForm(FlaskForm):
     """Form for user login."""
@@ -117,14 +118,85 @@ class EmployeeSearchForm(FlaskForm):
     submit = SubmitField('Search')
 
 class DocumentUploadForm(FlaskForm):
-    """Form for employees to upload documents."""
-    document_type = SelectField('Document Type', choices=[
-        ('identity', 'Identity Proof'),
-        ('address', 'Address Proof'),
-        ('education', 'Educational Certificate'),
-        ('experience', 'Experience Certificate'),
-        ('other', 'Other')
-    ], validators=[DataRequired()])
+    """Base form for document uploads."""
+    document_type = HiddenField('Document Type')
     document_name = StringField('Document Name', validators=[DataRequired()])
-    document_file = FileField('Upload Document (PDF Only)', validators=[DataRequired()])
+    document_file = FileField('Upload Document', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['jpg', 'jpeg', 'png', 'pdf'], 'Only image files and PDFs are allowed!')
+    ])
+    document_number = StringField('Document Number', validators=[Optional()])
+    issue_date = DateField('Issue Date', format='%Y-%m-%d', validators=[Optional()])
+    expiry_date = DateField('Expiry Date', format='%Y-%m-%d', validators=[Optional()])
     submit = SubmitField('Upload Document')
+
+class AadharUploadForm(DocumentUploadForm):
+    """Form for uploading Aadhar card."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.AADHAR)
+    document_name = StringField('Document Name', default='Aadhar Card', validators=[DataRequired()])
+    document_number = StringField('Aadhar Number', validators=[
+        DataRequired(),
+        Length(min=12, max=12, message='Aadhar number must be 12 digits')
+    ])
+    
+class PANUploadForm(DocumentUploadForm):
+    """Form for uploading PAN card."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.PAN)
+    document_name = StringField('Document Name', default='PAN Card', validators=[DataRequired()])
+    document_number = StringField('PAN Number', validators=[
+        DataRequired(),
+        Length(min=10, max=10, message='PAN number must be 10 characters')
+    ])
+
+class PhotoUploadForm(DocumentUploadForm):
+    """Form for uploading photo."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.PHOTO)
+    document_name = StringField('Document Name', default='Passport Size Photo', validators=[DataRequired()])
+    document_file = FileField('Upload Photo', validators=[
+        FileRequired(message='Please select a photo'),
+        FileAllowed(['jpg', 'jpeg', 'png'], 'Only image files are allowed!')
+    ])
+
+class PassbookUploadForm(DocumentUploadForm):
+    """Form for uploading passbook."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.PASSBOOK)
+    document_name = StringField('Document Name', default='Bank Passbook', validators=[DataRequired()])
+    document_number = StringField('Account Number', validators=[DataRequired()])
+    bank_name = StringField('Bank Name', validators=[DataRequired()])
+    ifsc_code = StringField('IFSC Code', validators=[DataRequired()])
+    
+class JoiningFormUploadForm(DocumentUploadForm):
+    """Form for uploading joining form."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.JOINING_FORM)
+    document_name = StringField('Document Name', default='Joining Application Form', validators=[DataRequired()])
+    document_file = FileField('Upload Joining Form', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['pdf'], 'Only PDF files are allowed!')
+    ])
+    
+class PFFormUploadForm(DocumentUploadForm):
+    """Form for uploading PF form."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.PF_FORM)
+    document_name = StringField('Document Name', default='PF Form 2', validators=[DataRequired()])
+    document_file = FileField('Upload PF Form', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['pdf'], 'Only PDF files are allowed!')
+    ])
+    
+class Form1UploadForm(DocumentUploadForm):
+    """Form for uploading Form 1."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.FORM1)
+    document_name = StringField('Document Name', default='Nomination & Declaration Form', validators=[DataRequired()])
+    document_file = FileField('Upload Form 1', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['pdf'], 'Only PDF files are allowed!')
+    ])
+    
+class Form11UploadForm(DocumentUploadForm):
+    """Form for uploading Form 11."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.FORM11)
+    document_name = StringField('Document Name', default='Form 11', validators=[DataRequired()])
+    document_file = FileField('Upload Form 11', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['pdf'], 'Only PDF files are allowed!')
+    ])

@@ -4,15 +4,18 @@ from werkzeug.urls import urlsplit
 from datetime import datetime
 
 from app import app, db
-from models import User, EmployeeProfile, EmployerProfile, Document, PasswordResetToken, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE
+from models import User, EmployeeProfile, EmployerProfile, Document, PasswordResetToken, DocumentTypes, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE
 from forms import (
     LoginForm, PasswordResetRequestForm, PasswordResetForm, FirstLoginForm,
     CreateEmployeeForm, CreateEmployerForm, EmployeeProfileForm,
-    EmployeeSearchForm, DocumentUploadForm
+    EmployeeSearchForm, DocumentUploadForm, AadharUploadForm, PANUploadForm,
+    PhotoUploadForm, PassbookUploadForm, JoiningFormUploadForm, PFFormUploadForm,
+    Form1UploadForm, Form11UploadForm
 )
 from utils import (
-    generate_reset_token, get_token_expiry, save_pdf,
-    extract_pdf_data, validate_login_identifier
+    generate_reset_token, get_token_expiry, save_document, save_pdf,
+    extract_pdf_data, validate_login_identifier, get_document_status,
+    get_employee_documents, get_missing_documents, get_document_completion_percentage
 )
 
 # Login and Authentication Routes
@@ -406,34 +409,40 @@ def employee_forms():
     if not employee:
         flash('Employee profile not found. Please contact administrator.', 'error')
         return redirect(url_for('employee_dashboard'))
-        
+    
+    # Get existing documents
+    documents = get_employee_documents(employee.id)
+    missing_docs = get_missing_documents(employee.id)
+    completion_percentage = get_document_completion_percentage(employee.id)
+    
+    # Generic form for document upload (used as fallback)
     form = DocumentUploadForm()
     
-    if form.validate_on_submit():
-        # Save the uploaded PDF
-        file_path = save_pdf(request.files['document_file'], current_user.id)
-        
-        if file_path:
-            # Create a new document record
-            document = Document(
-                employee_id=employee.id,
-                document_type=form.document_type.data,
-                document_name=form.document_name.data,
-                file_path=file_path,
-                status='pending'
-            )
-            db.session.add(document)
-            db.session.commit()
-            
-            flash('Document uploaded successfully', 'success')
-            return redirect(url_for('employee_forms'))
-        else:
-            flash('Failed to upload document. Please ensure it is a valid PDF file.', 'error')
-            
-    # Get existing documents
-    documents = Document.query.filter_by(employee_id=employee.id).all()
+    # Pass all the specific document forms to the template
+    aadhar_form = AadharUploadForm()
+    pan_form = PANUploadForm()
+    photo_form = PhotoUploadForm()
+    passbook_form = PassbookUploadForm()
+    joining_form = JoiningFormUploadForm()
+    pf_form = PFFormUploadForm()
+    form1_form = Form1UploadForm()
+    form11_form = Form11UploadForm()
     
-    return render_template('employee/forms.html', form=form, documents=documents)
+    return render_template(
+        'employee/forms.html',
+        form=form,
+        documents=documents,
+        missing_docs=missing_docs,
+        completion_percentage=completion_percentage,
+        aadhar_form=aadhar_form,
+        pan_form=pan_form,
+        photo_form=photo_form,
+        passbook_form=passbook_form,
+        joining_form=joining_form,
+        pf_form=pf_form,
+        form1_form=form1_form,
+        form11_form=form11_form
+    )
 
 @app.route('/document/<int:document_id>')
 @login_required
@@ -467,6 +476,454 @@ def get_document(document_id):
         
     # Return the document path for the PDF.js viewer
     return jsonify({'path': url_for('static', filename=document.file_path)})
+
+# Document Upload Routes
+
+@app.route('/employee/upload/aadhar', methods=['POST'])
+@login_required
+def upload_aadhar():
+    """Upload Aadhar card document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = AadharUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.AADHAR)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.AADHAR
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.document_number = form.document_number.data
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.AADHAR,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    document_number=form.document_number.data,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            # Update employee's Aadhar ID if provided
+            if form.document_number.data:
+                employee.aadhar_id = form.document_number.data
+                
+            db.session.commit()
+            
+            flash('Aadhar card uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/pan', methods=['POST'])
+@login_required
+def upload_pan():
+    """Upload PAN card document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = PANUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.PAN)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.PAN
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.document_number = form.document_number.data
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.PAN,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    document_number=form.document_number.data,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('PAN card uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/photo', methods=['POST'])
+@login_required
+def upload_photo():
+    """Upload photo document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = PhotoUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.PHOTO)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.PHOTO
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.PHOTO,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Photo uploaded successfully', 'success')
+        else:
+            flash('Failed to upload photo. Please ensure it is a valid image file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/passbook', methods=['POST'])
+@login_required
+def upload_passbook():
+    """Upload bank passbook document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = PassbookUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.PASSBOOK)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.PASSBOOK
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.document_number = form.document_number.data
+                existing_doc.bank_name = form.bank_name.data
+                existing_doc.ifsc_code = form.ifsc_code.data
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.PASSBOOK,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    document_number=form.document_number.data,
+                    bank_name=form.bank_name.data,
+                    ifsc_code=form.ifsc_code.data,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Bank passbook uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/joining_form', methods=['POST'])
+@login_required
+def upload_joining_form():
+    """Upload joining form document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = JoiningFormUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.JOINING_FORM)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.JOINING_FORM
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.JOINING_FORM,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Joining Application Form uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid PDF file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/pf_form', methods=['POST'])
+@login_required
+def upload_pf_form():
+    """Upload PF form document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = PFFormUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.PF_FORM)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.PF_FORM
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.PF_FORM,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('PF Form 2 uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid PDF file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/form1', methods=['POST'])
+@login_required
+def upload_form1():
+    """Upload Form 1 document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = Form1UploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.FORM1)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.FORM1
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.FORM1,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Nomination & Declaration Form uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid PDF file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/form11', methods=['POST'])
+@login_required
+def upload_form11():
+    """Upload Form 11 document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = Form11UploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.FORM11)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.FORM11
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.FORM11,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Form 11 uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid PDF file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
 
 # Error handlers
 @app.errorhandler(404)
