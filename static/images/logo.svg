@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#2C5282" />
+  
+  <!-- Inner Circle -->
+  <circle cx="100" cy="100" r="85" fill="#4299E1" />
+  
+  <!-- Document Icon -->
+  <g fill="#FFFFFF">
+    <!-- Document Background -->
+    <path d="M125,55 H85 c-5.5,0-10,4.5-10,10 v70 c0,5.5,4.5,10,10,10 h40 c5.5,0,10-4.5,10-10 V65 C135,59.5,130.5,55,125,55 z" />
+    
+    <!-- Document Lines -->
+    <rect x="85" y="75" width="40" height="3" rx="1.5" fill="#2C5282" />
+    <rect x="85" y="85" width="30" height="3" rx="1.5" fill="#2C5282" />
+    <rect x="85" y="95" width="35" height="3" rx="1.5" fill="#2C5282" />
+    <rect x="85" y="105" width="25" height="3" rx="1.5" fill="#2C5282" />
+    <rect x="85" y="115" width="35" height="3" rx="1.5" fill="#2C5282" />
+    
+    <!-- Person Silhouette -->
+    <circle cx="75" cy="75" r="15" fill="#48BB78" />
+    <path d="M95,105 v25 c0,5.5-4.5,10-10,10 H65 c-5.5,0-10-4.5-10-10 v-25 c0-11,9-20,20-20 C86,85,95,94,95,105 z" fill="#48BB78" />
+  </g>
+  
+  <!-- Text "EDMS" -->
+  <text x="100" y="155" font-family="Inter, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#FFFFFF">EDMS</text>
+</svg>

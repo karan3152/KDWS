@@ -1,0 +1,236 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Create {{ account_type | title }} Account - Admin Dashboard{% endblock %}
+
+{% block dashboard_title %}Create {{ account_type | title }} Account{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4>New {{ account_type | title }} Registration</h4>
+            </div>
+            
+            <div class="card-body p-4">
+                <form class="needs-validation" method="POST" action="{{ url_for('create_' + account_type) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    {% if account_type == 'employee' %}
+                    <!-- Employee Account Fields -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="username" class="form-label">Username</label>
+                                {{ form.username(class="form-control", id="username", placeholder="Enter username") }}
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email Address</label>
+                                {{ form.email(class="form-control", id="email", placeholder="Enter email address") }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="aadhar_id" class="form-label">Aadhar ID</label>
+                                {{ form.aadhar_id(class="form-control aadhar-id", id="aadhar_id", placeholder="12-digit Aadhar ID") }}
+                                {% if form.aadhar_id.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.aadhar_id.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employee_id" class="form-label">Employee ID</label>
+                                {{ form.employee_id(class="form-control employee-id", id="employee_id", placeholder="Enter employee ID (e.g., EMP1001)") }}
+                                {% if form.employee_id.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.employee_id.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="department" class="form-label">Department</label>
+                                {{ form.department(class="form-control", id="department", placeholder="Enter department") }}
+                                {% if form.department.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.department.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="position" class="form-label">Position</label>
+                                {{ form.position(class="form-control", id="position", placeholder="Enter position") }}
+                                {% if form.position.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.position.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% elif account_type == 'employer' %}
+                    <!-- Employer Account Fields -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="username" class="form-label">Username</label>
+                                {{ form.username(class="form-control", id="username", placeholder="Enter username") }}
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email Address</label>
+                                {{ form.email(class="form-control", id="email", placeholder="Enter email address") }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="company_name" class="form-label">Company Name</label>
+                                {{ form.company_name(class="form-control", id="company_name", placeholder="Enter company name") }}
+                                {% if form.company_name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.company_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="company_id" class="form-label">Company ID</label>
+                                {{ form.company_id(class="form-control", id="company_id", placeholder="Enter company ID") }}
+                                {% if form.company_id.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.company_id.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="department" class="form-label">Department</label>
+                                {{ form.department(class="form-control", id="department", placeholder="Enter department") }}
+                                {% if form.department.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.department.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="contact_number" class="form-label">Contact Number</label>
+                                {{ form.contact_number(class="form-control", id="contact_number", placeholder="Enter contact number") }}
+                                {% if form.contact_number.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.contact_number.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-group">
+                        <label for="temporary_password" class="form-label">Temporary Password</label>
+                        {{ form.temporary_password(class="form-control", id="temporary_password", placeholder="Enter temporary password") }}
+                        {% if form.temporary_password.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.temporary_password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="form-text">
+                            {% if account_type == 'employee' %}
+                            The employee will be prompted to change this password on first login.
+                            {% else %}
+                            Make sure to communicate this password securely to the employer.
+                            {% endif %}
+                        </small>
+                    </div>
+                    
+                    <div class="form-group mt-4">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+{% endblock %}

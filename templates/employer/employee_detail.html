@@ -1,0 +1,265 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Employee Details - Employer Dashboard{% endblock %}
+
+{% block dashboard_title %}Employee Details{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ url_for('employee_search') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Search
+        </a>
+    </div>
+</div>
+
+<div class="profile-header">
+    <div class="profile-avatar">
+        {{ employee.first_name[0] if employee.first_name else '?' }}{{ employee.last_name[0] if employee.last_name else '' }}
+    </div>
+    
+    <div class="profile-info">
+        <h2 class="profile-name">
+            {% if employee.first_name and employee.last_name %}
+                {{ employee.first_name }} {{ employee.last_name }}
+            {% else %}
+                <span class="text-muted">Name not set</span>
+            {% endif %}
+        </h2>
+        
+        <div class="profile-position">
+            {{ employee.position }} - {{ employee.department }}
+        </div>
+        
+        <div class="profile-details">
+            <div class="profile-detail">
+                <span class="profile-detail-icon"><i class="fas fa-id-card"></i></span>
+                <span class="profile-detail-text">Employee ID: {{ employee.employee_id }}</span>
+            </div>
+            
+            <div class="profile-detail">
+                <span class="profile-detail-icon"><i class="fas fa-id-badge"></i></span>
+                <span class="profile-detail-text">Aadhar ID: {{ employee.aadhar_id }}</span>
+            </div>
+            
+            {% if employee.joining_date %}
+            <div class="profile-detail">
+                <span class="profile-detail-icon"><i class="fas fa-calendar-alt"></i></span>
+                <span class="profile-detail-text">Joined: {{ employee.joining_date.strftime('%b %d, %Y') }}</span>
+            </div>
+            {% endif %}
+            
+            {% if employee.phone_number %}
+            <div class="profile-detail">
+                <span class="profile-detail-icon"><i class="fas fa-phone"></i></span>
+                <span class="profile-detail-text">Phone: {{ employee.phone_number }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="profile-tabs">
+    <div class="profile-tab active" data-tab="details">Personal Details</div>
+    <div class="profile-tab" data-tab="documents">Documents</div>
+</div>
+
+<div class="profile-tab-content" id="details-content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th width="40%">Full Name</th>
+                                <td>
+                                    {% if employee.first_name and employee.last_name %}
+                                        {{ employee.first_name }} {{ employee.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Date of Birth</th>
+                                <td>
+                                    {% if employee.date_of_birth %}
+                                        {{ employee.date_of_birth.strftime('%b %d, %Y') }}
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Phone Number</th>
+                                <td>
+                                    {% if employee.phone_number %}
+                                        {{ employee.phone_number }}
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Address</th>
+                                <td>
+                                    {% if employee.address %}
+                                        {{ employee.address }}
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Employment Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th width="40%">Employee ID</th>
+                                <td>{{ employee.employee_id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Department</th>
+                                <td>{{ employee.department }}</td>
+                            </tr>
+                            <tr>
+                                <th>Position</th>
+                                <td>{{ employee.position }}</td>
+                            </tr>
+                            <tr>
+                                <th>Joining Date</th>
+                                <td>
+                                    {% if employee.joining_date %}
+                                        {{ employee.joining_date.strftime('%b %d, %Y') }}
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="profile-tab-content" id="documents-content" style="display: none;">
+    <div class="document-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Employee Documents</h4>
+        </div>
+        
+        {% if documents %}
+            <div class="document-grid">
+                {% for document in documents %}
+                <div class="document-card">
+                    <div class="document-card-preview">
+                        <i class="far fa-file-pdf"></i>
+                    </div>
+                    <div class="document-card-body">
+                        <h5 class="document-card-title">{{ document.document_name }}</h5>
+                        <div class="document-card-type">{{ document.document_type | title }}</div>
+                        <div class="document-card-footer">
+                            <div class="document-card-date">{{ document.upload_date.strftime('%b %d, %Y') }}</div>
+                            <div class="document-card-status {{ document.status }}">{{ document.status | title }}</div>
+                        </div>
+                    </div>
+                    <div class="document-card-menu">
+                        <div class="dropdown">
+                            <button class="document-card-menu-button dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="{{ url_for('view_document', document_id=document.id) }}">
+                                    <i class="fas fa-eye mr-2"></i>View
+                                </a>
+                                <a class="dropdown-item" href="{{ url_for('static', filename=document.file_path) }}" download>
+                                    <i class="fas fa-download mr-2"></i>Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center p-5">
+                    <div class="mb-3">
+                        <i class="far fa-file-pdf fa-3x text-muted"></i>
+                    </div>
+                    <h5 class="mb-2">No documents found</h5>
+                    <p class="text-muted">This employee has not uploaded any documents yet.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.profile-tab');
+        const tabContents = document.querySelectorAll('.profile-tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to current tab
+                this.classList.add('active');
+                
+                // Hide all tab contents
+                tabContents.forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Show the selected tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-content`).style.display = 'block';
+            });
+        });
+        
+        // Dropdown functionality for document menu
+        const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+        
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const dropdown = this.nextElementSibling;
+                dropdown.classList.toggle('show');
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            dropdownToggles.forEach(toggle => {
+                const dropdown = toggle.nextElementSibling;
+                if (dropdown && dropdown.classList.contains('show') && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

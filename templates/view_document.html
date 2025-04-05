@@ -1,0 +1,110 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}View Document - Employee Data Management System{% endblock %}
+
+{% block dashboard_title %}Document Viewer{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        {% if current_user.is_admin() %}
+            <a href="{{ url_for('manage_accounts') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Accounts
+            </a>
+        {% elif current_user.is_employer() %}
+            {% if request.referrer and 'employee_detail' in request.referrer %}
+                <a href="{{ request.referrer }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Employee
+                </a>
+            {% else %}
+                <a href="{{ url_for('employer_dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+                </a>
+            {% endif %}
+        {% elif current_user.is_employee() %}
+            <a href="{{ url_for('employee_forms') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Documents
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">{{ document.document_name }}</h4>
+        <div class="document-info d-flex align-items-center">
+            <span class="badge {% if document.status == 'pending' %}badge-warning{% elif document.status == 'approved' %}badge-success{% elif document.status == 'rejected' %}badge-danger{% endif %} mr-2">
+                {{ document.status | title }}
+            </span>
+            <a href="{{ url_for('static', filename=document.file_path) }}" download class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-download mr-1"></i> Download
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="document-details bg-light p-3 border-bottom">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-2"><strong>Document Type:</strong> {{ document.document_type | title }}</div>
+                    <div><strong>Uploaded:</strong> {{ document.upload_date.strftime('%b %d, %Y') }}</div>
+                </div>
+                <div class="col-md-8">
+                    <div class="mb-2">
+                        <strong>Employee:</strong> 
+                        {% if document.employee.first_name and document.employee.last_name %}
+                            {{ document.employee.first_name }} {{ document.employee.last_name }}
+                        {% else %}
+                            {{ document.employee.employee_id }}
+                        {% endif %}
+                    </div>
+                    <div><strong>Status:</strong> {{ document.status | title }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PDF Viewer -->
+        <div class="pdf-viewer" data-document-id="{{ document.id }}">
+            <div class="pdf-viewer-content">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading document...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.is_employer() %}
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Document Actions</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <form method="POST" action="#" class="mb-3 mb-md-0">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-check-circle mr-1"></i> Approve Document
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form method="POST" action="#">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn btn-danger btn-block">
+                        <i class="fas fa-times-circle mr-1"></i> Reject Document
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="{{ url_for('static', filename='js/pdf_handler.js') }}"></script>
+{% endblock %}

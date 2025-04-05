@@ -1,0 +1,171 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Forms & Documents - Employee Dashboard{% endblock %}
+
+{% block dashboard_title %}Forms & Documents{% endblock %}
+
+{% block additional_css %}
+{{ super() }}
+<style>
+    .pdf-preview {
+        min-height: 300px;
+        background-color: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Upload Form Section -->
+        <div class="form-uploader">
+            <div class="form-uploader-header">
+                <h4 class="form-uploader-title">Upload New Document</h4>
+                <p class="form-uploader-description">
+                    Upload PDF documents such as identity proof, address proof, educational certificates, or other required forms.
+                </p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('employee_forms') }}" enctype="multipart/form-data" class="needs-validation">
+                {{ form.hidden_tag() }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="document_type" class="form-label">Document Type</label>
+                            {{ form.document_type(class="form-control", id="document_type") }}
+                            {% if form.document_type.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.document_type.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="document_name" class="form-label">Document Name</label>
+                            {{ form.document_name(class="form-control", id="document_name", placeholder="Enter a descriptive name") }}
+                            {% if form.document_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.document_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="document_file" class="form-label">Upload Document</label>
+                    <div class="upload-area">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">Drag and drop your PDF file here or click to browse</div>
+                        <div class="upload-help">Maximum file size: 5MB</div>
+                    </div>
+                    
+                    {{ form.document_file(class="d-none", id="document_file", accept="application/pdf") }}
+                    {% if form.document_file.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.document_file.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="pdf-preview">
+                    <div class="text-center text-muted">
+                        <i class="far fa-file-pdf fa-3x mb-3"></i>
+                        <p>PDF preview will appear here</p>
+                    </div>
+                </div>
+                
+                <div class="form-group mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Document Instructions -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Document Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <p>Please follow these guidelines when uploading documents:</p>
+                <ul>
+                    <li>All documents must be in PDF format</li>
+                    <li>Maximum file size is 5MB per document</li>
+                    <li>Ensure all documents are clearly legible</li>
+                    <li>Complete all required fields before submission</li>
+                    <li>Review your documents before submitting</li>
+                </ul>
+                <p class="mt-3">For assistance, contact your HR department.</p>
+            </div>
+        </div>
+        
+        <!-- Your Uploaded Documents -->
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Your Uploaded Documents</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if documents %}
+                <ul class="list-group list-group-flush">
+                    {% for document in documents %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="font-weight-semibold">{{ document.document_name }}</div>
+                                <div class="small text-muted">
+                                    <span class="badge badge-info">{{ document.document_type | title }}</span>
+                                    <span>{{ document.upload_date.strftime('%b %d, %Y') }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                {% if document.status == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                {% elif document.status == 'approved' %}
+                                    <span class="badge badge-success">Approved</span>
+                                {% elif document.status == 'rejected' %}
+                                    <span class="badge badge-danger">Rejected</span>
+                                {% endif %}
+                                <a href="{{ url_for('view_document', document_id=document.id) }}" class="btn btn-sm btn-outline-primary ml-2">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center p-4">
+                    <i class="far fa-folder-open fa-3x text-muted mb-3"></i>
+                    <p>You haven't uploaded any documents yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pdf_handler.js') }}"></script>
+{% endblock %}

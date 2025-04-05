@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+
+{% block title %}Register - Employee Data Management System{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" class="auth-logo">
+            <h1 class="auth-title">Create New Account</h1>
+            <p class="auth-subtitle">Register for the Employee Data Management System</p>
+        </div>
+        
+        <div class="auth-body">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="auth-message info">
+                <p><strong>Note:</strong> Account registration is typically handled by administrators. If you need an account, please contact your administrator or HR department.</p>
+            </div>
+            
+            <form class="auth-form needs-validation password-validation" method="POST" action="{{ url_for('register') }}">
+                {{ form.hidden_tag() if form }}
+                
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter a username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Create a password" required minlength="8">
+                    <small class="form-text">Password must be at least 8 characters long and contain letters, numbers, and special characters.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm your password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role" class="form-label">Account Type</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="" selected disabled>Select account type</option>
+                        <option value="employee">Employee</option>
+                        <option value="employer">Employer/HR</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-footer">
+            <p class="auth-footer-text">
+                Already have an account? <a href="{{ url_for('login') }}" class="auth-link">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add role-specific fields based on selection
+        const roleSelect = document.getElementById('role');
+        const formGroups = document.querySelector('.auth-form').querySelectorAll('.form-group');
+        const lastFormGroup = formGroups[formGroups.length - 1];
+        
+        // Create a container for additional fields
+        const additionalFieldsContainer = document.createElement('div');
+        additionalFieldsContainer.id = 'additional-fields';
+        lastFormGroup.parentNode.insertBefore(additionalFieldsContainer, lastFormGroup);
+        
+        roleSelect.addEventListener('change', function() {
+            additionalFieldsContainer.innerHTML = ''; // Clear previous fields
+            
+            if (this.value === 'employee') {
+                // Add employee-specific fields
+                additionalFieldsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label for="employee_id" class="form-label">Employee ID</label>
+                        <input type="text" id="employee_id" name="employee_id" class="form-control employee-id" placeholder="Enter employee ID (e.g., EMP1001)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="aadhar_id" class="form-label">Aadhar ID</label>
+                        <input type="text" id="aadhar_id" name="aadhar_id" class="form-control aadhar-id" placeholder="Enter 12-digit Aadhar ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department" class="form-label">Department</label>
+                        <input type="text" id="department" name="department" class="form-control" placeholder="Enter your department" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="position" class="form-label">Position</label>
+                        <input type="text" id="position" name="position" class="form-control" placeholder="Enter your position" required>
+                    </div>
+                `;
+            } else if (this.value === 'employer') {
+                // Add employer-specific fields
+                additionalFieldsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label for="company_name" class="form-label">Company Name</label>
+                        <input type="text" id="company_name" name="company_name" class="form-control" placeholder="Enter company name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company_id" class="form-label">Company ID</label>
+                        <input type="text" id="company_id" name="company_id" class="form-control" placeholder="Enter company ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department" class="form-label">Department</label>
+                        <input type="text" id="department" name="department" class="form-control" placeholder="Enter your department" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_number" class="form-label">Contact Number</label>
+                        <input type="text" id="contact_number" name="contact_number" class="form-control" placeholder="Enter contact number" required>
+                    </div>
+                `;
+            }
+            
+            // Re-initialize form validation for new fields
+            const newInputs = additionalFieldsContainer.querySelectorAll('input, select');
+            newInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    clearValidationError(this);
+                });
+                
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+            
+            // Initialize custom validations
+            if (this.value === 'employee') {
+                initAadharValidation();
+                initEmployeeIdValidation();
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block title %}First Login - Employee Data Management System{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card first-login-container">
+        <div class="auth-header">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" class="auth-logo">
+            <h1 class="auth-title">Welcome to Employee Data Management System</h1>
+            <p class="auth-subtitle">Let's set up your account</p>
+        </div>
+        
+        <div class="auth-body">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="first-login-steps">
+                <div class="first-login-step active">
+                    <div class="first-login-step-number">1</div>
+                    <div class="first-login-step-label">Change Password</div>
+                </div>
+                <div class="first-login-step">
+                    <div class="first-login-step-number">2</div>
+                    <div class="first-login-step-label">Complete Profile</div>
+                </div>
+                <div class="first-login-step">
+                    <div class="first-login-step-number">3</div>
+                    <div class="first-login-step-label">Start Using System</div>
+                </div>
+            </div>
+            
+            <div class="auth-message info">
+                <p><strong>Welcome!</strong> For security purposes, you need to change your temporary password before accessing the system.</p>
+            </div>
+            
+            <form class="auth-form needs-validation password-validation" method="POST" action="{{ url_for('first_login') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    <label for="current_password" class="form-label">Current Password</label>
+                    {{ form.current_password(class="form-control", id="current_password", placeholder="Enter your temporary password") }}
+                    {% if form.current_password.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.current_password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="form-text">This is the temporary password provided by your administrator.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password" class="form-label">New Password</label>
+                    {{ form.new_password(class="form-control", id="new_password", placeholder="Create a new password") }}
+                    {% if form.new_password.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.new_password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="form-text">Password must be at least 8 characters long and contain letters, numbers, and special characters.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    {{ form.confirm_password(class="form-control", id="confirm_password", placeholder="Confirm your new password") }}
+                    {% if form.confirm_password.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.confirm_password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary btn-block") }}
+                </div>
+            </form>
+            
+            <div class="first-login-options text-center">
+                <p>Need help? Please contact your system administrator.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+{% endblock %}

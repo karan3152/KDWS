@@ -1,0 +1,130 @@
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, TextAreaField, FileField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional
+from models import User, EmployeeProfile
+
+class LoginForm(FlaskForm):
+    """Form for user login."""
+    username = StringField('Username/Employee ID/Aadhar ID', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
+class PasswordResetRequestForm(FlaskForm):
+    """Form for requesting a password reset."""
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+class PasswordResetForm(FlaskForm):
+    """Form for resetting password with a token."""
+    password = PasswordField('New Password', validators=[
+        DataRequired(),
+        Length(min=8, message='Password must be at least 8 characters long')
+    ])
+    confirm_password = PasswordField('Confirm Password', validators=[
+        DataRequired(),
+        EqualTo('password', message='Passwords must match')
+    ])
+    submit = SubmitField('Reset Password')
+
+class FirstLoginForm(FlaskForm):
+    """Form for employees to set up their account on first login."""
+    current_password = PasswordField('Current Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[
+        DataRequired(),
+        Length(min=8, message='Password must be at least 8 characters long')
+    ])
+    confirm_password = PasswordField('Confirm New Password', validators=[
+        DataRequired(),
+        EqualTo('new_password', message='Passwords must match')
+    ])
+    submit = SubmitField('Update Password')
+
+class CreateEmployeeForm(FlaskForm):
+    """Form for admins to create employee accounts."""
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    aadhar_id = StringField('Aadhar ID', validators=[DataRequired(), Length(min=12, max=12)])
+    employee_id = StringField('Employee ID', validators=[DataRequired()])
+    department = StringField('Department', validators=[DataRequired()])
+    position = StringField('Position', validators=[DataRequired()])
+    temporary_password = PasswordField('Temporary Password', validators=[
+        DataRequired(),
+        Length(min=8, message='Password must be at least 8 characters long')
+    ])
+    submit = SubmitField('Create Employee Account')
+    
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('Username already taken. Please choose a different one.')
+            
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('Email already registered. Please use a different one.')
+            
+    def validate_aadhar_id(self, aadhar_id):
+        employee = EmployeeProfile.query.filter_by(aadhar_id=aadhar_id.data).first()
+        if employee:
+            raise ValidationError('Aadhar ID already registered.')
+            
+    def validate_employee_id(self, employee_id):
+        employee = EmployeeProfile.query.filter_by(employee_id=employee_id.data).first()
+        if employee:
+            raise ValidationError('Employee ID already registered.')
+
+class CreateEmployerForm(FlaskForm):
+    """Form for admins to create employer/HR accounts."""
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    company_name = StringField('Company Name', validators=[DataRequired()])
+    company_id = StringField('Company ID', validators=[DataRequired()])
+    department = StringField('Department', validators=[DataRequired()])
+    contact_number = StringField('Contact Number', validators=[DataRequired()])
+    temporary_password = PasswordField('Temporary Password', validators=[
+        DataRequired(),
+        Length(min=8, message='Password must be at least 8 characters long')
+    ])
+    submit = SubmitField('Create Employer Account')
+    
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('Username already taken. Please choose a different one.')
+            
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('Email already registered. Please use a different one.')
+
+class EmployeeProfileForm(FlaskForm):
+    """Form for employees to update their profile information."""
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    date_of_birth = DateField('Date of Birth', validators=[DataRequired()], format='%Y-%m-%d')
+    phone_number = StringField('Phone Number', validators=[DataRequired()])
+    address = TextAreaField('Address', validators=[DataRequired()])
+    submit = SubmitField('Update Profile')
+
+class EmployeeSearchForm(FlaskForm):
+    """Form for employers to search for employees."""
+    search_type = SelectField('Search By', choices=[
+        ('employee_id', 'Employee ID'),
+        ('aadhar_id', 'Aadhar ID'),
+        ('name', 'Name')
+    ], validators=[DataRequired()])
+    search_query = StringField('Search', validators=[DataRequired()])
+    submit = SubmitField('Search')
+
+class DocumentUploadForm(FlaskForm):
+    """Form for employees to upload documents."""
+    document_type = SelectField('Document Type', choices=[
+        ('identity', 'Identity Proof'),
+        ('address', 'Address Proof'),
+        ('education', 'Educational Certificate'),
+        ('experience', 'Experience Certificate'),
+        ('other', 'Other')
+    ], validators=[DataRequired()])
+    document_name = StringField('Document Name', validators=[DataRequired()])
+    document_file = FileField('Upload Document (PDF Only)', validators=[DataRequired()])
+    submit = SubmitField('Upload Document')

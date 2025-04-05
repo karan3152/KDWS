@@ -1,0 +1,142 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}My Profile - Employee Dashboard{% endblock %}
+
+{% block dashboard_title %}My Profile{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Update Profile Information</h4>
+            </div>
+            
+            <div class="card-body p-4">
+                <form class="needs-validation" method="POST" action="{{ url_for('employee_profile') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Your basic employment information is provided by your administrator and cannot be changed. Please complete your personal details below.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="first_name" class="form-label">First Name</label>
+                                {{ form.first_name(class="form-control", id="first_name", placeholder="Enter your first name") }}
+                                {% if form.first_name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.first_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                {{ form.last_name(class="form-control", id="last_name", placeholder="Enter your last name") }}
+                                {% if form.last_name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.last_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                {{ form.date_of_birth(class="form-control", id="date_of_birth", type="date") }}
+                                {% if form.date_of_birth.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.date_of_birth.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="phone_number" class="form-label">Phone Number</label>
+                                {{ form.phone_number(class="form-control", id="phone_number", placeholder="Enter your phone number") }}
+                                {% if form.phone_number.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.phone_number.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address" class="form-label">Address</label>
+                        {{ form.address(class="form-control", id="address", rows="3", placeholder="Enter your full address") }}
+                        {% if form.address.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.address.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="mb-3">Employment Information</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th width="30%">Employee ID</th>
+                                            <td>{{ employee.employee_id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Aadhar ID</th>
+                                            <td>{{ employee.aadhar_id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Department</th>
+                                            <td>{{ employee.department }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Position</th>
+                                            <td>{{ employee.position }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <small class="text-muted">If you need to update this information, please contact your HR department or administrator.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mt-4">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+{% endblock %}

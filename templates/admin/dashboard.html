@@ -1,0 +1,108 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Admin Dashboard - Employee Data Management System{% endblock %}
+
+{% block dashboard_title %}Admin Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<section class="dashboard-overview">
+    <h3 class="mb-3">System Overview</h3>
+    
+    <div class="dashboard-cards">
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon bg-primary">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="dashboard-card-content">
+                <div class="dashboard-card-value">{{ employee_count }}</div>
+                <div class="dashboard-card-label">Total Employees</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon bg-secondary">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="dashboard-card-content">
+                <div class="dashboard-card-value">{{ employer_count }}</div>
+                <div class="dashboard-card-label">Total Employers</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon" style="background-color: var(--accent);">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="dashboard-card-content">
+                <div class="dashboard-card-value">{{ document_count }}</div>
+                <div class="dashboard-card-label">Total Documents</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="quick-actions mb-4">
+    <h3 class="mb-3">Quick Actions</h3>
+    
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-header">Employee Management</h5>
+                    <p class="card-body">Create and manage employee accounts, assign IDs, and set up initial access.</p>
+                    <div class="card-footer">
+                        <a href="{{ url_for('create_employee') }}" class="btn btn-primary">Add Employee</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-header">Employer Management</h5>
+                    <p class="card-body">Set up employer/HR accounts with appropriate access levels to employee data.</p>
+                    <div class="card-footer">
+                        <a href="{{ url_for('create_employer') }}" class="btn btn-secondary">Add Employer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-header">Account Overview</h5>
+                    <p class="card-body">View, edit, and manage all user accounts in the system.</p>
+                    <div class="card-footer">
+                        <a href="{{ url_for('manage_accounts') }}" class="btn btn-outline-primary">Manage Accounts</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="system-info">
+    <h3 class="mb-3">System Information</h3>
+    
+    <div class="card">
+        <div class="card-body p-4">
+            <h5 class="mb-3">Employee Data Management System</h5>
+            <p>Welcome to the administrator portal. From here, you can manage all aspects of the employee data management system:</p>
+            
+            <ul class="mt-3">
+                <li>Create and manage employee and employer accounts</li>
+                <li>Monitor document submissions and approvals</li>
+                <li>Maintain system security and access control</li>
+                <li>View system statistics and usage data</li>
+            </ul>
+            
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle mr-2"></i>
+                Remember that all account creation and deletion actions are logged for security purposes.
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
