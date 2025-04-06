@@ -101,7 +101,7 @@
                                         <span class="badge badge-danger">Rejected</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ document.upload_date.strftime('%b %d, %Y') }}</td>
+                                <td>{{ document.uploaded_at.strftime('%b %d, %Y') }}</td>
                                 <td>
                                     <a href="{{ url_for('view_document', document_id=document.id) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i> View
@@ -136,7 +136,7 @@
                     <h5 class="card-header">Employee Search</h5>
                     <p class="card-body">Find employees by Employee ID, Aadhar ID, or name to view their details and documents.</p>
                     <div class="card-footer">
-                        <a href="{{ url_for('employee_search') }}" class="btn btn-primary">Search Employees</a>
+                        <a href="{{ url_for('employer_search_employee') }}" class="btn btn-primary">Search Employees</a>
                     </div>
                 </div>
             </div>
