@@ -1,0 +1,79 @@
+
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Search Employee - Employer Dashboard{% endblock %}
+
+{% block dashboard_title %}Search Employee{% endblock %}
+
+{% block dashboard_content %}
+<div class="card">
+    <div class="card-header">
+        <h4>Employee Search</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST" class="mb-4">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        {{ form.query(class="form-control", placeholder="Enter Employee ID, Aadhar ID or Name") }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        {% if results %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>Document Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.employee_id }}</td>
+                        <td>{{ result.name }}</td>
+                        <td>{{ result.department }}</td>
+                        <td>{{ result.position }}</td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ result.document_completion }}%;"
+                                     aria-valuenow="{{ result.document_completion }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {{ result.document_completion }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('employer_view_employee', employee_id=result.employee_id) }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% elif search_performed %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            No employees found matching your search criteria.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
