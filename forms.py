@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, SelectField, TextAreaField, DateField, IntegerField, DecimalField, MultipleFileField, HiddenField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, TextAreaField, DateField, IntegerField, DecimalField, MultipleFileField, HiddenField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, ValidationError, Regexp
 from datetime import date
 
@@ -104,6 +104,7 @@ class EmployeeProfileForm(FlaskForm):
     department = StringField('Department', validators=[Optional(), Length(max=50)])
     position = StringField('Position', validators=[Optional(), Length(max=50)])
     joining_date = DateField('Date of Joining', validators=[Optional()])
+    submit = SubmitField('Update Profile')
     
     def validate_date_of_birth(self, date_of_birth):
         """Validate date of birth is not in the future."""
@@ -135,6 +136,7 @@ class EmployeeProfileEditForm(FlaskForm):
     # Only shown to admin
     employee_id = StringField('Employee ID', validators=[Optional(), Length(max=20)])
     aadhar_id = StringField('Aadhar Number', validators=[Optional(), Length(max=20)])
+    submit = SubmitField('Update Employee')
     
     def validate_date_of_birth(self, date_of_birth):
         """Validate date of birth is not in the future."""
@@ -156,6 +158,7 @@ class EmployerProfileForm(FlaskForm):
         Length(min=10, max=15),
         Regexp(r'^\d+$', message='Contact number must contain only digits')
     ])
+    submit = SubmitField('Update Profile')
 
 
 class EmployeeSearchForm(FlaskForm):
@@ -167,6 +170,7 @@ class EmployeeSearchForm(FlaskForm):
         ('aadhar_id', 'Aadhar Number'),
         ('department', 'Department')
     ])
+    submit = SubmitField('Search')
 
 
 class CreateEmployeeForm(FlaskForm):
@@ -184,6 +188,7 @@ class CreateEmployeeForm(FlaskForm):
     department = StringField('Department', validators=[Optional(), Length(max=50)])
     position = StringField('Position', validators=[Optional(), Length(max=50)])
     joining_date = DateField('Date of Joining', validators=[Optional()])
+    submit = SubmitField('Create Employee')
     
     def validate_email(self, email):
         """Validate email is unique."""
@@ -214,6 +219,7 @@ class DocumentUploadForm(FlaskForm):
         FileAllowed(['pdf', 'jpg', 'jpeg', 'png'], 'Only PDF and image files are allowed.')
     ])
     notes = TextAreaField('Notes', validators=[Optional(), Length(max=500)])
+    submit = SubmitField('Upload Document')
 
 
 class FamilyMemberForm(FlaskForm):
@@ -231,6 +237,7 @@ class FamilyMemberForm(FlaskForm):
         Optional(),
         FileAllowed(['jpg', 'jpeg', 'png'], 'Only JPG and PNG images are allowed.')
     ])
+    submit = SubmitField('Save Family Member')
 
 
 class NewsUpdateForm(FlaskForm):
@@ -243,6 +250,7 @@ class NewsUpdateForm(FlaskForm):
     is_interview_notice = BooleanField('Interview Notice', default=False)
     interview_date = DateField('Interview Date', validators=[Optional()])
     location_address = TextAreaField('Location Address', validators=[Optional(), Length(max=200)])
+    submit = SubmitField('Save News')
 
 
 class DocumentReviewForm(FlaskForm):
@@ -253,3 +261,4 @@ class DocumentReviewForm(FlaskForm):
         ('rejected', 'Rejected')
     ], validators=[DataRequired()])
     feedback = TextAreaField('Feedback', validators=[Optional(), Length(max=500)])
+    submit = SubmitField('Submit Review')

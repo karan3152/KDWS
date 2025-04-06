@@ -437,3 +437,66 @@ def upload_document():
             flash(f'Error in {field}: {error}', 'error')
     
     return redirect(url_for('document_center'))
+
+
+# Replace Document
+@app.route('/employee/replace-document', methods=['POST'])
+@login_required
+def replace_document():
+    """Replace an existing document."""
+    if not current_user.is_employee():
+        flash('Access denied. This page is for employees only.', 'error')
+        return redirect(url_for('index'))
+        
+    # Get the employee profile
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+    
+    document_id = request.form.get('document_id')
+    if not document_id:
+        flash('Document ID is required.', 'error')
+        return redirect(url_for('document_center'))
+    
+    # Check if document exists and belongs to this employee
+    document = Document.query.get_or_404(document_id)
+    if document.employee_id != employee.id:
+        flash('Access denied. You can only replace your own documents.', 'error')
+        return redirect(url_for('document_center'))
+    
+    # Process the new file
+    file = request.files.get('file')
+    if not file:
+        flash('No file provided.', 'error')
+        return redirect(url_for('document_center'))
+    
+    # Check file type (simplified check)
+    filename = file.filename.lower()
+    if not (filename.endswith('.pdf') or filename.endswith('.jpg') or 
+            filename.endswith('.jpeg') or filename.endswith('.png')):
+        flash('Invalid file type. Only PDF, JPG, JPEG, and PNG are allowed.', 'error')
+        return redirect(url_for('document_center'))
+    
+    # Remove old file if it exists
+    if document.file_path and document.file_path.startswith('static/uploads/'):
+        try:
+            old_file_path = os.path.join(app.root_path, document.file_path)
+            if os.path.exists(old_file_path):
+                os.remove(old_file_path)
+        except Exception as e:
+            app.logger.error(f"Error removing old file: {str(e)}")
+    
+    # Save new file
+    file_path = save_document(file, current_user.id, document.document_type.lower())
+    
+    # Update document record
+    document.document_name = file.filename
+    document.file_path = file_path
+    document.upload_date = datetime.now()
+    document.status = 'pending'  # Reset status when document is replaced
+    
+    db.session.commit()
+    flash(f'{document.document_type.replace("_", " ").title()} has been replaced successfully!', 'success')
+    
+    return redirect(url_for('document_center'))
