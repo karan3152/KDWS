@@ -684,9 +684,6 @@ def create_employer():
                 form.email.errors.append('Email already exists. Please use a different one.')
             return render_template('admin/create_employer.html', form=form)
 
-        # Generate a unique company ID
-        company_id = f"EMP{uuid.uuid4().hex[:8].upper()}"
-
         # Create user
         user = User(
             username=form.username.data, 
@@ -702,9 +699,8 @@ def create_employer():
         employer_profile = EmployerProfile(
             user_id=user.id,
             company_name=form.username.data,  # Default company name is the username
-            company_id=company_id,
             department='HR',  # Default department
-            contact_email=form.email.data
+            contact_number=None  # This field exists in the model
         )
 
         db.session.add(employer_profile)
