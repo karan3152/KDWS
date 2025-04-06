@@ -78,7 +78,7 @@
                                         {% if result.profile_type == 'employee' %}
                                             <a href="{{ url_for('employer_view_employee', employee_id=result.employee_id) }}" class="btn btn-sm btn-primary">View Profile</a>
                                         {% elif result.profile_type == 'employer' %}
-                                            <a href="#" class="btn btn-sm btn-secondary">View Company</a>
+                                            <a href="{{ url_for('employer_profile_page', employer_id=result.id) }}" class="btn btn-sm btn-primary">View Profile</a>
                                         {% endif %}
                                         <a href="#" class="btn btn-sm btn-outline-danger">Reset Password</a>
                                     </td>

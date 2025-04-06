@@ -307,15 +307,19 @@ def admin_profile():
 
 
 @app.route('/employer/profile', methods=['GET', 'POST'])
+@app.route('/employer/profile/<int:employer_id>', methods=['GET', 'POST'])
 @login_required
-def employer_profile_page():
+def employer_profile_page(employer_id=None):
     """Employer profile page with edit form."""
-    if not current_user.is_employer():
-        flash('Access denied. This page is for employers only.', 'error')
+    if not current_user.is_employer() and not current_user.is_admin():
+        flash('Access denied. This page is for employers and admins only.', 'error')
         return redirect(url_for('index'))
     
     # Get employer profile
-    employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    if employer_id and current_user.is_admin():
+        employer = EmployerProfile.query.get_or_404(employer_id)
+    else:
+        employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
     if not employer:
         flash('Employer profile not found. Please contact administrator.', 'error')
         return redirect(url_for('index'))
