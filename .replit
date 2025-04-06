@@ -62,26 +62,6 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mkdir -p mysql"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mysqld --initialize-insecure --datadir=mysql"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mysqld --datadir=mysql &"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 5"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mysql -u root -e \"CREATE DATABASE IF NOT EXISTS employee_management;\""
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
 args = "python main.py"
 
 [[ports]]
