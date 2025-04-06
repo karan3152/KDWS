@@ -90,17 +90,17 @@ def generate_combined_documents():
     
     # Order documents in the desired sequence
     document_order = {
-        DocumentTypes.JOINING_FORM: 1,
+        DocumentTypes.NEW_JOINING_FORM: 1,
         DocumentTypes.PF_FORM: 2,
-        DocumentTypes.FORM1: 3,
-        DocumentTypes.FORM11: 4,
-        DocumentTypes.AADHAR: 5,
-        DocumentTypes.PAN: 6,
+        DocumentTypes.FORM_1_NOMINATION: 3,
+        DocumentTypes.FORM_11: 4,
+        DocumentTypes.AADHAR_CARD: 5,
+        DocumentTypes.PAN_CARD: 6,
         DocumentTypes.PHOTO: 7,
-        DocumentTypes.PASSBOOK: 8,
+        DocumentTypes.BANK_PASSBOOK: 8,
         DocumentTypes.POLICE_VERIFICATION: 9,
         DocumentTypes.MEDICAL_CERTIFICATE: 10,
-        DocumentTypes.FAMILY_DETAILS: 11
+        DocumentTypes.FAMILY_DECLARATION: 11
     }
     
     # Sort documents by the order defined above
@@ -244,14 +244,14 @@ def manage_family_members():
         # Check if we need to create a family details document
         family_document = Document.query.filter_by(
             employee_id=employee.id,
-            document_type=DocumentTypes.FAMILY_DETAILS
+            document_type=DocumentTypes.FAMILY_DECLARATION
         ).first()
         
         if not family_document:
             # Create a placeholder document for family details
             family_document = Document(
                 employee_id=employee.id,
-                document_type=DocumentTypes.FAMILY_DETAILS,
+                document_type=DocumentTypes.FAMILY_DECLARATION,
                 document_name="Family Details",
                 file_path="system/family_details.pdf",  # Placeholder path
                 status='pending'

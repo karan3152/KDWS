@@ -7,6 +7,7 @@ import uuid
 from app import app, db
 from models import User, EmployeeProfile, EmployerProfile, Document, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE
 from forms import EmployeeSearchForm, CreateEmployeeForm, EmployeeProfileEditForm
+from utils import DocumentTypes
 
 
 # Admin search functionality
@@ -438,13 +439,13 @@ def employer_view_employee(employee_id):
     }
     
     for doc in documents:
-        if doc.document_type in [DocumentTypes.AADHAR, DocumentTypes.PAN, DocumentTypes.PHOTO]:
+        if doc.document_type in [DocumentTypes.AADHAR_CARD, DocumentTypes.PAN_CARD, DocumentTypes.PHOTO]:
             document_groups['identity'].append(doc)
-        elif doc.document_type == DocumentTypes.PASSBOOK:
+        elif doc.document_type == DocumentTypes.BANK_PASSBOOK:
             document_groups['financial'].append(doc)
-        elif doc.document_type in [DocumentTypes.JOINING_FORM, DocumentTypes.PF_FORM, DocumentTypes.FORM1, DocumentTypes.FORM11]:
+        elif doc.document_type in [DocumentTypes.NEW_JOINING_FORM, DocumentTypes.PF_FORM, DocumentTypes.FORM_1_NOMINATION, DocumentTypes.FORM_11]:
             document_groups['forms'].append(doc)
-        elif doc.document_type in [DocumentTypes.POLICE_VERIFICATION, DocumentTypes.MEDICAL_CERTIFICATE, DocumentTypes.FAMILY_DETAILS]:
+        elif doc.document_type in [DocumentTypes.POLICE_VERIFICATION, DocumentTypes.MEDICAL_CERTIFICATE, DocumentTypes.FAMILY_DECLARATION]:
             document_groups['verification'].append(doc)
     
     return render_template('employer/view_employee.html', 

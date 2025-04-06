@@ -1,0 +1,171 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}Manage Family Members{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('employee_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('document_center') }}">Document Center</a></li>
+                    <li class="breadcrumb-item active">Manage Family Members</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Add Family Member</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                            {% if form.name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.relationship.label(class="form-label") }}
+                            {{ form.relationship(class="form-control") }}
+                            {% if form.relationship.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.relationship.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.date_of_birth.label(class="form-label") }}
+                            {{ form.date_of_birth(class="form-control", type="date") }}
+                            {% if form.date_of_birth.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.date_of_birth.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.aadhar_id.label(class="form-label") }}
+                            {{ form.aadhar_id(class="form-control") }}
+                            {% if form.aadhar_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.aadhar_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.contact_number.label(class="form-label") }}
+                            {{ form.contact_number(class="form-control") }}
+                            {% if form.contact_number.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.contact_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.photo.label(class="form-label") }}
+                            {{ form.photo(class="form-control") }}
+                            {% if form.photo.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.photo.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Upload a recent photo (JPG, JPEG, PNG only)</small>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus-circle me-2"></i>Add Family Member
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Family Members List</h5>
+                </div>
+                <div class="card-body">
+                    {% if family_members %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Relationship</th>
+                                        <th>Date of Birth</th>
+                                        <th>Aadhar Number</th>
+                                        <th>Contact</th>
+                                        <th>Photo</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in family_members %}
+                                    <tr>
+                                        <td>{{ member.name }}</td>
+                                        <td>{{ member.relationship }}</td>
+                                        <td>{{ member.date_of_birth.strftime('%d-%m-%Y') if member.date_of_birth else '--' }}</td>
+                                        <td>{{ member.aadhar_id or '--' }}</td>
+                                        <td>{{ member.contact_number or '--' }}</td>
+                                        <td>
+                                            {% if member.photo_path %}
+                                                <img src="{{ url_for('static', filename=member.photo_path.replace('static/', '')) }}" 
+                                                    alt="Photo" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% else %}
+                                                <span class="badge bg-secondary">No Photo</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form action="{{ url_for('remove_family_member', member_id=member.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-danger" 
+                                                        onclick="return confirm('Are you sure you want to remove {{ member.name }}?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No family members added yet. Use the form to add your family members.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

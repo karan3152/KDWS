@@ -1,0 +1,112 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Create News Update{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Create News Update</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_news') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control") }}
+                            {% for error in form.title.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.content.label(class="form-label") }}
+                            {{ form.content(class="form-control", rows=5) }}
+                            {% for error in form.content.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.link.label(class="form-label") }}
+                            {{ form.link(class="form-control", placeholder="https://example.com") }}
+                            <small class="form-text text-muted">Optional: URL for additional information</small>
+                            {% for error in form.link.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.link_text.label(class="form-label") }}
+                            {{ form.link_text(class="form-control", placeholder="Click here for details") }}
+                            <small class="form-text text-muted">Optional: Text to display for the link</small>
+                            {% for error in form.link_text.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            {{ form.is_active(class="form-check-input") }}
+                            {{ form.is_active.label(class="form-check-label") }}
+                            <small class="form-text text-muted d-block">
+                                Only active news updates will be displayed on the home page
+                            </small>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            {{ form.is_interview_notice(class="form-check-input", id="is_interview_notice") }}
+                            {{ form.is_interview_notice.label(class="form-check-label") }}
+                        </div>
+                        
+                        <div id="interview-details" style="display: none;">
+                            <div class="mb-3">
+                                {{ form.interview_date.label(class="form-label") }}
+                                {{ form.interview_date(class="form-control", type="date") }}
+                                {% for error in form.interview_date.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.location_address.label(class="form-label") }}
+                                {{ form.location_address(class="form-control", rows=3) }}
+                                {% for error in form.location_address.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('employer_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create News Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const interviewCheckbox = document.getElementById('is_interview_notice');
+        const interviewDetails = document.getElementById('interview-details');
+        
+        // Show/hide interview details on page load based on checkbox state
+        if (interviewCheckbox.checked) {
+            interviewDetails.style.display = 'block';
+        }
+        
+        interviewCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                interviewDetails.style.display = 'block';
+            } else {
+                interviewDetails.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

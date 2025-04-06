@@ -221,13 +221,16 @@ class FamilyMemberForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     relationship = StringField('Relationship', validators=[DataRequired(), Length(max=50)])
     date_of_birth = DateField('Date of Birth', validators=[Optional()])
-    address = TextAreaField('Address', validators=[Optional(), Length(max=200)])
+    aadhar_id = StringField('Aadhar Number', validators=[Optional(), Length(max=20)])
     contact_number = StringField('Contact Number', validators=[
         Optional(),
-        Length(min=10, max=15),
+        Length(min=10, max=20),
         Regexp(r'^\d+$', message='Contact number must contain only digits')
     ])
-    is_nominee = BooleanField('Is Nominee', default=False)
+    photo = FileField('Photo', validators=[
+        Optional(),
+        FileAllowed(['jpg', 'jpeg', 'png'], 'Only JPG and PNG images are allowed.')
+    ])
 
 
 class NewsUpdateForm(FlaskForm):
@@ -237,6 +240,9 @@ class NewsUpdateForm(FlaskForm):
     is_active = BooleanField('Is Active', default=True)
     link = StringField('Link URL', validators=[Optional(), Length(max=255)])
     link_text = StringField('Link Text', validators=[Optional(), Length(max=100)])
+    is_interview_notice = BooleanField('Interview Notice', default=False)
+    interview_date = DateField('Interview Date', validators=[Optional()])
+    location_address = TextAreaField('Location Address', validators=[Optional(), Length(max=200)])
 
 
 class DocumentReviewForm(FlaskForm):

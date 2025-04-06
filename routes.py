@@ -264,6 +264,9 @@ def employee_dashboard():
     # Get recent news updates
     news_updates = NewsUpdate.query.filter_by(is_active=True).order_by(NewsUpdate.published_date.desc()).limit(5).all()
     
+    # Get the employee's documents
+    documents = Document.query.filter_by(employee_id=employee.id).all()
+    
     return render_template('employee/dashboard.html', 
                            employee=employee,
                            total_documents=total_documents,
@@ -271,7 +274,8 @@ def employee_dashboard():
                            approved_documents=approved_documents,
                            pending_documents=pending_documents,
                            completion_percentage=completion_percentage,
-                           news_updates=news_updates)
+                           news_updates=news_updates,
+                           documents=documents)
 
 
 # Profile routes
@@ -512,7 +516,9 @@ def create_news():
             content=form.content.data,
             is_active=form.is_active.data,
             is_interview_notice=form.is_interview_notice.data,
-            employer_id=employer_id
+            employer_id=employer_id,
+            link=form.link.data,
+            link_text=form.link_text.data
         )
         
         # Set additional fields if this is an interview notice

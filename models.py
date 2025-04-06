@@ -219,9 +219,9 @@ class FamilyMember(db.Model):
     name = db.Column(db.String(100), nullable=False)
     relationship = db.Column(db.String(50), nullable=False)
     date_of_birth = db.Column(db.Date, nullable=True)
-    address = db.Column(db.String(200), nullable=True)
-    contact_number = db.Column(db.String(15), nullable=True)
-    is_nominee = db.Column(db.Boolean, default=False)
+    aadhar_id = db.Column(db.String(20), nullable=True)
+    photo_path = db.Column(db.String(255), nullable=True)
+    contact_number = db.Column(db.String(20), nullable=True)
     
     def __repr__(self):
         return f'<FamilyMember id={self.id}, name={self.name}, relationship={self.relationship}>'
