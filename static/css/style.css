@@ -1,0 +1,181 @@
+/* Custom CSS for HR Talent Solutions */
+
+:root {
+    --primary-color: #2C5282;
+    --secondary-color: #4299E1;
+    --accent-color: #48BB78;
+    --light-bg: #F7FAFC;
+    --dark-text: #2D3748;
+}
+
+body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+}
+
+/* Status badges for document status */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+}
+
+.status-approved {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.status-missing {
+    background-color: #e9ecef;
+    color: #6c757d;
+}
+
+/* Custom form styles */
+.form-container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.form-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--primary-color);
+}
+
+/* Dashboard cards */
+.dashboard-card {
+    height: 100%;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dashboard-card .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.dashboard-stat {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* Table enhancements */
+.table th {
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Form control enhancements */
+.form-control:focus, .form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.25rem rgba(66, 153, 225, 0.25);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #1A365D;
+    border-color: #1A365D;
+}
+
+.btn-success {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-success:hover, .btn-success:focus {
+    background-color: #2F855A;
+    border-color: #2F855A;
+}
+
+/* Sidebar styling */
+.sidebar .nav-link.active {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+/* Utility classes */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-secondary {
+    color: var(--secondary-color) !important;
+}
+
+.text-accent {
+    color: var(--accent-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary-color) !important;
+}
+
+.bg-accent {
+    background-color: var(--accent-color) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
+    }
+    
+    .main-container {
+        margin-left: 0;
+    }
+}

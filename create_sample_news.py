@@ -1,52 +1,110 @@
-from app import app, db
-from models import NewsUpdate, EmployerProfile
 from datetime import datetime, timedelta
+import random
+
+from app import app, db
+from models import User, EmployerProfile, NewsUpdate, ROLE_EMPLOYER
+
 
 def create_sample_news():
     """Create sample news and update entries."""
     with app.app_context():
-        # Get the employer profile for the news
-        employer = EmployerProfile.query.first()
+        # Check if we already have news updates
+        if NewsUpdate.query.count() > 0:
+            print("News updates already exist in the database.")
+            return False
         
-        if not employer:
-            print("No employer found in the database. Please create an employer account first.")
-            return
+        # Get employer profiles
+        employers = EmployerProfile.query.all()
+        if not employers:
+            # If no employers, create a default one
+            default_user = User.query.filter_by(role=ROLE_EMPLOYER).first()
+            if not default_user:
+                print("No employer users found. Please run generate_sample_accounts.py first.")
+                return False
+            
+            default_employer = EmployerProfile(
+                user_id=default_user.id,
+                company_name="HR Talent Solutions",
+                department="Human Resources",
+                contact_number="9876543210"
+            )
+            db.session.add(default_employer)
+            db.session.commit()
+            employers = [default_employer]
         
-        # Create a regular news update
-        news1 = NewsUpdate(
-            title="Welcome to HR Talent Solutions Portal",
-            content="We are excited to launch our new HR Talent Solutions portal. This platform will help streamline employee onboarding and document management. Please contact the HR department if you have any questions.",
-            is_active=True,
-            employer_id=employer.id
-        )
+        # Sample news titles and content
+        news_items = [
+            {
+                "title": "Welcome to HR Talent Solutions",
+                "content": "We're excited to welcome you to our new employee onboarding portal. This system streamlines the document submission process and makes it easier for you to complete all necessary paperwork.",
+                "link": None,
+                "link_text": None
+            },
+            {
+                "title": "Important: Document Submission Deadline",
+                "content": "All new employees must complete their document submissions within 15 days of joining. Please ensure you upload all required documents and complete the online forms.",
+                "link": None,
+                "link_text": None
+            },
+            {
+                "title": "Upcoming Orientation Session",
+                "content": "We will be conducting an orientation session for all new employees on Thursday at 10:00 AM. Please join us to learn more about company policies and procedures.",
+                "link": "https://meet.google.com/abc-defg-hij",
+                "link_text": "Join Meeting"
+            },
+            {
+                "title": "PF and ESI Registration Process",
+                "content": "Your PF and ESI registration will be processed once all required documents are submitted and approved. You can track the status in your dashboard.",
+                "link": None,
+                "link_text": None
+            },
+            {
+                "title": "Office Location and Transportation",
+                "content": "Our office is located at 123 Business Park, Main Street. Company transportation is available from major locations in the city. Contact HR for schedule details.",
+                "link": "https://maps.google.com/?q=Office+Location",
+                "link_text": "View Map"
+            },
+            {
+                "title": "HR Contact Information",
+                "content": "For any queries regarding your onboarding process, please contact the HR department at hr@example.com or call 9876543210 during office hours (9 AM - 6 PM).",
+                "link": "mailto:hr@example.com",
+                "link_text": "Email HR"
+            },
+            {
+                "title": "Employee Benefits Overview",
+                "content": "Learn about the various benefits available to you as an employee, including health insurance, provident fund, gratuity, and more.",
+                "link": None,
+                "link_text": None
+            }
+        ]
         
-        # Create an interview notice
-        interview_date = datetime.now() + timedelta(days=7)  # Interview scheduled for a week from now
-        news2 = NewsUpdate(
-            title="Software Developer Interview Notice",
-            content="We are conducting interviews for the position of Software Developer. Candidates should bring their resume, ID proof, and educational certificates.",
-            is_active=True,
-            is_interview_notice=True,
-            location_address="HR Talent Solutions Office, 3rd Floor, Tech Park, Bangalore - 560001",
-            interview_date=interview_date,
-            employer_id=employer.id
-        )
+        # Create news updates (some active, some inactive)
+        for i, news in enumerate(news_items):
+            # Randomly assign to an employer
+            employer = random.choice(employers)
+            
+            # Set published date (some recent, some older)
+            days_ago = random.randint(0, 30)
+            published_date = datetime.now() - timedelta(days=days_ago)
+            
+            # First 5 are active, rest are inactive
+            is_active = i < 5
+            
+            news_update = NewsUpdate(
+                title=news["title"],
+                content=news["content"],
+                employer_id=employer.id,
+                published_date=published_date,
+                is_active=is_active,
+                link=news["link"],
+                link_text=news["link_text"]
+            )
+            db.session.add(news_update)
         
-        # Create another regular update
-        news3 = NewsUpdate(
-            title="New Document Upload Feature",
-            content="We have added a new feature that allows employees to upload their documents directly through the portal. This includes Aadhar, PAN, bank details, and other required forms.",
-            is_active=True,
-            employer_id=employer.id
-        )
-        
-        db.session.add(news1)
-        db.session.add(news2)
-        db.session.add(news3)
         db.session.commit()
-        
-        print("Created 3 sample news updates")
+        print(f"Created {len(news_items)} sample news updates successfully!")
+        return True
+
 
 if __name__ == "__main__":
     create_sample_news()
-    print("Sample news created successfully!")

@@ -7,9 +7,7 @@ import io
 from app import app, db
 from models import User, EmployeeProfile, EmployerProfile, Document, DocumentTypes, FamilyMember
 from forms import (
-    AadharUploadForm, PANUploadForm, PhotoUploadForm, PassbookUploadForm, 
-    JoiningFormUploadForm, PFFormUploadForm, Form1UploadForm, Form11UploadForm,
-    PoliceVerificationUploadForm, MedicalCertificateUploadForm, FamilyMemberForm, FamilyDetailsUploadForm
+    DocumentUploadForm, FamilyMemberForm
 )
 from utils import (
     save_document, get_employee_documents, get_document_completion_percentage, 
@@ -49,18 +47,10 @@ def document_center():
     combined_pdf_path = os.path.join(app.root_path, 'static', 'uploads', str(current_user.id), 'combined', 'combined_documents.pdf')
     has_combined_pdf = os.path.exists(combined_pdf_path)
     
-    # Initialize all upload forms
-    aadhar_form = AadharUploadForm()
-    pan_form = PANUploadForm()
-    photo_form = PhotoUploadForm()
-    passbook_form = PassbookUploadForm()
-    joining_form = JoiningFormUploadForm()
-    pf_form = PFFormUploadForm()
-    form1_form = Form1UploadForm()
-    form11_form = Form11UploadForm()
-    police_verification_form = PoliceVerificationUploadForm()
-    medical_certificate_form = MedicalCertificateUploadForm()
-    family_details_form = FamilyDetailsUploadForm()
+    # Initialize document upload form
+    upload_form = DocumentUploadForm()
+    # Pre-populate document type choices based on DocumentTypes.all_types()
+    upload_form.document_type.choices = [(doc_type, doc_type.replace('_', ' ').title()) for doc_type in DocumentTypes.all_types()]
     
     return render_template('employee/document_center.html',
                           employee=employee,
@@ -69,17 +59,8 @@ def document_center():
                           completion_percentage=completion_percentage,
                           family_members=family_members,
                           has_combined_pdf=has_combined_pdf,
-                          aadhar_form=aadhar_form,
-                          pan_form=pan_form,
-                          photo_form=photo_form,
-                          passbook_form=passbook_form,
-                          joining_form=joining_form,
-                          pf_form=pf_form,
-                          form1_form=form1_form,
-                          form11_form=form11_form,
-                          police_verification_form=police_verification_form,
-                          medical_certificate_form=medical_certificate_form,
-                          family_details_form=family_details_form)
+                          upload_form=upload_form,
+                          missing_documents=get_missing_documents(employee.id))
 
 
 # Combined Document Generation
