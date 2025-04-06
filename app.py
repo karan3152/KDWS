@@ -21,7 +21,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a_secure_secret_key_for_
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
 # Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/employee_management"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///instance/employee_management.db"
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
