@@ -150,6 +150,7 @@ class NewsUpdate(db.Model):
     published_date = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     # For interview notices
+    is_interview_notice = db.Column(db.Boolean, default=False)
     location_address = db.Column(db.Text)
     interview_date = db.Column(db.DateTime)
     # Created by which employer
