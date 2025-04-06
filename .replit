@@ -66,11 +66,7 @@ args = "mkdir -p mysql"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mysqld --initialize-insecure --datadir=mysql &"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 5"
+args = "mysqld --initialize-insecure --datadir=mysql"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
