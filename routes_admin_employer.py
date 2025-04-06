@@ -5,8 +5,8 @@ import re
 import uuid
 
 from app import app, db
-from models import User, EmployeeProfile, EmployerProfile, Document, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE
-from forms import EmployeeSearchForm, CreateEmployeeForm, EmployeeProfileEditForm
+from models import User, EmployeeProfile, EmployerProfile, Document, NewsUpdate, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE
+from forms import EmployeeSearchForm, CreateEmployeeForm, EmployeeProfileEditForm, NewsUpdateForm
 from utils import DocumentTypes
 
 
@@ -523,3 +523,27 @@ def employer_search_employee():
                           results=results, 
                           search_performed=search_performed,
                           query=form.query.data if form.validate_on_submit() else request.args.get('query', ''))
+
+
+# Employer news management routes
+@app.route('/employer/news', methods=['GET'])
+@login_required
+def employer_news_list():
+    """List all news updates for an employer."""
+    if not current_user.is_employer() and not current_user.is_admin():
+        flash('Access denied. This feature is for employers and admin users only.', 'error')
+        return redirect(url_for('index'))
+    
+    # Get the employer profile
+    employer_profile = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    
+    if employer_profile:
+        # Get news updates created by this employer
+        news_updates = NewsUpdate.query.filter_by(employer_id=employer_profile.id).order_by(NewsUpdate.published_date.desc()).all()
+    else:
+        # Admin view - get all news updates
+        news_updates = NewsUpdate.query.order_by(NewsUpdate.published_date.desc()).all()
+    
+    return render_template('employer/news_list.html', 
+                           news_updates=news_updates,
+                           employer_profile=employer_profile)
