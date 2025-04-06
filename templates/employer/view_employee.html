@@ -1,0 +1,103 @@
+
+{% extends "dashboard_layout.html" %}
+
+{% block title %}View Employee - Employer Dashboard{% endblock %}
+
+{% block dashboard_title %}Employee Details{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Employee Information</h5>
+                <a href="{{ url_for('employer_search_employee') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Search
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Basic Information</h6>
+                        <dl class="row">
+                            <dt class="col-sm-4">Employee ID</dt>
+                            <dd class="col-sm-8">{{ employee_profile.employee_id }}</dd>
+                            
+                            <dt class="col-sm-4">Name</dt>
+                            <dd class="col-sm-8">{{ employee_profile.first_name }} {{ employee_profile.last_name }}</dd>
+                            
+                            <dt class="col-sm-4">Department</dt>
+                            <dd class="col-sm-8">{{ employee_profile.department or 'Not set' }}</dd>
+                            
+                            <dt class="col-sm-4">Position</dt>
+                            <dd class="col-sm-8">{{ employee_profile.position or 'Not set' }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Contact Information</h6>
+                        <dl class="row">
+                            <dt class="col-sm-4">Email</dt>
+                            <dd class="col-sm-8">{{ user.email }}</dd>
+                            
+                            <dt class="col-sm-4">Phone</dt>
+                            <dd class="col-sm-8">{{ employee_profile.phone_number or 'Not provided' }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Document Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Document Type</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc_group, docs in document_groups.items() %}
+                            <tr>
+                                <td colspan="4" class="bg-light">
+                                    <strong>{{ doc_group|replace('_', ' ')|title }}</strong>
+                                </td>
+                            </tr>
+                            {% if docs %}
+                                {% for doc in docs %}
+                                <tr>
+                                    <td>{{ doc.document_type|replace('_', ' ')|title }}</td>
+                                    <td>
+                                        <span class="badge bg-success">Submitted</span>
+                                    </td>
+                                    <td>{{ doc.upload_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('view_document', document_id=doc.id) }}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-muted">No documents in this category</td>
+                                </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
