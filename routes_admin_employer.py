@@ -100,7 +100,6 @@ def admin_search():
                         'email': user.email,
                         'role': user.role,
                         'company_name': employer_profile.company_name,
-                        'company_id': employer_profile.company_id,
                         'profile_type': 'employer'
                     })
                 else:
