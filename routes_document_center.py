@@ -356,3 +356,84 @@ def fill_form11():
     # ...
     
     return render_template('employee/forms/form11.html')
+
+
+# Document Upload
+@app.route('/employee/upload-document', methods=['POST'])
+@login_required
+def upload_document():
+    """Upload a document for the current employee."""
+    if not current_user.is_employee():
+        flash('Access denied. This page is for employees only.', 'error')
+        return redirect(url_for('index'))
+        
+    # Get the employee profile
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+    
+    form = DocumentUploadForm()
+    # Pre-populate document type choices based on DocumentTypes.all_types()
+    form.document_type.choices = [(doc_type, doc_type.replace('_', ' ').title()) for doc_type in DocumentTypes.all_types()]
+    
+    if form.validate_on_submit():
+        document_type = form.document_type.data
+        file = form.file.data
+        notes = form.notes.data
+        
+        # Check if this document type already exists for the employee
+        existing_doc = Document.query.filter_by(
+            employee_id=employee.id,
+            document_type=document_type
+        ).first()
+        
+        if existing_doc:
+            # Update existing document
+            if existing_doc.file_path and existing_doc.file_path.startswith('static/uploads/'):
+                # Try to remove old file if it exists
+                try:
+                    old_file_path = os.path.join(app.root_path, existing_doc.file_path)
+                    if os.path.exists(old_file_path):
+                        os.remove(old_file_path)
+                except Exception as e:
+                    app.logger.error(f"Error removing old file: {str(e)}")
+            
+            # Save new file
+            file_path = save_document(file, current_user.id, document_type.lower())
+            
+            # Update document record
+            existing_doc.document_name = file.filename
+            existing_doc.file_path = file_path
+            existing_doc.notes = notes
+            existing_doc.upload_date = datetime.now()
+            existing_doc.status = 'pending'  # Reset status when document is updated
+            
+            db.session.commit()
+            flash(f'{document_type.replace("_", " ").title()} has been updated successfully!', 'success')
+        else:
+            # Save new file
+            file_path = save_document(file, current_user.id, document_type.lower())
+            
+            # Create new document record
+            new_document = Document(
+                employee_id=employee.id,
+                document_type=document_type,
+                document_name=file.filename,
+                file_path=file_path,
+                notes=notes,
+                status='pending'
+            )
+            
+            db.session.add(new_document)
+            db.session.commit()
+            flash(f'{document_type.replace("_", " ").title()} has been uploaded successfully!', 'success')
+        
+        return redirect(url_for('document_center'))
+    
+    # If validation fails, show errors
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(f'Error in {field}: {error}', 'error')
+    
+    return redirect(url_for('document_center'))

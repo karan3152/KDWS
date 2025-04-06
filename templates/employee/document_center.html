@@ -121,7 +121,7 @@
                             {% for doc_type in document_types %}
                             {% if doc_type in ['aadhar_card', 'pan_card', 'passport', 'photo'] %}
                             <tr>
-                                <td>{{ doc_type|replace:'_',' '|title }}</td>
+                                <td>{{ doc_type|replace('_',' ')|title }}</td>
                                 {% if documents[doc_type] %}
                                 <td>
                                     <span class="status-badge status-{{ documents[doc_type].status }}">
@@ -181,7 +181,7 @@
                             {% for doc_type in document_types %}
                             {% if doc_type in ['bank_passbook', 'cancelled_cheque'] %}
                             <tr>
-                                <td>{{ doc_type|replace:'_',' '|title }}</td>
+                                <td>{{ doc_type|replace('_',' ')|title }}</td>
                                 {% if documents[doc_type] %}
                                 <td>
                                     <span class="status-badge status-{{ documents[doc_type].status }}">
@@ -397,7 +397,7 @@
                             {% if doc_type not in ['aadhar_card', 'pan_card', 'passport', 'photo', 'bank_passbook', 'cancelled_cheque', 
                                 'new_joining_form', 'pf_form', 'form_11', 'form_1_nomination'] %}
                             <tr>
-                                <td>{{ doc_type|replace:'_',' '|title }}</td>
+                                <td>{{ doc_type|replace('_',' ')|title }}</td>
                                 {% if documents[doc_type] %}
                                 <td>
                                     <span class="status-badge status-{{ documents[doc_type].status }}">
