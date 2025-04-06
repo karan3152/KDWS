@@ -14,7 +14,7 @@
             </div>
             
             <div class="card-body p-4">
-                <form class="needs-validation" method="POST" action="{{ url_for('employer_profile_page') }}">
+                <form class="needs-validation" method="POST" action="{{ url_for('employer_profile_page', employer_id=employer.id if employer else None) }}">
                     {{ form.hidden_tag() }}
                     
                     <div class="row">

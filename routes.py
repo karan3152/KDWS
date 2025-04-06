@@ -318,10 +318,13 @@ def employer_profile_page(employer_id=None):
     # Get employer profile
     if employer_id and current_user.is_admin():
         employer = EmployerProfile.query.get_or_404(employer_id)
+        user = User.query.get(employer.user_id)
     else:
         employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+        user = current_user
+        
     if not employer:
-        flash('Employer profile not found. Please contact administrator.', 'error')
+        flash('Employer profile not found.', 'error')
         return redirect(url_for('index'))
     
     form = EmployerProfileForm()
