@@ -314,10 +314,13 @@ def employer_profile_page(employer_id=None):
     if not current_user.is_employer() and not current_user.is_admin():
         flash('Access denied. This page is for employers and admins only.', 'error')
         return redirect(url_for('index'))
-    
+
     # Get employer profile
-    if employer_id and current_user.is_admin():
+    if employer_id:
         employer = EmployerProfile.query.get_or_404(employer_id)
+        if not current_user.is_admin() and employer.user_id != current_user.id:
+            flash('Access denied. You can only view your own profile.', 'error')
+            return redirect(url_for('index'))
         user = User.query.get(employer.user_id)
     else:
         employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
