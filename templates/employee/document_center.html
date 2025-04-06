@@ -27,7 +27,7 @@
         {% if missing_documents %}
         <ul class="mb-0 mt-2">
             {% for doc in missing_documents %}
-            <li>{{ doc|replace:'_',' '|title }}</li>
+            <li>{{ doc|replace('_',' ')|title }}</li>
             {% endfor %}
         </ul>
         {% endif %}
