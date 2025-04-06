@@ -1,0 +1,236 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}Employee Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Profile Information Card -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2>Employee Profile</h2>
+                    <a href="{{ url_for('employee_search') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Search
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <!-- Employee Photo -->
+                            {% if photo_document %}
+                            <img src="{{ url_for('static', filename=photo_document.file_path.replace('static/', '')) }}" 
+                                class="img-fluid rounded-circle profile-img mb-3" 
+                                style="width: 150px; height: 150px; object-fit: cover;" 
+                                alt="Employee Photo">
+                            {% else %}
+                            <div class="no-photo-placeholder rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                                style="width: 150px; height: 150px; margin: 0 auto;">
+                                <i class="fas fa-user fa-4x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <h4>{{ employee.employee_id }}</h4>
+                            <p class="badge bg-primary">{{ employee.position }}</p>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th width="40%">Name</th>
+                                        <td>
+                                            {% if employee.first_name and employee.last_name %}
+                                                {{ employee.first_name }} {{ employee.last_name }}
+                                            {% else %}
+                                                <span class="text-muted">Not provided</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Department</th>
+                                        <td>{{ employee.department }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Aadhar Number</th>
+                                        <td>{{ employee.aadhar_id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Date of Birth</th>
+                                        <td>
+                                            {% if employee.date_of_birth %}
+                                                {{ employee.date_of_birth.strftime('%d-%m-%Y') }}
+                                            {% else %}
+                                                <span class="text-muted">Not provided</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Contact Number</th>
+                                        <td>
+                                            {% if employee.phone_number %}
+                                                {{ employee.phone_number }}
+                                            {% else %}
+                                                <span class="text-muted">Not provided</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>{{ user.email }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Address</th>
+                                        <td>
+                                            {% if employee.address %}
+                                                {{ employee.address }}
+                                            {% else %}
+                                                <span class="text-muted">Not provided</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Joining Date</th>
+                                        <td>
+                                            {% if employee.joining_date %}
+                                                {{ employee.joining_date.strftime('%d-%m-%Y') }}
+                                            {% else %}
+                                                <span class="text-muted">Not provided</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Document Status Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Document Status</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <!-- Identity Documents -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Identity Documents</span>
+                            {% set identity_docs = [
+                                documents.get(DocumentTypes.AADHAR),
+                                documents.get(DocumentTypes.PAN),
+                                documents.get(DocumentTypes.PHOTO),
+                                documents.get(DocumentTypes.POLICE_VERIFICATION)
+                            ]|select('defined')|list %}
+                            
+                            {% if identity_docs|length == 4 %}
+                                <span class="badge rounded-pill bg-success">Complete</span>
+                            {% elif identity_docs|length > 0 %}
+                                <span class="badge rounded-pill bg-warning">Partial</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        
+                        <!-- Bank Details -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Bank Details</span>
+                            {% if documents.get(DocumentTypes.PASSBOOK) %}
+                                <span class="badge rounded-pill bg-success">Complete</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        
+                        <!-- Medical Certificate -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Medical Certificate</span>
+                            {% if documents.get(DocumentTypes.MEDICAL_CERTIFICATE) %}
+                                <span class="badge rounded-pill bg-success">Complete</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        
+                        <!-- Family Details -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Family Details</span>
+                            {% if documents.get(DocumentTypes.FAMILY_DETAILS) %}
+                                <span class="badge rounded-pill bg-success">Complete</span>
+                            {% elif family_members|length > 0 %}
+                                <span class="badge rounded-pill bg-warning">Partial</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        
+                        <!-- PF Forms -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>PF Forms</span>
+                            {% set pf_docs = [
+                                documents.get(DocumentTypes.JOINING_FORM),
+                                documents.get(DocumentTypes.PF_FORM),
+                                documents.get(DocumentTypes.FORM1),
+                                documents.get(DocumentTypes.FORM11)
+                            ]|select('defined')|list %}
+                            
+                            {% if pf_docs|length == 4 %}
+                                <span class="badge rounded-pill bg-success">Complete</span>
+                            {% elif pf_docs|length > 0 %}
+                                <span class="badge rounded-pill bg-warning">Partial</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('view_employee_documents', employee_id=employee.id) }}" class="btn btn-primary w-100">
+                            <i class="fas fa-file-alt"></i> View All Documents
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Family Members Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Family Members</h3>
+                </div>
+                <div class="card-body">
+                    {% if family_members %}
+                        <ul class="list-group">
+                            {% for member in family_members %}
+                            <li class="list-group-item">
+                                <div class="d-flex align-items-center">
+                                    {% if member.photo_path %}
+                                    <img src="{{ url_for('static', filename=member.photo_path.replace('static/', '')) }}" 
+                                        class="rounded-circle me-3" 
+                                        style="width: 40px; height: 40px; object-fit: cover;" 
+                                        alt="Family Member Photo">
+                                    {% else %}
+                                    <div class="bg-light rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                        style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h5 class="mb-0">{{ member.name }}</h5>
+                                        <small class="text-muted">{{ member.relationship|title }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No family members added yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

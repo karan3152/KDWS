@@ -1,0 +1,184 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}Family Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Family Member Information</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Please provide details of your family members. You can add multiple family members by submitting this form multiple times.</p>
+            
+            <!-- Family Members List -->
+            {% if family_members %}
+            <div class="table-responsive mb-4">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Relationship</th>
+                            <th>Date of Birth</th>
+                            <th>Aadhar Number</th>
+                            <th>Contact Number</th>
+                            <th>Photo</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in family_members %}
+                        <tr>
+                            <td>{{ member.name }}</td>
+                            <td>{{ member.relationship|title }}</td>
+                            <td>{{ member.date_of_birth|default('--', true) }}</td>
+                            <td>{{ member.aadhar_id|default('--', true) }}</td>
+                            <td>{{ member.contact_number|default('--', true) }}</td>
+                            <td>
+                                {% if member.photo_path %}
+                                <img src="{{ url_for('static', filename=member.photo_path.replace('static/', '')) }}" alt="Family Member Photo" style="width: 50px; height: 50px; object-fit: cover;" class="img-thumbnail">
+                                {% else %}
+                                <span class="text-muted">No photo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_family_member', member_id=member.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="{{ url_for('delete_family_member', member_id=member.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this family member?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No family members added yet. Please use the form below to add family members.
+            </div>
+            {% endif %}
+            
+            <!-- Add Family Member Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Add New Family Member</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.name.label(class="form-label") }}
+                                    {{ form.name(class="form-control") }}
+                                    {% for error in form.name.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.relationship.label(class="form-label") }}
+                                    {{ form.relationship(class="form-select") }}
+                                    {% for error in form.relationship.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.date_of_birth.label(class="form-label") }}
+                                    {{ form.date_of_birth(class="form-control", type="date") }}
+                                    {% for error in form.date_of_birth.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.aadhar_id.label(class="form-label") }}
+                                    {{ form.aadhar_id(class="form-control") }}
+                                    {% for error in form.aadhar_id.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.contact_number.label(class="form-label") }}
+                                    {{ form.contact_number(class="form-control") }}
+                                    {% for error in form.contact_number.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.photo.label(class="form-label") }}
+                                    {{ form.photo(class="form-control") }}
+                                    {% for error in form.photo.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    <small class="text-muted">Accepted formats: JPG, JPEG, PNG</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3 mt-3">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('employee_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload Family Details Document -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Upload Family Details Document</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">If you have a compiled family details document, you can upload it here.</p>
+            
+            {% if family_document %}
+            <div class="alert alert-success">
+                <strong>Document Uploaded:</strong> {{ family_document.document_name }}
+                <a href="{{ url_for('download_document', document_id=family_document.id) }}" class="btn btn-sm btn-secondary ms-2">Download</a>
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('upload_family_document') }}" enctype="multipart/form-data">
+                {{ family_form.hidden_tag() }}
+                
+                <div class="form-group mb-3">
+                    {{ family_form.document_name.label(class="form-label") }}
+                    {{ family_form.document_name(class="form-control") }}
+                    {% for error in family_form.document_name.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ family_form.document_file.label(class="form-label") }}
+                    {{ family_form.document_file(class="form-control") }}
+                    {% for error in family_form.document_file.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                    <small class="text-muted">Accepted format: PDF</small>
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ family_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

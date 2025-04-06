@@ -1,0 +1,269 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}Combined PDF Preview{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .document-preview {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    
+    .preview-controls {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .document-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+    
+    .preview-frame {
+        width: 100%;
+        height: 600px;
+        border: 1px solid #ddd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Combined Document Preview</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <p><i class="fas fa-info-circle"></i> This page allows you to preview all your documents and generate a combined PDF file.</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Available Documents</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="document-list">
+                                <ul class="list-group">
+                                    {% for doc in documents %}
+                                    <li class="list-group-item">
+                                        <div class="form-check">
+                                            <input class="form-check-input document-checkbox" type="checkbox" value="{{ doc.id }}" id="doc-{{ doc.id }}" checked>
+                                            <label class="form-check-label" for="doc-{{ doc.id }}">
+                                                {{ doc.document_name }}
+                                                <small class="text-muted d-block">{{ doc.document_type }}</small>
+                                            </label>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button class="btn btn-primary w-100" id="preview-btn">
+                                    <i class="fas fa-eye"></i> Generate Preview
+                                </button>
+                                <button class="btn btn-success w-100 mt-2" id="download-btn">
+                                    <i class="fas fa-download"></i> Download Combined PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Preview</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-controls">
+                                <button class="btn btn-sm btn-primary" id="prev-page">Previous Page</button>
+                                <span id="page-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                                <button class="btn btn-sm btn-primary" id="next-page">Next Page</button>
+                            </div>
+                            
+                            <div class="preview-container">
+                                <iframe id="preview-frame" class="preview-frame" src="about:blank"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+<script>
+    // Set the workerSrc property for PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+    
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const previewBtn = document.getElementById('preview-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const prevPage = document.getElementById('prev-page');
+        const nextPage = document.getElementById('next-page');
+        const currentPage = document.getElementById('current-page');
+        const totalPages = document.getElementById('total-pages');
+        const previewFrame = document.getElementById('preview-frame');
+        
+        previewBtn.addEventListener('click', function() {
+            // Get selected document IDs
+            const checkboxes = document.querySelectorAll('.document-checkbox:checked');
+            const docIds = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (docIds.length === 0) {
+                alert('Please select at least one document to preview');
+                return;
+            }
+            
+            // Request preview
+            fetch('/generate_preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ document_ids: docIds }),
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create URL for the blob and display it in the iframe
+                const url = URL.createObjectURL(blob);
+                previewFrame.src = url;
+                
+                // Load the PDF for navigation
+                loadPDF(url);
+            })
+            .catch(error => {
+                console.error('Error generating preview:', error);
+                alert('An error occurred while generating the preview');
+            });
+        });
+        
+        downloadBtn.addEventListener('click', function() {
+            // Get selected document IDs
+            const checkboxes = document.querySelectorAll('.document-checkbox:checked');
+            const docIds = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (docIds.length === 0) {
+                alert('Please select at least one document to download');
+                return;
+            }
+            
+            // Request download
+            fetch('/download_combined_pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ document_ids: docIds }),
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create download link and trigger download
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'combined_documents.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Error downloading combined PDF:', error);
+                alert('An error occurred while downloading the combined PDF');
+            });
+        });
+        
+        // PDF navigation functions
+        function loadPDF(url) {
+            // Load PDF with PDF.js
+            const loadingTask = pdfjsLib.getDocument(url);
+            loadingTask.promise.then(function(pdf) {
+                pdfDoc = pdf;
+                totalPages.textContent = pdf.numPages;
+                
+                // Initial render
+                renderPage(pageNum);
+            });
+        }
+        
+        function renderPage(num) {
+            pageRendering = true;
+            
+            // Update current page display
+            currentPage.textContent = num;
+            
+            // Render page using PDF.js
+            pdfDoc.getPage(num).then(function(page) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const viewport = page.getViewport({ scale: 1.5 });
+                
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                
+                const renderTask = page.render(renderContext);
+                
+                // After render is complete
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    
+                    // Display the rendered canvas in the iframe
+                    const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                    frameDoc.body.innerHTML = '';
+                    frameDoc.body.appendChild(canvas);
+                    
+                    // Process any pending page requests
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+        }
+        
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+        
+        // Page navigation event handlers
+        prevPage.addEventListener('click', function() {
+            if (pdfDoc && pageNum > 1) {
+                pageNum--;
+                queueRenderPage(pageNum);
+            }
+        });
+        
+        nextPage.addEventListener('click', function() {
+            if (pdfDoc && pageNum < pdfDoc.numPages) {
+                pageNum++;
+                queueRenderPage(pageNum);
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -653,6 +653,253 @@
             {% endif %}
         </tbody>
     </table>
+    
+    <!-- Police Verification Certificate Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-success text-white">Police Verification Certificate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.police_verification %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.police_verification.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.police_verification.upload_date.strftime('%d %b, %Y') }}</div>
+                    {% if documents.police_verification.issue_date %}
+                    <div class="small text-muted">Issued on {{ documents.police_verification.issue_date.strftime('%d %b, %Y') }}</div>
+                    {% endif %}
+                    {% if documents.police_verification.document_number %}
+                    <div class="small text-muted">Certificate Number: {{ documents.police_verification.document_number }}</div>
+                    {% endif %}
+                    <div class="mt-2">
+                        <span class="badge {% if documents.police_verification.status == 'pending' %}badge-warning{% elif documents.police_verification.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.police_verification.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.police_verification.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_police_verification') }}" enctype="multipart/form-data">
+                        {{ police_verification_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('police_verification_file').click();">
+                            Replace Document
+                        </button>
+                        {{ police_verification_form.document_file(id="police_verification_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_police_verification') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ police_verification_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-file-pdf fa-3x text-success mb-3"></i>
+                                <p>Upload your Police Verification Certificate</p>
+                                <button type="button" class="btn document-upload-button d-block mx-auto" onclick="document.getElementById('police_verification_file').click();">
+                                    Select Document
+                                </button>
+                                {{ police_verification_form.document_file(id="police_verification_file", class="d-none", onchange="showFileName(this, 'police_verification_filename')") }}
+                                <p id="police_verification_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ police_verification_form.document_number.label }}
+                                        {{ police_verification_form.document_number(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ police_verification_form.issue_date.label }}
+                                        {{ police_verification_form.issue_date(class="form-control", type="date") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">Upload Certificate</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- Medical Certificate Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-success text-white">Medical Certificate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.medical_certificate %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.medical_certificate.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.medical_certificate.upload_date.strftime('%d %b, %Y') }}</div>
+                    {% if documents.medical_certificate.issue_date %}
+                    <div class="small text-muted">Issued on {{ documents.medical_certificate.issue_date.strftime('%d %b, %Y') }}</div>
+                    {% endif %}
+                    {% if documents.medical_certificate.expiry_date %}
+                    <div class="small text-muted">Valid until {{ documents.medical_certificate.expiry_date.strftime('%d %b, %Y') }}</div>
+                    {% endif %}
+                    <div class="mt-2">
+                        <span class="badge {% if documents.medical_certificate.status == 'pending' %}badge-warning{% elif documents.medical_certificate.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.medical_certificate.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.medical_certificate.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_medical_certificate') }}" enctype="multipart/form-data">
+                        {{ medical_certificate_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('medical_certificate_file').click();">
+                            Replace Document
+                        </button>
+                        {{ medical_certificate_form.document_file(id="medical_certificate_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_medical_certificate') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ medical_certificate_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-file-medical fa-3x text-success mb-3"></i>
+                                <p>Upload your Medical Certificate</p>
+                                <button type="button" class="btn document-upload-button d-block mx-auto" onclick="document.getElementById('medical_certificate_file').click();">
+                                    Select Document
+                                </button>
+                                {{ medical_certificate_form.document_file(id="medical_certificate_file", class="d-none", onchange="showFileName(this, 'medical_certificate_filename')") }}
+                                <p id="medical_certificate_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ medical_certificate_form.issue_date.label }}
+                                        {{ medical_certificate_form.issue_date(class="form-control", type="date") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ medical_certificate_form.expiry_date.label }}
+                                        {{ medical_certificate_form.expiry_date(class="form-control", type="date") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">Upload Certificate</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- Family Details Document Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="2" class="bg-info text-white">Family Details Document</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents.family_details %}
+            <tr>
+                <td>
+                    <div class="font-weight-bold">{{ documents.family_details.document_name }}</div>
+                    <div class="small text-muted">Uploaded on {{ documents.family_details.upload_date.strftime('%d %b, %Y') }}</div>
+                    <div class="mt-2">
+                        <span class="badge {% if documents.family_details.status == 'pending' %}badge-warning{% elif documents.family_details.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ documents.family_details.status|title }}
+                        </span>
+                        <a href="{{ url_for('view_document', document_id=documents.family_details.id) }}" class="btn btn-sm btn-primary ml-2">
+                            View Document
+                        </a>
+                    </div>
+                </td>
+                <td class="text-center" style="width: 200px; vertical-align: middle;">
+                    <form method="POST" action="{{ url_for('upload_family_details') }}" enctype="multipart/form-data">
+                        {{ family_details_form.hidden_tag() }}
+                        <button type="button" class="btn document-upload-button" onclick="document.getElementById('family_details_file').click();">
+                            Replace Document
+                        </button>
+                        {{ family_details_form.document_file(id="family_details_file", class="d-none", onchange="this.form.submit()") }}
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">
+                    <div class="py-4 text-center">
+                        <form method="POST" action="{{ url_for('upload_family_details') }}" enctype="multipart/form-data" class="upload-form">
+                            {{ family_details_form.hidden_tag() }}
+                            
+                            <div class="upload-placeholder mb-3">
+                                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                                <p>Upload your Family Details Document</p>
+                                <button type="button" class="btn document-upload-button d-block mx-auto" onclick="document.getElementById('family_details_file').click();">
+                                    Select Document
+                                </button>
+                                {{ family_details_form.document_file(id="family_details_file", class="d-none", onchange="showFileName(this, 'family_details_filename')") }}
+                                <p id="family_details_filename" class="mt-2 file-name"></p>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-info">Upload Document</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- Combined Document Actions Section -->
+    <div class="card mt-4 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Combined Document Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 text-center mb-3 mb-md-0">
+                    <div class="icon-box">
+                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                        <h5>Combined PDF Preview</h5>
+                        <p>Generate a PDF containing all your uploaded documents in a single file</p>
+                        <a href="{{ url_for('generate_combined_pdf_preview') }}" class="btn btn-outline-danger">
+                            <i class="fas fa-download mr-2"></i> Download Combined PDF
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <div class="icon-box">
+                        <i class="fas fa-file-archive fa-3x text-secondary mb-3"></i>
+                        <h5>Download All Documents</h5>
+                        <p>Download all your uploaded documents as a ZIP archive</p>
+                        <a href="{{ url_for('download_documents_zip') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-download mr-2"></i> Download ZIP Archive
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

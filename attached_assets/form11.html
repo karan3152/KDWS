@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Form 11 - Declaration Form{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>HR Talent Solution</h1>
+    <h2>Form 11 - Declaration Form</h2>
+    <hr>
+
+    <form id="form11" method="post" enctype="multipart/form-data" action="{% url 'submit_form' form_type='form11' %}">
+        {% csrf_token %}
+        
+        <h2>Personal Details</h2>
+        <div class="form-group"><label>Name:</label> <input type="text" name="name" value="{{ user.get_full_name }}" required></div>
+        <div class="form-group"><label>Date of Birth:</label> <input type="date" name="dob" required></div>
+        <div class="form-group"><label>Father's/Husband's Name:</label> <input type="text" name="guardian_name"></div>
+        <div class="form-group"><label>Relationship (Father/Husband):</label> 
+            <select name="relationship">
+                <option value="father">Father</option>
+                <option value="husband">Husband</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Gender:</label> 
+            <select name="gender">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+            </select>
+        </div>
+
+        <h2>Contact Details</h2>
+        <div class="form-group"><label>Mobile Number:</label> <input type="tel" name="mobile" value="{{ user.profile.phone_number|default:'' }}"></div>
+        <div class="form-group"><label>Email ID:</label> <input type="email" name="email" value="{{ user.email }}"></div>
+
+        <h2>Employment Details</h2>
+        <div class="form-group"><label>Previous Member of EPF Scheme, 1952?</label> 
+            <select name="epf_scheme">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Previous Member of EPS Scheme, 1995?</label> 
+            <select name="eps_scheme">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+
+        <h2>Previous Employment Details</h2>
+        <div class="form-group"><label>Universal Account Number (UAN):</label> <input type="text" name="uan"></div>
+        <div class="form-group"><label>Previous PF Member ID:</label> <input type="text" name="pf_member_id"></div>
+        <div class="form-group"><label>Date of Exit from Previous Employer:</label> <input type="date" name="prev_exit_date"></div>
+
+        <h2>Other Details</h2>
+        <div class="form-group"><label>Are you an International Worker?</label> 
+            <select name="int_worker">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Country of Origin:</label> <input type="text" name="country_origin" value="India"></div>
+        <div class="form-group"><label>Passport Number:</label> <input type="text" name="passport_number"></div>
+        <div class="form-group"><label>Passport Valid From:</label> <input type="date" name="passport_valid_from"></div>
+        <div class="form-group"><label>Passport Valid To:</label> <input type="date" name="passport_valid_to"></div>
+
+        <h2>Educational Qualification</h2>
+        <div class="form-group"><label>Highest Qualification:</label> 
+            <select name="qualification">
+                <option value="illiterate">Illiterate</option>
+                <option value="non-matric">Non-Matric</option>
+                <option value="matric">Matric</option>
+                <option value="senior-secondary">Senior Secondary</option>
+                <option value="graduate">Graduate</option>
+                <option value="post-graduate">Post Graduate</option>
+                <option value="doctor">Doctor</option>
+                <option value="technical">Technical/Professional</option>
+            </select>
+        </div>
+
+        <h2>KYC Details</h2>
+        <div class="form-group"><label>Bank Account Number:</label> <input type="text" name="bank_account"></div>
+        <div class="form-group"><label>IFSC Code:</label> <input type="text" name="ifsc_code"></div>
+        <div class="form-group"><label>Aadhar Number:</label> <input type="text" name="aadhar"></div>
+        <div class="form-group"><label>PAN Number:</label> <input type="text" name="pan"></div>
+
+        <h2>File Uploads</h2>
+        <div class="file-upload"><label>Aadhar Card:</label> <input type="file" name="aadhar_file"></div>
+        <div class="file-upload"><label>PAN Card:</label> <input type="file" name="pan_file"></div>
+        <div class="file-upload"><label>Passport:</label> <input type="file" name="passport_file"></div>
+        <div class="file-upload"><label>Signature:</label> <input type="file" name="signature_file"></div>
+
+        <div class="form-group">
+            <input type="checkbox" name="declaration" required>
+            <label>I confirm that all the details provided are correct.</label>
+        </div>
+
+        <button type="submit">Submit Form</button>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    // Preview functionality can be added here if needed
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}

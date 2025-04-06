@@ -1,0 +1,738 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}New Joining Application{% endblock %}
+
+{% block content %}
+<div class="container pdf-form">
+    <h1 class="text-center">HR TALENT SOLUTIONS PVT. LTD.</h1>
+    <h2 class="text-center">EMPLOYEE DETAILS</h2>
+    <p class="text-center">Fill all the information in BLOCK letters</p>
+    
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="office-use-box">
+                <h5 class="text-center mb-3">For Office use only</h5>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group mb-0">
+                            <label>Employee Id</label>
+                            <div class="empty-field"></div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group mb-0">
+                            <label>Date Of Joining</label>
+                            <div class="empty-field"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="photo-box">
+                <p class="text-center">AFFIX YOUR LATEST<br>PASSPORT SIZE<br>PHOTOGRAPH</p>
+            </div>
+        </div>
+    </div>
+
+    <form id="joining-form" method="post" enctype="multipart/form-data" action="{% url 'submit_form' form_type='joining' %}">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <div class="form-row">
+                <div class="form-number">1.</div>
+                <div class="form-label">Name</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" name="surname" placeholder="Surname" class="form-control">
+                            <small class="text-center d-block">Surname</small>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="first_name" placeholder="First name" class="form-control">
+                            <small class="text-center d-block">First name</small>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="middle_name" placeholder="Middle name" class="form-control">
+                            <small class="text-center d-block">Middle name</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">2.</div>
+                <div class="form-label">Father / Mother / Spouse Name</div>
+                <div class="form-field">
+                    <input type="text" name="guardian_name" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">3.</div>
+                <div class="form-label">Date of Birth / Age</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="date" name="date_of_birth" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="number" name="age" class="form-control" placeholder="Age">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Years</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">4.</div>
+                <div class="form-label">Place of Birth</div>
+                <div class="form-field">
+                    <input type="text" name="place_of_birth" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">5.</div>
+                <div class="form-label">Sex</div>
+                <div class="form-field">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="sex" id="male" value="Male">
+                        <label class="form-check-label" for="male">Male</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="sex" id="female" value="Female">
+                        <label class="form-check-label" for="female">Female</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">6.</div>
+                <div class="form-label">Marital Status</div>
+                <div class="form-field">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="marital_status" id="single" value="Single">
+                        <label class="form-check-label" for="single">Single</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="marital_status" id="married" value="Married">
+                        <label class="form-check-label" for="married">Married</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">7.</div>
+                <div class="form-label">Nationality</div>
+                <div class="form-field">
+                    <input type="text" name="nationality" class="form-control" value="Indian">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">8.</div>
+                <div class="form-label">Religion</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" name="religion" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Blood Group:</span>
+                                </div>
+                                <input type="text" name="blood_group" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">9.</div>
+                <div class="form-label">Category (SC/ST/OBC/GEN)</div>
+                <div class="form-field">
+                    <select name="category" class="form-control">
+                        <option value="">Select Category</option>
+                        <option value="SC">SC</option>
+                        <option value="ST">ST</option>
+                        <option value="OBC">OBC</option>
+                        <option value="GEN">GEN</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">10.</div>
+                <div class="form-label">Address (for Correspondence)</div>
+                <div class="form-field">
+                    <textarea name="correspondence_address" class="form-control" rows="3"></textarea>
+                    <div class="row mt-2">
+                        <div class="col-md-4 offset-md-8">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">PIN:</span>
+                                </div>
+                                <input type="text" name="correspondence_pin" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">11.</div>
+                <div class="form-label">Address (Permanent)</div>
+                <div class="form-field">
+                    <textarea name="permanent_address" class="form-control" rows="3"></textarea>
+                    <div class="row mt-2">
+                        <div class="col-md-4 offset-md-8">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">PIN:</span>
+                                </div>
+                                <input type="text" name="permanent_pin" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">12.</div>
+                <div class="form-label">Tele / Mobile No</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" name="mobile_number" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Emergency Contact:</span>
+                                </div>
+                                <input type="text" name="emergency_contact" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">13.</div>
+                <div class="form-label">e-mail ID</div>
+                <div class="form-field">
+                    <input type="email" name="email" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">14.</div>
+                <div class="form-label">AADHAR No</div>
+                <div class="form-field">
+                    <input type="text" name="aadhar_number" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">15.</div>
+                <div class="form-label">PAN No</div>
+                <div class="form-field">
+                    <input type="text" name="pan_number" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">16.</div>
+                <div class="form-label">Voter ID No</div>
+                <div class="form-field">
+                    <input type="text" name="voter_id" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">17.</div>
+                <div class="form-label">ESI No (if any)</div>
+                <div class="form-field">
+                    <input type="text" name="esi_number" class="form-control">
+                </div>
+            </div>
+        </div>
+        
+        <h3 class="text-center my-4">BANK ACCOUNT DETAILS</h3>
+        
+        <div class="form-section">
+            <div class="form-row">
+                <div class="form-number">18.</div>
+                <div class="form-label">Bank Name</div>
+                <div class="form-field">
+                    <input type="text" name="bank_name" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">19.</div>
+                <div class="form-label">Account No</div>
+                <div class="form-field">
+                    <input type="text" name="account_number" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">20.</div>
+                <div class="form-label">IFSC Code</div>
+                <div class="form-field">
+                    <input type="text" name="ifsc_code" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-number">21.</div>
+                <div class="form-label">Branch Name</div>
+                <div class="form-field">
+                    <input type="text" name="branch_name" class="form-control">
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-break"></div>
+        
+        <h3 class="mb-4">22. Family Details:</h3>
+        
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Relation</th>
+                        <th>DOB</th>
+                        <th>Education</th>
+                        <th>Profession</th>
+                    </tr>
+                </thead>
+                <tbody id="family-details-container">
+                    <tr class="family-row">
+                        <td><input type="text" name="family_name_1" class="form-control"></td>
+                        <td><input type="text" name="family_relation_1" class="form-control"></td>
+                        <td><input type="date" name="family_dob_1" class="form-control"></td>
+                        <td><input type="text" name="family_education_1" class="form-control"></td>
+                        <td><input type="text" name="family_profession_1" class="form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button type="button" id="add-family-member" class="btn btn-sm btn-secondary mb-4">+ Add Family Member</button>
+        
+        <h3 class="mb-4">23. Academic Performance:</h3>
+        
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Qualification</th>
+                        <th>Name of the Institution</th>
+                        <th>Board/University</th>
+                        <th>Period (From-To)</th>
+                        <th>Branch/Stream</th>
+                        <th>% of Marks</th>
+                        <th>Mode of Study</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SSC</td>
+                        <td><input type="text" name="ssc_institution" class="form-control"></td>
+                        <td><input type="text" name="ssc_board" class="form-control"></td>
+                        <td>
+                            <div class="d-flex">
+                                <input type="text" name="ssc_from" class="form-control" placeholder="MM/YY">
+                                <span class="mx-2">-</span>
+                                <input type="text" name="ssc_to" class="form-control" placeholder="MM/YY">
+                            </div>
+                        </td>
+                        <td><input type="text" name="ssc_branch" class="form-control"></td>
+                        <td><input type="text" name="ssc_percentage" class="form-control"></td>
+                        <td><input type="text" name="ssc_mode" class="form-control"></td>
+                    </tr>
+                    <tr>
+                        <td>Intermediate (10+2)</td>
+                        <td><input type="text" name="inter_institution" class="form-control"></td>
+                        <td><input type="text" name="inter_board" class="form-control"></td>
+                        <td>
+                            <div class="d-flex">
+                                <input type="text" name="inter_from" class="form-control" placeholder="MM/YY">
+                                <span class="mx-2">-</span>
+                                <input type="text" name="inter_to" class="form-control" placeholder="MM/YY">
+                            </div>
+                        </td>
+                        <td><input type="text" name="inter_branch" class="form-control"></td>
+                        <td><input type="text" name="inter_percentage" class="form-control"></td>
+                        <td><input type="text" name="inter_mode" class="form-control"></td>
+                    </tr>
+                    <tr>
+                        <td>Diploma / ITI</td>
+                        <td><input type="text" name="diploma_institution" class="form-control"></td>
+                        <td><input type="text" name="diploma_board" class="form-control"></td>
+                        <td>
+                            <div class="d-flex">
+                                <input type="text" name="diploma_from" class="form-control" placeholder="MM/YY">
+                                <span class="mx-2">-</span>
+                                <input type="text" name="diploma_to" class="form-control" placeholder="MM/YY">
+                            </div>
+                        </td>
+                        <td><input type="text" name="diploma_branch" class="form-control"></td>
+                        <td><input type="text" name="diploma_percentage" class="form-control"></td>
+                        <td><input type="text" name="diploma_mode" class="form-control"></td>
+                    </tr>
+                    <tr>
+                        <td>Graduation</td>
+                        <td><input type="text" name="graduation_institution" class="form-control"></td>
+                        <td><input type="text" name="graduation_board" class="form-control"></td>
+                        <td>
+                            <div class="d-flex">
+                                <input type="text" name="graduation_from" class="form-control" placeholder="MM/YY">
+                                <span class="mx-2">-</span>
+                                <input type="text" name="graduation_to" class="form-control" placeholder="MM/YY">
+                            </div>
+                        </td>
+                        <td><input type="text" name="graduation_branch" class="form-control"></td>
+                        <td><input type="text" name="graduation_percentage" class="form-control"></td>
+                        <td><input type="text" name="graduation_mode" class="form-control"></td>
+                    </tr>
+                    <tr>
+                        <td>Post Grad.</td>
+                        <td><input type="text" name="pg_institution" class="form-control"></td>
+                        <td><input type="text" name="pg_board" class="form-control"></td>
+                        <td>
+                            <div class="d-flex">
+                                <input type="text" name="pg_from" class="form-control" placeholder="MM/YY">
+                                <span class="mx-2">-</span>
+                                <input type="text" name="pg_to" class="form-control" placeholder="MM/YY">
+                            </div>
+                        </td>
+                        <td><input type="text" name="pg_branch" class="form-control"></td>
+                        <td><input type="text" name="pg_percentage" class="form-control"></td>
+                        <td><input type="text" name="pg_mode" class="form-control"></td>
+                    </tr>
+                    <tr>
+                        <td>Others, if any</td>
+                        <td><input type="text" name="other_institution" class="form-control"></td>
+                        <td><input type="text" name="other_board" class="form-control"></td>
+                        <td>
+                            <div class="d-flex">
+                                <input type="text" name="other_from" class="form-control" placeholder="MM/YY">
+                                <span class="mx-2">-</span>
+                                <input type="text" name="other_to" class="form-control" placeholder="MM/YY">
+                            </div>
+                        </td>
+                        <td><input type="text" name="other_branch" class="form-control"></td>
+                        <td><input type="text" name="other_percentage" class="form-control"></td>
+                        <td><input type="text" name="other_mode" class="form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h3 class="mb-4">24. Previous Experience (Employment):</h3>
+        
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Name of the Organisation</th>
+                        <th colspan="2">Designation at</th>
+                        <th colspan="2">Pay at (in Rs.)</th>
+                        <th colspan="2">Period (in MM/YY)</th>
+                        <th rowspan="2">Total Service (in Yrs)</th>
+                    </tr>
+                    <tr>
+                        <th>Joining</th>
+                        <th>Relieving</th>
+                        <th>Joining</th>
+                        <th>Relieving</th>
+                        <th>From</th>
+                        <th>To</th>
+                    </tr>
+                </thead>
+                <tbody id="experience-container">
+                    <tr class="experience-row">
+                        <td><input type="text" name="exp_org_1" class="form-control"></td>
+                        <td><input type="text" name="exp_desg_join_1" class="form-control"></td>
+                        <td><input type="text" name="exp_desg_relieve_1" class="form-control"></td>
+                        <td><input type="text" name="exp_pay_join_1" class="form-control"></td>
+                        <td><input type="text" name="exp_pay_relieve_1" class="form-control"></td>
+                        <td><input type="text" name="exp_from_1" class="form-control" placeholder="MM/YY"></td>
+                        <td><input type="text" name="exp_to_1" class="form-control" placeholder="MM/YY"></td>
+                        <td><input type="text" name="exp_total_1" class="form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button type="button" id="add-experience" class="btn btn-sm btn-secondary mb-4">+ Add Experience</button>
+        
+        <h3 class="mb-4">25. Declaration:</h3>
+        
+        <div class="declaration-section mb-4">
+            <p>I hereby declare that all the information furnished in this application is complete and correct to the
+            best of my knowledge and belief. I understand that if at any time, it is found that any information
+            given in this application is false/incorrect; my candidature/appointment is liable to be cancelled/
+            terminated.</p>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Place:</label>
+                        <input type="text" name="declaration_place" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Date:</label>
+                        <input type="date" name="declaration_date" class="form-control">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-8 offset-md-4">
+                    <div class="signature-box text-center">
+                        <p>Signature ______________</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info text-center">
+            All decisions made by the company will be final and any disputes will be dealt with under
+            Hyderabad Jurisdiction only.
+        </div>
+        
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="previewPDF()">Preview PDF</button>
+            <button type="submit" class="btn btn-primary">Submit Form</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+<style>
+    .pdf-form {
+        font-family: 'Arial', sans-serif;
+        margin-bottom: 40px;
+    }
+    
+    .office-use-box {
+        border: 1px solid #000;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .photo-box {
+        border: 1px dashed #000;
+        padding: 40px 10px;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+    
+    .form-row {
+        display: flex;
+        margin-bottom: 15px;
+        align-items: flex-start;
+    }
+    
+    .form-number {
+        width: 30px;
+        font-weight: bold;
+    }
+    
+    .form-label {
+        width: 200px;
+        font-weight: bold;
+    }
+    
+    .form-field {
+        flex: 1;
+    }
+    
+    .empty-field {
+        border-bottom: 1px solid #000;
+        height: 25px;
+    }
+    
+    .page-break {
+        page-break-before: always;
+        margin-top: 50px;
+        margin-bottom: 50px;
+        border-top: 1px dashed #ccc;
+    }
+    
+    .declaration-section {
+        border: 1px solid #eee;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+    
+    .signature-box {
+        border-top: 1px solid #000;
+        padding-top: 10px;
+        width: 200px;
+    }
+    
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    @media print {
+        .form-actions, button {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    // Counter for dynamic row additions
+    let familyMemberCount = 1;
+    let experienceCount = 1;
+    
+    // Add family member row
+    document.getElementById('add-family-member').addEventListener('click', function() {
+        familyMemberCount++;
+        const container = document.getElementById('family-details-container');
+        const newRow = document.createElement('tr');
+        newRow.className = 'family-row';
+        newRow.innerHTML = `
+            <td><input type="text" name="family_name_${familyMemberCount}" class="form-control"></td>
+            <td><input type="text" name="family_relation_${familyMemberCount}" class="form-control"></td>
+            <td><input type="date" name="family_dob_${familyMemberCount}" class="form-control"></td>
+            <td><input type="text" name="family_education_${familyMemberCount}" class="form-control"></td>
+            <td><input type="text" name="family_profession_${familyMemberCount}" class="form-control"></td>
+        `;
+        container.appendChild(newRow);
+    });
+    
+    // Add experience row
+    document.getElementById('add-experience').addEventListener('click', function() {
+        experienceCount++;
+        const container = document.getElementById('experience-container');
+        const newRow = document.createElement('tr');
+        newRow.className = 'experience-row';
+        newRow.innerHTML = `
+            <td><input type="text" name="exp_org_${experienceCount}" class="form-control"></td>
+            <td><input type="text" name="exp_desg_join_${experienceCount}" class="form-control"></td>
+            <td><input type="text" name="exp_desg_relieve_${experienceCount}" class="form-control"></td>
+            <td><input type="text" name="exp_pay_join_${experienceCount}" class="form-control"></td>
+            <td><input type="text" name="exp_pay_relieve_${experienceCount}" class="form-control"></td>
+            <td><input type="text" name="exp_from_${experienceCount}" class="form-control" placeholder="MM/YY"></td>
+            <td><input type="text" name="exp_to_${experienceCount}" class="form-control" placeholder="MM/YY"></td>
+            <td><input type="text" name="exp_total_${experienceCount}" class="form-control"></td>
+        `;
+        container.appendChild(newRow);
+    });
+    
+    // PDF Preview functionality
+    function previewPDF() {
+        // Show loading indicator
+        const loadingDiv = document.createElement('div');
+        loadingDiv.innerHTML = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;"><div><div class="spinner-border text-primary" role="status"></div><div class="mt-2">Generating PDF preview...</div></div></div>';
+        document.body.appendChild(loadingDiv);
+        
+        // Clone form for PDF generation
+        const form = document.getElementById('joining-form');
+        const clone = form.cloneNode(true);
+        
+        // Create a temporary container for PDF generation
+        const tempContainer = document.createElement('div');
+        tempContainer.className = 'container pdf-form';
+        tempContainer.style.width = '210mm';
+        tempContainer.style.padding = '20mm';
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        
+        // Add the header
+        tempContainer.innerHTML = `
+            <h1 class="text-center">HR TALENT SOLUTIONS PVT. LTD.</h1>
+            <h2 class="text-center">EMPLOYEE DETAILS</h2>
+            <p class="text-center">Fill all the information in BLOCK letters</p>
+        `;
+        
+        // Remove submit button and unnecessary elements
+        const inputs = clone.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            // Create a text representation of the input value
+            const value = input.value || '';
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                if (!input.checked) return;
+            }
+            
+            // Replace input with its value
+            const textNode = document.createElement('div');
+            textNode.className = 'form-control-static';
+            textNode.style.borderBottom = '1px solid #000';
+            textNode.style.minHeight = '24px';
+            textNode.style.padding = '5px 0';
+            textNode.textContent = value;
+            
+            if (input.parentNode) {
+                input.parentNode.replaceChild(textNode, input);
+            }
+        });
+        
+        // Remove buttons
+        const buttons = clone.querySelectorAll('button');
+        buttons.forEach(button => button.remove());
+        
+        // Add the form to the temporary container
+        tempContainer.appendChild(clone);
+        document.body.appendChild(tempContainer);
+        
+        // Generate PDF using html2canvas and jsPDF
+        window.html2canvas(tempContainer, {
+            scale: 2,
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+            const imgX = (pdfWidth - imgWidth * ratio) / 2;
+            const imgY = 0;
+            
+            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+            
+            // Open PDF in new window
+            pdf.output('dataurlnewwindow');
+            
+            // Remove temporary container and loading indicator
+            document.body.removeChild(tempContainer);
+            document.body.removeChild(loadingDiv);
+        });
+    }
+</script>
+{% endblock %}

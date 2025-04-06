@@ -1,0 +1,913 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Form 11 (Revised) - Declaration Form{% endblock %}
+
+{% block content %}
+<div class="container pdf-form">
+    <div class="form-header">
+        <h4 class="text-center">Form No. 11 (New)</h4>
+        <h4 class="text-center">Declaration Form</h4>
+        <p class="text-center">(To be retained by the Employer for future reference)</p>
+        
+        <div class="logo-title text-center my-4">
+            <h2>Employees' Provident Fund Organization</h2>
+            <h3>THE EMPLOYEES' PROVIDENT FUNDS SCHEME, 1952 (PARAGRAPH-34 & 57)</h3>
+            <h3>& THE EMPLOYEES' PENSION SCHEME, 1995 (PARAGRAPH-24)</h3>
+        </div>
+        
+        <div class="instructions-title text-center my-4">
+            <p>DECLARATION BY A PERSON TAKING UP EMPLOYMENT IN AN ESTABLISHMENT ON WHICH EMPLOYEES' PROVIDENT FUND SCHEME,</p>
+            <p>1952 AND/OR EMPLOYEES' PENSION SCHEME, 1995 IS APPLICABLE.</p>
+            <p>(PLEASE GO THROUGH THE INSTRUCTIONS)</p>
+        </div>
+    </div>
+
+    <form id="form11-revised" method="post" enctype="multipart/form-data" action="{% url 'submit_form' form_type='form11' %}">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <div class="form-row">
+                <div class="form-number">1)</div>
+                <div class="form-label">NAME</div>
+                <div class="form-field">
+                    <div class="title-options">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="title" id="mr" value="MR">
+                            <label class="form-check-label" for="mr">MR.</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="title" id="ms" value="MS">
+                            <label class="form-check-label" for="ms">MS.</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="title" id="mrs" value="MRS">
+                            <label class="form-check-label" for="mrs">MRS.</label>
+                        </div>
+                        <p class="form-check-label">(PLEASE TICK)</p>
+                    </div>
+                    <input type="text" name="name" class="form-control mt-2" required>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">2)</div>
+                <div class="form-label">DATE OF BIRTH</div>
+                <div class="form-field">
+                    <div class="date-boxes d-flex justify-content-start">
+                        <div class="date-box">
+                            <label>D</label>
+                            <input type="text" name="dob_day" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>D</label>
+                            <input type="text" name="dob_day2" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>M</label>
+                            <input type="text" name="dob_month" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>M</label>
+                            <input type="text" name="dob_month2" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="dob_year" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="dob_year2" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="dob_year3" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="dob_year4" class="form-control date-input" maxlength="1">
+                        </div>
+                    </div>
+                    <!-- Hidden actual date field for easier processing -->
+                    <input type="date" name="date_of_birth" class="d-none">
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">3)</div>
+                <div class="form-label">FATHER'S/HUSBAND'S NAME</div>
+                <div class="form-field">
+                    <div class="title-options mb-2">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="relation_title" id="rel_mr" value="MR" checked>
+                            <label class="form-check-label" for="rel_mr">MR.</label>
+                        </div>
+                    </div>
+                    <input type="text" name="father_husband_name" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">4)</div>
+                <div class="form-label">RELATIONSHIP IN RESPECT OF (3) ABOVE</div>
+                <div class="form-field">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="relationship" id="father" value="FATHER" checked>
+                        <label class="form-check-label" for="father">FATHER</label>
+                    </div>
+                    <div class="form-check form-check-inline ml-5">
+                        <input class="form-check-input" type="radio" name="relationship" id="husband" value="HUSBAND">
+                        <label class="form-check-label" for="husband">HUSBAND</label>
+                    </div>
+                    <p class="form-check-label">(PLEASE TICK)</p>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">5)</div>
+                <div class="form-label">GENDER</div>
+                <div class="form-field">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="gender" id="male" value="MALE" checked>
+                        <label class="form-check-label" for="male">MALE</label>
+                    </div>
+                    <div class="form-check form-check-inline ml-4">
+                        <input class="form-check-input" type="radio" name="gender" id="female" value="FEMALE">
+                        <label class="form-check-label" for="female">FEMALE</label>
+                    </div>
+                    <div class="form-check form-check-inline ml-4">
+                        <input class="form-check-input" type="radio" name="gender" id="transgender" value="TRANSGENDER">
+                        <label class="form-check-label" for="transgender">TRANSGENDER</label>
+                    </div>
+                    <p class="form-check-label">(PLEASE TICK)</p>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">6)</div>
+                <div class="form-label">MOBILE NUMBER (IF ANY)</div>
+                <div class="form-field">
+                    <input type="text" name="mobile_number" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">7)</div>
+                <div class="form-label">EMAIL ID (IF ANY)</div>
+                <div class="form-field">
+                    <input type="email" name="email" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">8)</div>
+                <div class="form-label">WHETHER EARLIER A MEMBER OF THE EMPLOYEES' PROVIDENT FUND SCHEME, 1952?</div>
+                <div class="form-field">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="epf_member" id="epf_yes" value="YES">
+                        <label class="form-check-label" for="epf_yes">YES</label>
+                    </div>
+                    <div class="form-check form-check-inline ml-5">
+                        <input class="form-check-input" type="radio" name="epf_member" id="epf_no" value="NO" checked>
+                        <label class="form-check-label" for="epf_no">NO</label>
+                    </div>
+                    <p class="form-check-label">(PLEASE TICK)</p>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">9)</div>
+                <div class="form-label">WHETHER EARLIER A MEMBER OF THE EMPLOYEES' PENSION SCHEME, 1995?</div>
+                <div class="form-field">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="eps_member" id="eps_yes" value="YES">
+                        <label class="form-check-label" for="eps_yes">YES</label>
+                    </div>
+                    <div class="form-check form-check-inline ml-5">
+                        <input class="form-check-input" type="radio" name="eps_member" id="eps_no" value="NO" checked>
+                        <label class="form-check-label" for="eps_no">NO</label>
+                    </div>
+                    <p class="form-check-label">(PLEASE TICK)</p>
+                </div>
+            </div>
+            
+            <div class="alert alert-info mt-4">
+                IF RESPONSE TO ANY OR BOTH OF (8) & (9) ABOVE IS YES, THEN MANDATORILY FILL UP THE PREVIOUS EMPLOYMENT DETAILS
+                AT (10,11&12):
+            </div>
+        </div>
+        
+        <div class="section-title">A. PREVIOUS EMPLOYMENT DETAILS</div>
+        
+        <div class="form-section">
+            <div class="form-row">
+                <div class="form-number">10)</div>
+                <div class="form-label">THE DETAILS OF THE UNIVERSAL ACCOUNT NUMBER (UAN) OR PREVIOUS PF MEMBER ID:</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>UAN</label>
+                            <input type="text" name="uan" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <label>OR</label>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <label>PREVIOUS PF MEMBER ID</label>
+                            <div class="d-flex">
+                                <input type="text" name="region_code" class="form-control mr-2" placeholder="REGION CODE">
+                                <input type="text" name="office_code" class="form-control mr-2" placeholder="OFFICE CODE">
+                                <input type="text" name="establishment_id" class="form-control mr-2" placeholder="ESTABLISHMENT ID">
+                                <input type="text" name="extension" class="form-control mr-2" placeholder="EXTENSION">
+                                <input type="text" name="account_number" class="form-control" placeholder="ACCOUNT NUMBER">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">11)</div>
+                <div class="form-label">DATE OF EXIT FOR PREVIOUS MEMBER ID (DD/MM/YYYY)</div>
+                <div class="form-field">
+                    <div class="date-boxes d-flex justify-content-start">
+                        <div class="date-box">
+                            <label>D</label>
+                            <input type="text" name="exit_day" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>D</label>
+                            <input type="text" name="exit_day2" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>M</label>
+                            <input type="text" name="exit_month" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>M</label>
+                            <input type="text" name="exit_month2" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="exit_year" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="exit_year2" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="exit_year3" class="form-control date-input" maxlength="1">
+                        </div>
+                        <div class="date-box">
+                            <label>Y</label>
+                            <input type="text" name="exit_year4" class="form-control date-input" maxlength="1">
+                        </div>
+                    </div>
+                    <!-- Hidden actual date field for easier processing -->
+                    <input type="date" name="exit_date" class="d-none">
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">12)</div>
+                <div class="form-label"></div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>(A) IF SCHEME CERTIFICATE ISSUED FOR PREVIOUS EMPLOYMENT, THEN SCHEME CERTIFICATE NUMBER:</label>
+                                <input type="text" name="scheme_certificate" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>(B) IF PENSION PAYMENT ORDER (PPO) ISSUED FOR PREVIOUS EMPLOYMENT, THEN PPO NUMBER:</label>
+                                <input type="text" name="ppo_number" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-title">B. OTHER DETAILS</div>
+        
+        <div class="form-section">
+            <div class="form-row">
+                <div class="form-number">13)</div>
+                <div class="form-label">INTERNATIONAL WORKER</div>
+                <div class="form-field">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="international_worker" id="int_yes" value="YES">
+                        <label class="form-check-label" for="int_yes">YES</label>
+                    </div>
+                    <div class="form-check form-check-inline ml-5">
+                        <input class="form-check-input" type="radio" name="international_worker" id="int_no" value="NO" checked>
+                        <label class="form-check-label" for="int_no">NO</label>
+                    </div>
+                    <p class="form-check-label">(PLEASE TICK)</p>
+                </div>
+            </div>
+            
+            <div class="form-row int-worker-details mt-3" style="display: none;">
+                <div class="form-number"></div>
+                <div class="form-label">IF THE REPLY TO (13) ABOVE IS YES, THEN ENTER THE DETAILS IN 13(A), 13(B) & 13(C):</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>13(A) COUNTRY OF ORIGIN (Please Tick)</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="country_origin" id="india" value="INDIA" checked>
+                                    <label class="form-check-label" for="india">INDIA</label>
+                                </div>
+                                <div class="form-check form-check-inline ml-4">
+                                    <input class="form-check-input" type="radio" name="country_origin" id="other_country" value="OTHER">
+                                    <label class="form-check-label" for="other_country">OTHER THAN INDIA (IF YES, PLEASE MENTION NAME OF THE COUNTRY)</label>
+                                </div>
+                                <input type="text" name="other_country_name" class="form-control mt-2" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>13(B) PASSPORT NUMBER</label>
+                                <input type="text" name="passport_number" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>13(C) PASSPORT VALID FROM</label>
+                                <input type="date" name="passport_valid_from" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>To</label>
+                                <input type="date" name="passport_valid_to" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">14)</div>
+                <div class="form-label">EDUCATIONAL QUALIFICATION</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="education" id="illiterate" value="ILLITERATE">
+                                <label class="form-check-label" for="illiterate">ILLITERATE</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="education" id="non_matric" value="NON-MATRIC">
+                                <label class="form-check-label" for="non_matric">NON-MATRIC</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="education" id="matric" value="MATRIC">
+                                <label class="form-check-label" for="matric">MATRIC</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="education" id="senior_secondary" value="SENIOR SECONDARY">
+                                <label class="form-check-label" for="senior_secondary">SENIOR SECONDARY</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="education" id="graduate" value="GRADUATE" checked>
+                                <label class="form-check-label" for="graduate">GRADUATE</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="education" id="post_graduate" value="POST GRADUATE">
+                                <label class="form-check-label" for="post_graduate">POST GRADUATE</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="education" id="doctor" value="DOCTOR">
+                                <label class="form-check-label" for="doctor">DOCTOR</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="education" id="technical" value="TECHNICAL/PROFESSIONAL">
+                                <label class="form-check-label" for="technical">TECHNICAL/PROFESSIONAL</label>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="form-check-label mt-2">(PLEASE TICK)</p>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">15)</div>
+                <div class="form-label">MARITAL STATUS</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="marital_status" id="married" value="MARRIED">
+                                <label class="form-check-label" for="married">MARRIED</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="marital_status" id="unmarried" value="UNMARRIED" checked>
+                                <label class="form-check-label" for="unmarried">UNMARRIED</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="marital_status" id="widow" value="WIDOW/WIDOWER">
+                                <label class="form-check-label" for="widow">WIDOW/WIDOWER</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="radio" name="marital_status" id="divorcee" value="DIVORCEE">
+                                <label class="form-check-label" for="divorcee">DIVORCEE</label>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="form-check-label mt-2">(PLEASE TICK)</p>
+                </div>
+            </div>
+            
+            <div class="form-row mt-4">
+                <div class="form-number">16)</div>
+                <div class="form-label">SPECIALLY ABLED</div>
+                <div class="form-field">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="specially_abled" id="abled_yes" value="YES">
+                                <label class="form-check-label" for="abled_yes">YES</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-4">
+                                <input class="form-check-input" type="radio" name="specially_abled" id="abled_no" value="NO" checked>
+                                <label class="form-check-label" for="abled_no">NO</label>
+                            </div>
+                            <p class="form-check-label d-inline-block ml-4">(PLEASE TICK)</p>
+                        </div>
+                        <div class="col-md-6 spec-abled-category" style="display: none;">
+                            <label>IF YES, TICK THE CATEGORY</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="abled_category" id="locomotive" value="LOCOMOTIVE">
+                                <label class="form-check-label" for="locomotive">LOCOMOTIVE</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="checkbox" name="abled_category" id="visual" value="VISUAL">
+                                <label class="form-check-label" for="visual">VISUAL</label>
+                            </div>
+                            <div class="form-check form-check-inline ml-3">
+                                <input class="form-check-input" type="checkbox" name="abled_category" id="hearing" value="HEARING">
+                                <label class="form-check-label" for="hearing">HEARING</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-row mt-4">
+            <div class="form-number">17)</div>
+            <div class="form-label">KYC DETAILS</div>
+            <div class="form-field">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>KYC DOCUMENT TYPE</th>
+                                <th>NAME AS ON KYC DOCUMENT</th>
+                                <th>NUMBER</th>
+                                <th>REMARKS, IF ANY</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>BANK ACCOUNT-1*</td>
+                                <td><input type="text" name="bank_name" class="form-control"></td>
+                                <td><input type="text" name="bank_account" class="form-control"></td>
+                                <td><input type="text" name="bank_ifsc" class="form-control" placeholder="IFSC CODE*"></td>
+                            </tr>
+                            <tr>
+                                <td>NPR/AADHAAR</td>
+                                <td><input type="text" name="aadhar_name" class="form-control"></td>
+                                <td><input type="text" name="aadhar_number" class="form-control"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>PERMANENT ACCOUNT NUMBER (PAN)</td>
+                                <td><input type="text" name="pan_name" class="form-control"></td>
+                                <td><input type="text" name="pan_number" class="form-control"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>PASSPORT</td>
+                                <td><input type="text" name="passport_name" class="form-control"></td>
+                                <td><input type="text" name="passport_number2" class="form-control"></td>
+                                <td><input type="date" name="passport_expiry" class="form-control" placeholder="EXPIRY DATE"></td>
+                            </tr>
+                            <tr>
+                                <td>DRIVING LICENCE</td>
+                                <td><input type="text" name="driving_name" class="form-control"></td>
+                                <td><input type="text" name="driving_number" class="form-control"></td>
+                                <td><input type="date" name="driving_expiry" class="form-control" placeholder="EXPIRY DATE"></td>
+                            </tr>
+                            <tr>
+                                <td>ELECTION CARD</td>
+                                <td><input type="text" name="election_name" class="form-control"></td>
+                                <td><input type="text" name="election_number" class="form-control"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>RATION CARD</td>
+                                <td><input type="text" name="ration_name" class="form-control"></td>
+                                <td><input type="text" name="ration_number" class="form-control"></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>ESIC CARD</td>
+                                <td><input type="text" name="esic_name" class="form-control"></td>
+                                <td><input type="text" name="esic_number" class="form-control"></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-muted">* Mandatory Field (NOTE: BANK ACCOUNT NUMBER (ALONG WITH IFSC CODE) IS MANDATORY. YOU
+                   ARE HOWEVER ADVISED TO PROVIDE ALL KYC DOCUMENTS AVAILABLE WITH YOU IN ADDITION TO MANDATORY KYCS TO
+                   AVAIL BETTER SERVICES. SELF-ATTESTED PHOTOCOPIES OF THE DOCUMENTS MUST BE ATTACHED WITH THIS FORM.</p>
+            </div>
+        </div>
+        
+        <div class="section-title mt-4">C. UNDERTAKING:</div>
+        
+        <div class="form-section">
+            <div class="undertaking-text">
+                <p>A. I CERTIFY THAT ALL THE INFORMATION GIVEN ABOVE IS TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.</p>
+                <p>B. IN CASE, EARLIER A MEMBER OF EPF SCHEME, 1952 AND/OR EPS, 1995,</p>
+                <p class="ml-4">(I) I HAVE ENSURED THE CORRECTNESS OF MY UAN/ PREVIOUS PF MEMBER ID.</p>
+                <p class="ml-4">(II) THIS MAY ALSO BE TREATED AS MY REQUEST FOR TRANSFER OF FUNDS AND SERVICE DETAILS IF APPLICABLE FROM 
+                    THE PREVIOUS ACCOUNT AS DECLARED ABOVE TO THE PRESENT P.F. ACCOUNT. (THE TRANSFER WOULD BE POSSIBLE 
+                    ONLY IF THE IDENTIFIED KYC DETAILS APPROVED BY PREVIOUS EMPLOYER HAS BEEN VERIFIED BY PRESENT 
+                    EMPLOYER USING HIS DIGITAL SIGNATURE CERTIFICATE).</p>
+                <p class="ml-4">(III) I AM AWARE THAT I CAN SUBMIT MY NOMINATION FORM THROUGH UAN BASED MEMBER PORTAL.</p>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>DATE:</label>
+                        <input type="date" name="undertaking_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>PLACE:</label>
+                        <input type="text" name="undertaking_place" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="signature-box text-center">
+                        <p>SIGNATURE OF MEMBER</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="employer-section mt-5">
+            <div class="section-title">DECLARATION BY PRESENT EMPLOYER</div>
+            
+            <div class="form-section">
+                <div class="employer-declaration-text">
+                    <p>A. THE MEMBER Mr./Ms./Mrs. ………………………….. HAS JOINED ON ………………….. AND HAS BEEN ALLOTTED PF MEMBER ID
+                      …………………………………………...</p>
+                    <p>B. IN CASE THE PERSON WAS EARLIER NOT A MEMBER OF EPF SCHEME, 1952 AND EPS, 1995:</p>
+                    <p class="ml-4">(POST ALLOTMENT OF UAN) THE UAN ALLOTTED FOR THE MEMBER IS …………………………</p>
+                    <p class="ml-4">PLEASE TICK THE APPROPRIATE OPTION:</p>
+                    <p class="ml-4 ml-4">THE KYC DETAILS OF THE ABOVE MEMBER IN THE UAN DATABASE</p>
+                    <p class="ml-4 ml-4">□ HAVE NOT BEEN UPLOADED</p>
+                    <p class="ml-4 ml-4">□ HAVE BEEN UPLOADED BUT NOT APPROVED</p>
+                    <p class="ml-4 ml-4">□ HAVE BEEN UPLOADED AND APPROVED WITH DSC</p>
+                    <p>C. IN CASE THE PERSON WAS EARLIER A MEMBER OF EPF SCHEME, 1952 AND EPS, 1995:</p>
+                    <p class="ml-4">THE ABOVE MEMBER ID OF THE MEMBER AS MENTIONED IN (A) ABOVE HAS BEEN TAGGED WITH HIS/HER UAN/PREVIOUS
+                       MEMBER ID AS DECLARED BY MEMBER.</p>
+                    <p class="ml-4">PLEASE TICK THE APPROPRIATE OPTION:-</p>
+                    <p class="ml-4 ml-4">□ THE KYC DETAILS OF THE ABOVE MEMBER IN THE UAN DATABASE HAVE BEEN APPROVED WITH DIGITAL
+                       SIGNATURE CERTIFICATE AND TRANSFER REQUEST HAS BEEN GENERATED ON PORTAL.</p>
+                    <p class="ml-4 ml-4">□ AS THE DSC OF ESTABLISHMENT ARE NOT REGISTERED WITH EPFO, THE MEMBER HAS BEEN INFORMED TO FILE
+                       PHYSICAL CLAIM (FORM-13) FOR TRANSFER OF FUNDS FROM HIS PREVIOUS ESTABLISHMENT.</p>
+                </div>
+                
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>DATE:</label>
+                            <div class="empty-field"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="signature-box text-center">
+                            <p>SIGNATURE OF EMPLOYER WITH SEAL OF ESTABLISHMENT</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions mt-5">
+            <button type="button" class="btn btn-secondary" onclick="previewPDF()">Preview PDF</button>
+            <button type="submit" class="btn btn-primary">Submit Form</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+<style>
+    .pdf-form {
+        font-family: 'Arial', sans-serif;
+        margin-bottom: 40px;
+    }
+    
+    .form-header {
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        background-color: #f5f5f5;
+        padding: 10px;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+    
+    .form-section {
+        margin-bottom: 20px;
+    }
+    
+    .form-row {
+        display: flex;
+        margin-bottom: 10px;
+        align-items: flex-start;
+    }
+    
+    .form-number {
+        width: 40px;
+        font-weight: bold;
+    }
+    
+    .form-label {
+        width: 300px;
+        font-weight: bold;
+    }
+    
+    .form-field {
+        flex: 1;
+    }
+    
+    .date-boxes {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .date-box {
+        width: 40px;
+        text-align: center;
+    }
+    
+    .date-box label {
+        display: block;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .date-input {
+        width: 100%;
+        height: 40px;
+        text-align: center;
+        font-size: 18px;
+    }
+    
+    .empty-field {
+        border-bottom: 1px solid #000;
+        height: 25px;
+        margin-top: 5px;
+    }
+    
+    .signature-box {
+        border-top: 1px solid #000;
+        padding-top: 10px;
+        margin-top: 20px;
+    }
+    
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    @media print {
+        .form-actions, button {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    // Toggle international worker details
+    document.querySelectorAll('input[name="international_worker"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const intWorkerDetails = document.querySelector('.int-worker-details');
+            if (this.value === 'YES') {
+                intWorkerDetails.style.display = 'flex';
+            } else {
+                intWorkerDetails.style.display = 'none';
+            }
+        });
+    });
+    
+    // Toggle other country name field
+    document.querySelectorAll('input[name="country_origin"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const otherCountryField = document.querySelector('input[name="other_country_name"]');
+            if (this.value === 'OTHER') {
+                otherCountryField.style.display = 'block';
+            } else {
+                otherCountryField.style.display = 'none';
+            }
+        });
+    });
+    
+    // Toggle specially abled category
+    document.querySelectorAll('input[name="specially_abled"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const categorySection = document.querySelector('.spec-abled-category');
+            if (this.value === 'YES') {
+                categorySection.style.display = 'block';
+            } else {
+                categorySection.style.display = 'none';
+            }
+        });
+    });
+    
+    // Date inputs synchronization
+    const dobInputs = ['dob_day', 'dob_day2', 'dob_month', 'dob_month2', 'dob_year', 'dob_year2', 'dob_year3', 'dob_year4'];
+    dobInputs.forEach((inputName, index) => {
+        document.querySelector(`input[name="${inputName}"]`).addEventListener('input', function() {
+            updateActualDate('date_of_birth', dobInputs);
+            
+            // Auto-move to next input
+            if (this.value && index < dobInputs.length - 1) {
+                document.querySelector(`input[name="${dobInputs[index + 1]}"]`).focus();
+            }
+        });
+    });
+    
+    const exitInputs = ['exit_day', 'exit_day2', 'exit_month', 'exit_month2', 'exit_year', 'exit_year2', 'exit_year3', 'exit_year4'];
+    exitInputs.forEach((inputName, index) => {
+        document.querySelector(`input[name="${inputName}"]`).addEventListener('input', function() {
+            updateActualDate('exit_date', exitInputs);
+            
+            // Auto-move to next input
+            if (this.value && index < exitInputs.length - 1) {
+                document.querySelector(`input[name="${exitInputs[index + 1]}"]`).focus();
+            }
+        });
+    });
+    
+    function updateActualDate(targetFieldName, inputFields) {
+        const dayPart = document.querySelector(`input[name="${inputFields[0]}"]`).value + 
+                        document.querySelector(`input[name="${inputFields[1]}"]`).value;
+        const monthPart = document.querySelector(`input[name="${inputFields[2]}"]`).value + 
+                          document.querySelector(`input[name="${inputFields[3]}"]`).value;
+        const yearPart = document.querySelector(`input[name="${inputFields[4]}"]`).value + 
+                         document.querySelector(`input[name="${inputFields[5]}"]`).value +
+                         document.querySelector(`input[name="${inputFields[6]}"]`).value +
+                         document.querySelector(`input[name="${inputFields[7]}"]`).value;
+        
+        if (dayPart.length === 2 && monthPart.length === 2 && yearPart.length === 4) {
+            const dateStr = `${yearPart}-${monthPart}-${dayPart}`;
+            document.querySelector(`input[name="${targetFieldName}"]`).value = dateStr;
+        }
+    }
+    
+    // PDF Preview functionality
+    function previewPDF() {
+        // Show loading indicator
+        const loadingDiv = document.createElement('div');
+        loadingDiv.innerHTML = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;"><div><div class="spinner-border text-primary" role="status"></div><div class="mt-2">Generating PDF preview...</div></div></div>';
+        document.body.appendChild(loadingDiv);
+        
+        // Clone form for PDF generation
+        const form = document.querySelector('.pdf-form');
+        const clone = form.cloneNode(true);
+        
+        // Create a temporary container for PDF generation
+        const tempContainer = document.createElement('div');
+        tempContainer.className = 'container pdf-form';
+        tempContainer.style.width = '210mm';
+        tempContainer.style.padding = '20mm';
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        
+        // Remove form actions
+        const formActions = clone.querySelector('.form-actions');
+        if (formActions) formActions.remove();
+        
+        // Replace inputs with static text
+        const inputs = clone.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), select, textarea');
+        inputs.forEach(input => {
+            const value = input.value || '';
+            const textNode = document.createElement('div');
+            textNode.className = 'form-control-static';
+            textNode.style.minHeight = '24px';
+            textNode.style.padding = '5px 0';
+            textNode.style.borderBottom = '1px solid #777';
+            textNode.textContent = value;
+            
+            if (input.parentNode) {
+                input.parentNode.replaceChild(textNode, input);
+            }
+        });
+        
+        // Handle radio buttons and checkboxes
+        const radioButtons = clone.querySelectorAll('input[type="radio"]:checked');
+        radioButtons.forEach(radio => {
+            const label = radio.nextElementSibling;
+            if (label) {
+                label.style.fontWeight = 'bold';
+                label.style.color = '#000';
+            }
+        });
+        
+        // Add the form to the temporary container
+        document.body.appendChild(clone);
+        
+        // Generate PDF using html2canvas and jsPDF
+        window.html2canvas(clone, {
+            scale: 1.5,
+            useCORS: true,
+            logging: false,
+            windowWidth: 1200,
+            windowHeight: 1600
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new window.jspdf.jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+            
+            // Calculate how many pages we need
+            const totalPages = Math.ceil(imgHeight * ratio / pdfHeight);
+            
+            // Add each page
+            for (let i = 0; i < totalPages; i++) {
+                if (i > 0) {
+                    pdf.addPage();
+                }
+                
+                // Calculate which portion of the image to use for this page
+                const srcY = i * pdfHeight / ratio;
+                const srcHeight = Math.min(pdfHeight / ratio, imgHeight - srcY);
+                
+                // Add the image to the PDF
+                pdf.addImage(
+                    imgData, 'PNG',
+                    0, 0,
+                    pdfWidth, srcHeight * ratio,
+                    null, 'FAST',
+                    0, srcY
+                );
+            }
+            
+            // Open PDF in new window
+            pdf.output('dataurlnewwindow', { filename: 'Form_11_Declaration.pdf' });
+            
+            // Remove temporary elements
+            document.body.removeChild(clone);
+            document.body.removeChild(loadingDiv);
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-form-container">
+            <div class="auth-form-header">
+                <h2>Login</h2>
+                <p>Welcome back! Please login to your account.</p>
+            </div>
+            
+            <form method="post" action="{% url 'login' %}" class="auth-form">
+                {% csrf_token %}
+                
+                {% if error %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a href="{% url 'password_reset_request' %}" class="forgot-password">Forgot password?</a>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit">Login</button>
+                </div>
+                
+                <div class="auth-redirect">
+                    Don't have an account? <a href="{% url 'register' %}">Register</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-showcase">
+            <div class="showcase-content">
+                <h1>HR Talent Solution</h1>
+                <h3>Employee Data Collection System</h3>
+                <p>Streamline your employee onboarding process with our comprehensive data collection and form management system.</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> Easy form submissions</li>
+                    <li><i class="fas fa-check-circle"></i> Secure document uploads</li>
+                    <li><i class="fas fa-check-circle"></i> Downloadable PDF forms</li>
+                    <li><i class="fas fa-check-circle"></i> Real-time approval status</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 180px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    
+    .auth-box {
+        width: 100%;
+        max-width: 1200px;
+        display: flex;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .auth-form-container {
+        flex: 1;
+        padding: 40px;
+    }
+    
+    .auth-showcase {
+        flex: 1;
+        background-color: #ff6600;
+        color: white;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .auth-form-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .auth-form-header h2 {
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .auth-form-header p {
+        color: #777;
+    }
+    
+    .auth-form .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .auth-form label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .auth-form input[type="text"],
+    .auth-form input[type="email"],
+    .auth-form input[type="password"],
+    .auth-form select {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        transition: border-color 0.3s;
+    }
+    
+    .auth-form input:focus,
+    .auth-form select:focus {
+        border-color: #ff6600;
+        outline: none;
+    }
+    
+    .auth-form button {
+        width: 100%;
+        padding: 12px;
+        background-color: #ff6600;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .auth-form button:hover {
+        background-color: #e65c00;
+    }
+    
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .remember-me {
+        display: flex;
+        align-items: center;
+    }
+    
+    .remember-me input {
+        margin-right: 8px;
+    }
+    
+    .forgot-password {
+        color: #ff6600;
+        text-decoration: none;
+    }
+    
+    .auth-redirect {
+        text-align: center;
+        margin-top: 20px;
+        color: #777;
+    }
+    
+    .auth-redirect a {
+        color: #ff6600;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .showcase-content h1 {
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+    
+    .showcase-content h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+        opacity: 0.9;
+    }
+    
+    .showcase-content p {
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+    
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .feature-list li {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .feature-list i {
+        margin-right: 10px;
+    }
+    
+    .alert {
+        padding: 12px 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    @media (max-width: 992px) {
+        .auth-box {
+            flex-direction: column-reverse;
+        }
+        
+        .auth-showcase {
+            padding: 30px;
+        }
+        
+        .showcase-content h1 {
+            font-size: 28px;
+        }
+    }
+</style>
+{% endblock %}

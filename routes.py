@@ -1,22 +1,25 @@
-from flask import render_template, redirect, url_for, flash, request, abort, jsonify
+from flask import render_template, redirect, url_for, flash, request, abort, jsonify, send_file
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.urls import urlsplit
 from datetime import datetime
+import os
 
 from app import app, db
-from models import User, EmployeeProfile, EmployerProfile, Document, PasswordResetToken, DocumentTypes, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE, NewsUpdate
+from models import User, EmployeeProfile, EmployerProfile, Document, PasswordResetToken, DocumentTypes, FamilyMember, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE, NewsUpdate
 from forms import (
     LoginForm, PasswordResetRequestForm, PasswordResetForm, FirstLoginForm,
     CreateEmployeeForm, CreateEmployerForm, EmployeeProfileForm,
     EmployeeSearchForm, DocumentUploadForm, AadharUploadForm, PANUploadForm,
     PhotoUploadForm, PassbookUploadForm, JoiningFormUploadForm, PFFormUploadForm,
-    Form1UploadForm, Form11UploadForm, NewsUpdateForm
+    Form1UploadForm, Form11UploadForm, NewsUpdateForm, PoliceVerificationUploadForm,
+    MedicalCertificateUploadForm, FamilyMemberForm, FamilyDetailsUploadForm
 )
 from utils import (
     generate_reset_token, get_token_expiry, save_document, save_pdf,
     extract_pdf_data, validate_login_identifier, get_document_status,
     get_employee_documents, get_missing_documents, get_document_completion_percentage
 )
+from pdf_utils import generate_combined_pdf, create_documents_zip, add_metadata_to_combined_pdf
 
 # Login and Authentication Routes
 
@@ -355,6 +358,30 @@ def employee_detail(employee_id):
     documents = Document.query.filter_by(employee_id=employee_id).all()
     
     return render_template('employer/employee_detail.html', employee=employee, documents=documents)
+    
+@app.route('/employer/employee/<int:employee_id>/profile')
+@login_required
+def view_employee_profile(employee_id):
+    """View an employee's profile details."""
+    if not current_user.is_employer() and not current_user.is_admin():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.get_or_404(employee_id)
+    user = User.query.get(employee.user_id)
+    
+    # Get required documents and completion status
+    documents = get_employee_documents(employee_id)
+    missing_docs = get_missing_documents(employee_id)
+    completion_percentage = get_document_completion_percentage(employee_id)
+    
+    return render_template(
+        'employer/view_employee_profile.html',
+        employee=employee,
+        user=user,
+        documents=documents,
+        missing_docs=missing_docs,
+        completion_percentage=completion_percentage
+    )
 
 # Employee Routes
 
@@ -430,6 +457,9 @@ def employee_forms():
     pf_form = PFFormUploadForm()
     form1_form = Form1UploadForm()
     form11_form = Form11UploadForm()
+    police_verification_form = PoliceVerificationUploadForm()
+    medical_certificate_form = MedicalCertificateUploadForm()
+    family_details_form = FamilyDetailsUploadForm()
     
     return render_template(
         'employee/forms.html',
@@ -444,7 +474,10 @@ def employee_forms():
         joining_form=joining_form,
         pf_form=pf_form,
         form1_form=form1_form,
-        form11_form=form11_form
+        form11_form=form11_form,
+        police_verification_form=police_verification_form,
+        medical_certificate_form=medical_certificate_form,
+        family_details_form=family_details_form
     )
 
 @app.route('/document/<int:document_id>')
@@ -1068,4 +1101,304 @@ def delete_news_update(news_id):
     
     flash('News/Update deleted successfully', 'success')
     return redirect(url_for('employer_news_list'))
+
+# New Document Types Upload Routes
+@app.route('/employee/upload/police_verification', methods=['POST'])
+@login_required
+def upload_police_verification():
+    """Upload Police Verification Certificate document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = PoliceVerificationUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.POLICE_VERIFICATION)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.POLICE_VERIFICATION
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.document_number = form.document_number.data
+                existing_doc.issue_date = form.issue_date.data
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.POLICE_VERIFICATION,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    document_number=form.document_number.data,
+                    issue_date=form.issue_date.data,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Police Verification Certificate uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/medical_certificate', methods=['POST'])
+@login_required
+def upload_medical_certificate():
+    """Upload Medical Certificate document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = MedicalCertificateUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.MEDICAL_CERTIFICATE)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.MEDICAL_CERTIFICATE
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.issue_date = form.issue_date.data
+                existing_doc.expiry_date = form.expiry_date.data
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.MEDICAL_CERTIFICATE,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    issue_date=form.issue_date.data,
+                    expiry_date=form.expiry_date.data,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Medical Certificate uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+@app.route('/employee/upload/family_details', methods=['POST'])
+@login_required
+def upload_family_details():
+    """Upload Family Details document."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+        
+    form = FamilyDetailsUploadForm()
+    if form.validate_on_submit():
+        # Save the uploaded file
+        file_path = save_document(form.document_file.data, current_user.id, DocumentTypes.FAMILY_DETAILS)
+        
+        if file_path:
+            # Check if document of this type already exists
+            existing_doc = Document.query.filter_by(
+                employee_id=employee.id, 
+                document_type=DocumentTypes.FAMILY_DETAILS
+            ).first()
+            
+            if existing_doc:
+                # Update existing document
+                existing_doc.document_name = form.document_name.data
+                existing_doc.file_path = file_path
+                existing_doc.upload_date = datetime.utcnow()
+                existing_doc.status = 'pending'
+            else:
+                # Create a new document record
+                document = Document(
+                    employee_id=employee.id,
+                    document_type=DocumentTypes.FAMILY_DETAILS,
+                    document_name=form.document_name.data,
+                    file_path=file_path,
+                    status='pending'
+                )
+                db.session.add(document)
+                
+            db.session.commit()
+            
+            flash('Family Details document uploaded successfully', 'success')
+        else:
+            flash('Failed to upload document. Please ensure it is a valid PDF file.', 'error')
+            
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'error')
+                
+    return redirect(url_for('employee_forms'))
+
+# Combined PDF Preview Route
+@app.route('/employee/documents/combined-pdf')
+@login_required
+def generate_combined_pdf_preview():
+    """Generate a combined PDF from all employee documents."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+    
+    # Get all documents for this employee
+    all_documents = Document.query.filter_by(employee_id=employee.id).all()
+    
+    if not all_documents:
+        flash('No documents available to generate combined PDF.', 'warning')
+        return redirect(url_for('employee_forms'))
+    
+    # Generate the combined PDF
+    from pdf_utils import generate_combined_pdf, add_metadata_to_combined_pdf
+    pdf_buffer = generate_combined_pdf(all_documents)
+    
+    if not pdf_buffer:
+        flash('Error generating combined PDF. Please try again later.', 'error')
+        return redirect(url_for('employee_forms'))
+    
+    # Add metadata to the PDF
+    pdf_buffer = add_metadata_to_combined_pdf(pdf_buffer, employee)
+    
+    # Return the PDF as a response
+    from flask import send_file
+    return send_file(
+        pdf_buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'employee_{employee.employee_id}_documents.pdf'
+    )
+
+@app.route('/employee/documents/download-zip')
+@login_required
+def download_documents_zip():
+    """Download a ZIP file containing all employee documents."""
+    if not current_user.is_employee():
+        abort(403)  # Forbidden
+        
+    employee = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    if not employee:
+        flash('Employee profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employee_dashboard'))
+    
+    # Get all documents for this employee
+    all_documents = Document.query.filter_by(employee_id=employee.id).all()
+    
+    if not all_documents:
+        flash('No documents available to download.', 'warning')
+        return redirect(url_for('employee_forms'))
+    
+    # Create a ZIP file with all documents
+    from pdf_utils import create_documents_zip
+    zip_buffer = create_documents_zip(all_documents)
+    
+    if not zip_buffer:
+        flash('Error creating ZIP file. Please try again later.', 'error')
+        return redirect(url_for('employee_forms'))
+    
+    # Return the ZIP file as a response
+    from flask import send_file
+    return send_file(
+        zip_buffer,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name=f'employee_{employee.employee_id}_documents.zip'
+    )
+
+# Employer document preview routes
+@app.route('/employer/view-employee-documents/<int:employee_id>')
+@login_required
+def view_employee_documents(employee_id):
+    """View all documents for a specific employee."""
+    if not (current_user.is_employer() or current_user.is_admin()):
+        abort(403)  # Forbidden
+    
+    employee = EmployeeProfile.query.get_or_404(employee_id)
+    documents = Document.query.filter_by(employee_id=employee_id).all()
+    
+    return render_template(
+        'employer/view_employee_documents.html',
+        employee=employee,
+        documents=documents
+    )
+
+@app.route('/employer/employee-combined-pdf/<int:employee_id>')
+@login_required
+def employer_view_combined_pdf(employee_id):
+    """Generate a combined PDF from all employee documents for employer viewing."""
+    if not (current_user.is_employer() or current_user.is_admin()):
+        abort(403)  # Forbidden
+    
+    employee = EmployeeProfile.query.get_or_404(employee_id)
+    
+    # Get all documents for this employee
+    all_documents = Document.query.filter_by(employee_id=employee_id).all()
+    
+    if not all_documents:
+        flash('No documents available to generate combined PDF.', 'warning')
+        return redirect(url_for('view_employee_documents', employee_id=employee_id))
+    
+    # Generate the combined PDF
+    from pdf_utils import generate_combined_pdf, add_metadata_to_combined_pdf
+    pdf_buffer = generate_combined_pdf(all_documents)
+    
+    if not pdf_buffer:
+        flash('Error generating combined PDF. Please try again later.', 'error')
+        return redirect(url_for('view_employee_documents', employee_id=employee_id))
+    
+    # Add metadata to the PDF
+    pdf_buffer = add_metadata_to_combined_pdf(pdf_buffer, employee)
+    
+    # Return the PDF as a response
+    from flask import send_file
+    return send_file(
+        pdf_buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'employee_{employee.employee_id}_documents.pdf'
+    )
 

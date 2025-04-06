@@ -1,0 +1,58 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}Police Verification Certificate Upload{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Upload Police Verification Certificate</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Please upload your Police Verification Certificate issued by the local police station.</p>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group mb-3">
+                    {{ form.document_name.label(class="form-label") }}
+                    {{ form.document_name(class="form-control") }}
+                    {% for error in form.document_name.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ form.document_file.label(class="form-label") }}
+                    {{ form.document_file(class="form-control") }}
+                    {% for error in form.document_file.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                    <small class="text-muted">Accepted formats: JPG, JPEG, PNG, PDF</small>
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ form.document_number.label(class="form-label") }}
+                    {{ form.document_number(class="form-control") }}
+                    {% for error in form.document_number.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ form.issue_date.label(class="form-label") }}
+                    {{ form.issue_date(class="form-control", type="date") }}
+                    {% for error in form.issue_date.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('employee_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Process Form Submission{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>HR Talent Solution</h1>
+    <h2>Process Form Submission</h2>
+    <hr>
+    
+    <div class="process-container">
+        <div class="submission-preview">
+            <div class="preview-header">
+                <h3>{{ submission.get_form_type_display }}</h3>
+                <div class="preview-info">
+                    <div class="info-item">
+                        <strong>Submitted by:</strong> {{ submission.user.get_full_name }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Submitted on:</strong> {{ submission.submitted_at|date:"F d, Y, g:i a" }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Status:</strong> <span class="status-label status-{{ submission.status }}">{{ submission.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preview-content">
+                <div class="preview-section">
+                    <h4>Form Summary</h4>
+                    <div class="field-grid">
+                        {% for key, value in form_data.items|slice:":6" %}
+                        <div class="preview-field">
+                            <div class="field-name">{{ key|title|replace_underscores }}</div>
+                            <div class="field-value">
+                                {% if value %}
+                                    {% if value|truncatechars:30 != value %}
+                                        {{ value|truncatechars:30 }}
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                {% else %}
+                                    <span class="empty-field">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="preview-action">
+                        <a href="{% url 'view_form_submission' submission.id %}" class="view-all-btn">View all details</a>
+                        <a href="{% url 'download_form_pdf' submission.id %}" class="pdf-btn">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="approval-form">
+            <h3>Review & Decision</h3>
+            
+            <form method="post" action="">
+                {% csrf_token %}
+                
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                
+                <div class="form-section">
+                    <div class="decision-options">
+                        <label class="decision-option approval">
+                            <input type="radio" name="action" value="approve" required>
+                            <div class="option-content">
+                                <i class="fas fa-check-circle option-icon"></i>
+                                <div class="option-text">
+                                    <span class="option-title">Approve</span>
+                                    <span class="option-desc">The form meets all requirements</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="decision-option rejection">
+                            <input type="radio" name="action" value="reject" required>
+                            <div class="option-content">
+                                <i class="fas fa-times-circle option-icon"></i>
+                                <div class="option-text">
+                                    <span class="option-title">Reject</span>
+                                    <span class="option-desc">The form requires revisions</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <label for="comments">Comments</label>
+                    <textarea id="comments" name="comments" rows="5" placeholder="Please provide feedback, suggestions, or reasons for approval/rejection..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{% url 'employer_dashboard' %}" class="cancel-btn">Cancel</a>
+                    <button type="submit" class="submit-btn">Submit Decision</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    h1, h2 {
+        text-align: center;
+    }
+    
+    hr {
+        border: 1px solid #ff6600;
+        margin-bottom: 30px;
+    }
+    
+    .process-container {
+        display: flex;
+        gap: 30px;
+    }
+    
+    .submission-preview {
+        flex: 1;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .preview-header {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .preview-header h3 {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .preview-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    .info-item {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .status-label {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .preview-content {
+        padding: 20px;
+    }
+    
+    .preview-section {
+        margin-bottom: 25px;
+    }
+    
+    .preview-section h4 {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .field-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .preview-field {
+        background-color: #f9f9f9;
+        padding: 12px;
+        border-radius: 5px;
+    }
+    
+    .field-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    .field-value {
+        color: #555;
+        font-size: 14px;
+    }
+    
+    .empty-field {
+        color: #999;
+        font-style: italic;
+    }
+    
+    .preview-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .view-all-btn, .pdf-btn {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: opacity 0.2s;
+    }
+    
+    .view-all-btn {
+        background-color: #f5f5f5;
+        color: #333;
+    }
+    
+    .pdf-btn {
+        background-color: #28a745;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .view-all-btn:hover, .pdf-btn:hover {
+        opacity: 0.9;
+    }
+    
+    .approval-form {
+        flex: 1;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+    }
+    
+    .approval-form h3 {
+        font-size: 22px;
+        color: #333;
+        margin-bottom: 25px;
+    }
+    
+    .form-section {
+        margin-bottom: 25px;
+    }
+    
+    .decision-options {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .decision-option {
+        flex: 1;
+        position: relative;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .decision-option input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .option-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .option-icon {
+        font-size: 32px;
+        color: #999;
+    }
+    
+    .approval .option-icon {
+        color: #28a745;
+    }
+    
+    .rejection .option-icon {
+        color: #dc3545;
+    }
+    
+    .option-text {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .option-title {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+    
+    .option-desc {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .decision-option:hover {
+        border-color: #ccc;
+    }
+    
+    .decision-option input:checked + .option-content {
+        color: #333;
+    }
+    
+    .decision-option.approval input:checked ~ * {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.05);
+    }
+    
+    .decision-option.rejection input:checked ~ * {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.05);
+    }
+    
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        resize: vertical;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .cancel-btn, .submit-btn {
+        padding: 12px 24px;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    
+    .cancel-btn {
+        background-color: #f5f5f5;
+        color: #333;
+        text-decoration: none;
+        border: none;
+    }
+    
+    .submit-btn {
+        background-color: #ff6600;
+        color: white;
+        border: none;
+    }
+    
+    .cancel-btn:hover, .submit-btn:hover {
+        opacity: 0.9;
+    }
+    
+    .alert {
+        padding: 12px 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    @media (max-width: 992px) {
+        .process-container {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Highlight the selected option
+    document.querySelectorAll('.decision-option input').forEach(input => {
+        input.addEventListener('change', function() {
+            const options = document.querySelectorAll('.decision-option');
+            options.forEach(option => {
+                option.style.borderColor = '#e0e0e0';
+                option.style.backgroundColor = 'white';
+            });
+            
+            if (this.checked) {
+                const parent = this.closest('.decision-option');
+                if (this.value === 'approve') {
+                    parent.style.borderColor = '#28a745';
+                    parent.style.backgroundColor = 'rgba(40, 167, 69, 0.05)';
+                } else {
+                    parent.style.borderColor = '#dc3545';
+                    parent.style.backgroundColor = 'rgba(220, 53, 69, 0.05)';
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

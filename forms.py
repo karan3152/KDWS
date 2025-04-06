@@ -201,6 +201,56 @@ class Form11UploadForm(DocumentUploadForm):
         FileAllowed(['pdf'], 'Only PDF files are allowed!')
     ])
     
+class PoliceVerificationUploadForm(DocumentUploadForm):
+    """Form for uploading Police Verification Certificate."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.POLICE_VERIFICATION)
+    document_name = StringField('Document Name', default='Police Verification Certificate', validators=[DataRequired()])
+    document_file = FileField('Upload Certificate', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['jpg', 'jpeg', 'png', 'pdf'], 'Only image files and PDFs are allowed!')
+    ])
+    issue_date = DateField('Issue Date', format='%Y-%m-%d', validators=[DataRequired()])
+    document_number = StringField('Certificate Number', validators=[Optional()])
+
+class MedicalCertificateUploadForm(DocumentUploadForm):
+    """Form for uploading Medical Certificate."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.MEDICAL_CERTIFICATE)
+    document_name = StringField('Document Name', default='Medical Certificate', validators=[DataRequired()])
+    document_file = FileField('Upload Certificate', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['jpg', 'jpeg', 'png', 'pdf'], 'Only image files and PDFs are allowed!')
+    ])
+    issue_date = DateField('Issue Date', format='%Y-%m-%d', validators=[DataRequired()])
+    expiry_date = DateField('Valid Until', format='%Y-%m-%d', validators=[Optional()])
+
+class FamilyMemberForm(FlaskForm):
+    """Form for adding family member details."""
+    name = StringField('Name', validators=[DataRequired()])
+    relationship = SelectField('Relationship', choices=[
+        ('spouse', 'Spouse'),
+        ('child', 'Child'),
+        ('parent', 'Parent'),
+        ('sibling', 'Sibling'),
+        ('other', 'Other')
+    ], validators=[DataRequired()])
+    date_of_birth = DateField('Date of Birth', format='%Y-%m-%d', validators=[Optional()])
+    aadhar_id = StringField('Aadhar Number', validators=[Optional(), Length(min=12, max=12, message='Aadhar number must be 12 digits')])
+    contact_number = StringField('Contact Number', validators=[Optional()])
+    photo = FileField('Upload Photo', validators=[
+        Optional(),
+        FileAllowed(['jpg', 'jpeg', 'png'], 'Only image files are allowed!')
+    ])
+    submit = SubmitField('Add Family Member')
+
+class FamilyDetailsUploadForm(DocumentUploadForm):
+    """Form for uploading Family Details Document."""
+    document_type = HiddenField('Document Type', default=DocumentTypes.FAMILY_DETAILS)
+    document_name = StringField('Document Name', default='Family Details', validators=[DataRequired()])
+    document_file = FileField('Upload Document', validators=[
+        FileRequired(message='Please select a file'),
+        FileAllowed(['pdf'], 'Only PDF files are allowed!')
+    ])
+
 class NewsUpdateForm(FlaskForm):
     """Form for employers to create news and updates."""
     title = StringField('Title', validators=[DataRequired(), Length(max=200)])

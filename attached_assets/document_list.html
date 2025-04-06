@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Document List{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>HR Talent Solution</h1>
+    <h2>Document Repository</h2>
+    <hr>
+
+    <div class="document-filters">
+        <div class="filter-controls">
+            <input type="text" id="searchInput" placeholder="Search documents..." class="search-input">
+            
+            <div class="filter-dropdown">
+                <select id="typeFilter">
+                    <option value="all">All Document Types</option>
+                    <option value="aadhar">Aadhar Card</option>
+                    <option value="pan">PAN Card</option>
+                    <option value="resume">Resume</option>
+                    <option value="photo">Photograph</option>
+                    <option value="signature">Signature</option>
+                    <option value="offer_letter">Offer Letter</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+        
+        {% if user.profile.user_type == 'employee' %}
+        <a href="{% url 'upload_document' %}" class="add-document-btn">
+            <i class="fas fa-plus"></i> Upload New Document
+        </a>
+        {% endif %}
+    </div>
+    
+    {% if documents %}
+    <div class="document-grid">
+        {% for document in documents %}
+        <div class="document-card" data-type="{{ document.document_type }}">
+            <div class="document-icon">
+                {% if document.document_type == 'photo' or document.document_file.url|lower|slice:"-3:" in 'jpg,png,gif' %}
+                <img src="{{ document.document_file.url }}" alt="{{ document.get_document_type_display }}" class="preview-image">
+                {% else %}
+                <i class="fas fa-file-alt document-icon-placeholder"></i>
+                {% endif %}
+            </div>
+            <div class="document-details">
+                <h3>{{ document.get_document_type_display }}</h3>
+                {% if user.profile.user_type == 'employer' %}
+                <p class="document-owner">{{ document.user.get_full_name }}</p>
+                {% endif %}
+                <p class="document-date">Uploaded: {{ document.uploaded_at|date:"M d, Y" }}</p>
+                {% if document.description %}
+                <p class="document-description">{{ document.description }}</p>
+                {% endif %}
+            </div>
+            <div class="document-actions">
+                <a href="{{ document.document_file.url }}" target="_blank" class="action-button view">
+                    <i class="fas fa-eye"></i> View
+                </a>
+                <a href="{{ document.document_file.url }}" download class="action-button download">
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-documents">
+        <i class="fas fa-folder-open empty-icon"></i>
+        <p>No documents available at this time.</p>
+        {% if user.profile.user_type == 'employee' %}
+        <a href="{% url 'upload_document' %}" class="add-document-link">Upload your first document</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .document-filters {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .filter-controls {
+        display: flex;
+        gap: 15px;
+        flex: 1;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .filter-dropdown select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: white;
+    }
+    
+    .add-document-btn {
+        background-color: #ff6600;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .add-document-btn:hover {
+        background-color: #cc5500;
+    }
+    
+    .document-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .document-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .document-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    
+    .document-icon {
+        height: 160px;
+        background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .document-icon-placeholder {
+        font-size: 48px;
+        color: #999;
+    }
+    
+    .document-details {
+        padding: 15px;
+    }
+    
+    .document-details h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    
+    .document-owner {
+        color: #666;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+    }
+    
+    .document-date {
+        color: #999;
+        font-size: 12px;
+        margin: 0 0 5px 0;
+    }
+    
+    .document-description {
+        color: #666;
+        font-size: 14px;
+        margin: 5px 0 0 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .document-actions {
+        padding: 10px 15px;
+        background-color: #f9f9f9;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    .action-button.view {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .action-button.download {
+        background-color: #2ecc71;
+        color: white;
+    }
+    
+    .no-documents {
+        text-align: center;
+        padding: 50px 0;
+    }
+    
+    .empty-icon {
+        font-size: 48px;
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+    
+    .no-documents p {
+        color: #999;
+        margin-bottom: 15px;
+    }
+    
+    .add-document-link {
+        display: inline-block;
+        background-color: #ff6600;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .add-document-link:hover {
+        background-color: #cc5500;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-controls {
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        .document-filters {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .add-document-btn {
+            align-self: flex-start;
+        }
+        
+        .document-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', filterDocuments);
+    document.getElementById('typeFilter').addEventListener('change', filterDocuments);
+    
+    function filterDocuments() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const typeValue = document.getElementById('typeFilter').value;
+        const cards = document.querySelectorAll('.document-card');
+        
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            const type = card.dataset.type;
+            
+            const matchesSearch = text.includes(searchValue);
+            const matchesType = typeValue === 'all' || type === typeValue;
+            
+            if (matchesSearch && matchesType) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

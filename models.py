@@ -108,6 +108,9 @@ class DocumentTypes:
     PF_FORM = 'pf_form'
     FORM1 = 'form1'
     FORM11 = 'form11'
+    POLICE_VERIFICATION = 'police_verification'
+    MEDICAL_CERTIFICATE = 'medical_certificate'
+    FAMILY_DETAILS = 'family_details'
     
     @classmethod
     def all_types(cls):
@@ -120,13 +123,16 @@ class DocumentTypes:
             cls.JOINING_FORM,
             cls.PF_FORM,
             cls.FORM1,
-            cls.FORM11
+            cls.FORM11,
+            cls.POLICE_VERIFICATION,
+            cls.MEDICAL_CERTIFICATE,
+            cls.FAMILY_DETAILS
         ]
     
     @classmethod
     def get_required_types(cls):
         """Return a list of required document types."""
-        return [cls.AADHAR, cls.PAN, cls.PHOTO, cls.PASSBOOK]
+        return [cls.AADHAR, cls.PAN, cls.PHOTO, cls.PASSBOOK, cls.POLICE_VERIFICATION, cls.MEDICAL_CERTIFICATE, cls.FAMILY_DETAILS]
 
 class PasswordResetToken(db.Model):
     """Model for password reset tokens."""
@@ -141,6 +147,23 @@ class PasswordResetToken(db.Model):
     
     def __repr__(self):
         return f'<PasswordResetToken {self.token}>'
+
+class FamilyMember(db.Model):
+    """Model for storing family member details."""
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee_profile.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    relationship = db.Column(db.String(50), nullable=False)
+    date_of_birth = db.Column(db.Date)
+    aadhar_id = db.Column(db.String(20))
+    photo_path = db.Column(db.String(255))
+    contact_number = db.Column(db.String(20))
+    
+    # Relationship with employee
+    employee = db.relationship('EmployeeProfile', backref='family_members')
+    
+    def __repr__(self):
+        return f'<FamilyMember {self.name} ({self.relationship})>'
 
 class NewsUpdate(db.Model):
     """Model for company news and updates."""

@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Employer Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="dashboard-header">
+        <h2>Employer Dashboard</h2>
+        <p>Welcome, {{ user.get_full_name }}</p>
+    </div>
+    
+    <div class="stats-panel">
+        <div class="stat-card">
+            <h3>Total Employees</h3>
+            <div class="stat-value">{{ total_employees }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Form Submissions</h3>
+            <div class="stat-value">{{ total_submissions }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Pending Forms</h3>
+            <div class="stat-value">{{ pending_submissions }}</div>
+        </div>
+    </div>
+    
+    <div class="employee-section">
+        <h3>Employee List</h3>
+        {% if employees %}
+        <div class="search-filter">
+            <input type="text" id="employeeSearch" placeholder="Search by name or ID...">
+        </div>
+        <table class="employee-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Joining Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td>{{ employee.employee_details.employee_id }}</td>
+                    <td>{{ employee.get_full_name }}</td>
+                    <td>{{ employee.employee_details.department }}</td>
+                    <td>{{ employee.employee_details.designation }}</td>
+                    <td>{{ employee.employee_details.date_of_joining|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="#" class="action-button view" onclick="viewEmployee({{ employee.id }})">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No employees found.</p>
+        {% endif %}
+    </div>
+    
+    <div class="form-submissions-section">
+        <h3>Recent Form Submissions</h3>
+        {% if recent_submissions %}
+        <table class="submissions-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Form Type</th>
+                    <th>Submitted On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in recent_submissions %}
+                <tr>
+                    <td>{{ submission.user.get_full_name }}</td>
+                    <td>{{ submission.get_form_type_display }}</td>
+                    <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
+                    <td class="status-{{ submission.status }}">{{ submission.get_status_display }}</td>
+                    <td>
+                        <a href="{% url 'view_form_submission' submission.id %}" class="action-button view">View</a>
+                        {% if submission.status == 'pending' %}
+                        <a href="{% url 'process_form_submission' submission.id %}" class="action-button process">Process</a>
+                        {% endif %}
+                        <a href="{% url 'download_form_pdf' submission.id %}" class="action-button download">Download</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No recent form submissions.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Employee Detail Modal -->
+<div id="employeeModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="employeeDetails"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        margin-bottom: 20px;
+    }
+    
+    .dashboard-header h2 {
+        margin-bottom: 5px;
+    }
+    
+    .stats-panel {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background-color: white;
+        border-radius: 5px;
+        padding: 15px;
+        width: 30%;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    
+    .employee-section, .form-submissions-section {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    
+    .search-filter {
+        margin-bottom: 15px;
+    }
+    
+    .search-filter input {
+        padding: 8px;
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .employee-table, .submissions-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .employee-table th, .employee-table td, 
+    .submissions-table th, .submissions-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .employee-table th, .submissions-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    
+    .status-pending {
+        color: #f39c12;
+    }
+    
+    .status-approved {
+        color: #27ae60;
+    }
+    
+    .status-rejected {
+        color: #e74c3c;
+    }
+    
+    .action-button {
+        display: inline-block;
+        padding: 5px 10px;
+        margin-right: 5px;
+        border-radius: 3px;
+        text-decoration: none;
+        color: white;
+        font-size: 12px;
+    }
+    
+    .action-button.view {
+        background-color: #3498db;
+    }
+    
+    .action-button.download {
+        background-color: #2ecc71;
+    }
+    
+    .action-button.process {
+        background-color: #f39c12;
+    }
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 60%;
+        border-radius: 5px;
+    }
+    
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Employee search functionality
+    document.getElementById('employeeSearch').addEventListener('keyup', function() {
+        const value = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.employee-table tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(value) ? '' : 'none';
+        });
+    });
+    
+    // Employee modal functionality
+    function viewEmployee(employeeId) {
+        // This would be replaced with an AJAX call to get employee details
+        document.getElementById('employeeModal').style.display = 'block';
+        document.getElementById('employeeDetails').innerHTML = '<p>Loading employee details...</p>';
+        
+        // Simulated AJAX call
+        fetch(`/api/employees/${employeeId}/`)
+            .then(response => response.json())
+            .then(data => {
+                const detailsHTML = `
+                    <h3>${data.name}</h3>
+                    <div><strong>Employee ID:</strong> ${data.employee_id}</div>
+                    <div><strong>Department:</strong> ${data.department}</div>
+                    <div><strong>Position:</strong> ${data.position}</div>
+                    <div><strong>Contact:</strong> ${data.email}, ${data.phone}</div>
+                    <h4>Documents</h4>
+                    <ul>
+                        ${data.documents.map(doc => `<li>${doc.type} - <a href="${doc.url}" target="_blank">View</a></li>`).join('')}
+                    </ul>
+                `;
+                document.getElementById('employeeDetails').innerHTML = detailsHTML;
+            })
+            .catch(error => {
+                document.getElementById('employeeDetails').innerHTML = '<p>Error loading employee details. Please try again.</p>';
+            });
+    }
+    
+    // Close modal when clicking the X
+    document.querySelector('.modal .close').addEventListener('click', function() {
+        document.getElementById('employeeModal').style.display = 'none';
+    });
+    
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('employeeModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

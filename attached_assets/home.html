@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - Employee Data Collection System{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>HR Talent Solution</h1>
+            <h2>Employee Data Collection System</h2>
+            <p>Streamline your employee onboarding process with our comprehensive data collection and form management system.</p>
+            <div class="hero-buttons">
+                {% if user.is_authenticated %}
+                    {% if user.profile.user_type == 'employee' %}
+                    <a href="{% url 'employee_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+                    {% else %}
+                    <a href="{% url 'employer_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+                    {% endif %}
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'images/hero-image.svg' %}" alt="HR Management">
+        </div>
+    </div>
+    
+    <div class="features-section">
+        <h2>Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Smart Form Collection</h3>
+                <p>Collect employee data through intelligent forms with validation and easy submission process.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Document Management</h3>
+                <p>Upload, organize and access employee documents securely in one centralized location.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3>PDF Generation</h3>
+                <p>Convert form submissions into professional PDF documents for easy sharing and printing.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3>Approval Workflow</h3>
+                <p>Streamlined approval process for form submissions with status tracking and notifications.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="how-it-works-section">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Register</h3>
+                    <p>Create an account as an employee or employer to access the system.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Fill Forms</h3>
+                    <p>Employees fill out necessary forms and upload required documents.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Submit</h3>
+                    <p>Submit completed forms for review and approval process.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Approval</h3>
+                    <p>Employers review, approve or request revisions to submitted forms.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Streamline Your Employee Onboarding?</h2>
+            <p>Join our platform today and experience the benefits of digitized employee data collection.</p>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .home-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    /* Hero Section */
+    .hero-section {
+        display: flex;
+        align-items: center;
+        min-height: 500px;
+        padding: 60px 0;
+    }
+    
+    .hero-content {
+        flex: 1;
+        padding-right: 40px;
+    }
+    
+    .hero-content h1 {
+        font-size: 48px;
+        color: #ff6600;
+        margin-bottom: 10px;
+    }
+    
+    .hero-content h2 {
+        font-size: 36px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    .hero-content p {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 12px 28px;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background-color: #ff6600;
+        color: white;
+        border: 2px solid #ff6600;
+    }
+    
+    .btn-primary:hover {
+        background-color: #e65c00;
+        border-color: #e65c00;
+    }
+    
+    .btn-secondary {
+        background-color: transparent;
+        color: #ff6600;
+        border: 2px solid #ff6600;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #fff1eb;
+    }
+    
+    .hero-image {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .hero-image img {
+        max-width: 100%;
+        height: auto;
+        max-height: 400px;
+    }
+    
+    /* Features Section */
+    .features-section {
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .features-section h2 {
+        font-size: 36px;
+        color: #333;
+        margin-bottom: 50px;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+    
+    .feature-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 40px 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        font-size: 48px;
+        color: #ff6600;
+        margin-bottom: 20px;
+    }
+    
+    .feature-card h3 {
+        font-size: 22px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .feature-card p {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    /* How It Works Section */
+    .how-it-works-section {
+        padding: 80px 0;
+        background-color: #f9f9f9;
+        text-align: center;
+    }
+    
+    .how-it-works-section h2 {
+        font-size: 36px;
+        color: #333;
+        margin-bottom: 50px;
+    }
+    
+    .steps {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+    }
+    
+    .step {
+        display: flex;
+        align-items: flex-start;
+        width: 45%;
+        max-width: 500px;
+        text-align: left;
+        margin-bottom: 30px;
+    }
+    
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background-color: #ff6600;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+    
+    .step-content h3 {
+        font-size: 22px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .step-content p {
+        color: #666;
+        line-height: 1.5;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        padding: 80px 0;
+        background-color: #ff6600;
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        margin: 40px 0;
+    }
+    
+    .cta-content h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+    }
+    
+    .cta-content p {
+        font-size: 18px;
+        margin-bottom: 30px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .cta-section .btn-primary {
+        background-color: white;
+        color: #ff6600;
+        border-color: white;
+    }
+    
+    .cta-section .btn-primary:hover {
+        background-color: #f9f9f9;
+    }
+    
+    /* Responsive Adjustments */
+    @media screen and (max-width: 768px) {
+        .hero-section {
+            flex-direction: column;
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .hero-content {
+            padding-right: 0;
+            margin-bottom: 40px;
+        }
+        
+        .hero-content h1 {
+            font-size: 36px;
+        }
+        
+        .hero-content h2 {
+            font-size: 28px;
+        }
+        
+        .hero-buttons {
+            justify-content: center;
+        }
+        
+        .step {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

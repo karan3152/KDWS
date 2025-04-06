@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}View Form Submission{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>HR Talent Solution</h1>
+    <h2>Form Submission Details</h2>
+    <hr>
+    
+    <div class="submission-details">
+        <div class="submission-header">
+            <div class="submission-info">
+                <h3>{{ submission.get_form_type_display }}</h3>
+                <div class="meta-info">
+                    <div class="meta-item">
+                        <strong>Submitted by:</strong> {{ submission.user.get_full_name }}
+                    </div>
+                    <div class="meta-item">
+                        <strong>Submitted on:</strong> {{ submission.submitted_at|date:"F d, Y, g:i a" }}
+                    </div>
+                    <div class="meta-item">
+                        <strong>Status:</strong> <span class="status-badge status-{{ submission.status }}">{{ submission.get_status_display }}</span>
+                    </div>
+                    {% if submission.processed_at %}
+                    <div class="meta-item">
+                        <strong>Processed on:</strong> {{ submission.processed_at|date:"F d, Y, g:i a" }}
+                    </div>
+                    <div class="meta-item">
+                        <strong>Processed by:</strong> {{ submission.processed_by.get_full_name }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="submission-actions">
+                <a href="{% url 'download_form_pdf' submission.id %}" class="action-button download">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+                {% if user.profile.user_type == 'employer' and submission.status == 'pending' %}
+                <a href="{% url 'process_form_submission' submission.id %}" class="action-button process">
+                    <i class="fas fa-check-circle"></i> Process
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if submission.comments %}
+        <div class="comments-section">
+            <h4>Comments</h4>
+            <div class="comment">{{ submission.comments }}</div>
+        </div>
+        {% endif %}
+        
+        <div class="form-data-section">
+            <h4>Form Data</h4>
+            <div class="form-data">
+                {% for field, value in form_data.items %}
+                <div class="form-field">
+                    <div class="field-label">{{ field|title|replace_underscores }}</div>
+                    <div class="field-value">
+                        {% if field|endswith:"_file" and value %}
+                            <a href="{{ value }}" target="_blank" class="file-link">View File</a>
+                        {% elif value|is_boolean %}
+                            {% if value %}Yes{% else %}No{% endif %}
+                        {% elif value %}
+                            {{ value }}
+                        {% else %}
+                            <span class="empty-value">Not provided</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        {% if user.profile.user_type == 'employer' and submission.status == 'pending' %}
+        <div class="approval-section">
+            <h4>Approval Process</h4>
+            <form method="post" action="{% url 'process_form_submission' submission.id %}">
+                {% csrf_token %}
+                <div class="approval-options">
+                    <div class="approval-option">
+                        <input type="radio" id="approve" name="action" value="approve" required>
+                        <label for="approve">Approve</label>
+                    </div>
+                    <div class="approval-option">
+                        <input type="radio" id="reject" name="action" value="reject" required>
+                        <label for="reject">Reject</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comments">Comments</label>
+                    <textarea id="comments" name="comments" rows="4" placeholder="Add your comments here..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Submit Decision</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    h1, h2 {
+        text-align: center;
+    }
+
+    hr {
+        border: 1px solid #ff6600;
+        margin-bottom: 30px;
+    }
+
+    .submission-details {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    .submission-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .submission-info h3 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .meta-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 10px;
+    }
+
+    .meta-item {
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-approved {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .submission-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        border-radius: 5px;
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        transition: opacity 0.2s;
+    }
+
+    .action-button:hover {
+        opacity: 0.9;
+    }
+
+    .action-button.download {
+        background-color: #28a745;
+    }
+
+    .action-button.process {
+        background-color: #007bff;
+    }
+
+    .comments-section {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .comments-section h4 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+
+    .comment {
+        color: #555;
+        line-height: 1.6;
+    }
+
+    .form-data-section {
+        margin-bottom: 30px;
+    }
+
+    .form-data-section h4 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+
+    .form-data {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .form-field {
+        margin-bottom: 15px;
+    }
+
+    .field-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .field-value {
+        color: #555;
+        background-color: #f9f9f9;
+        padding: 8px 12px;
+        border-radius: 5px;
+        min-height: 24px;
+    }
+
+    .empty-value {
+        color: #999;
+        font-style: italic;
+    }
+
+    .file-link {
+        color: #007bff;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .file-link:hover {
+        text-decoration: underline;
+    }
+
+    .approval-section {
+        background-color: #f9f9f9;
+        padding: 25px;
+        border-radius: 8px;
+        margin-top: 30px;
+    }
+
+    .approval-section h4 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    .approval-options {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .approval-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .approval-option label {
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        resize: vertical;
+    }
+
+    .submit-btn {
+        background-color: #ff6600;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .submit-btn:hover {
+        background-color: #e65c00;
+    }
+
+    @media (max-width: 768px) {
+        .submission-header {
+            flex-direction: column;
+        }
+        
+        .submission-actions {
+            margin-top: 20px;
+        }
+        
+        .form-data {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

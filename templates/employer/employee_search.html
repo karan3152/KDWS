@@ -1,126 +1,89 @@
-{% extends "dashboard_layout.html" %}
+{% extends 'dashboard_layout.html' %}
 
-{% block title %}Employee Search - Employer Dashboard{% endblock %}
+{% block title %}Employee Search{% endblock %}
 
-{% block dashboard_title %}Employee Search{% endblock %}
-
-{% block dashboard_content %}
-<div class="card mb-4">
-    <div class="card-body p-4">
-        <h4 class="card-title mb-4">Search for Employees</h4>
-        
-        <form method="POST" action="{{ url_for('employee_search') }}" class="needs-validation">
-            {{ form.hidden_tag() }}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Employee Search</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Search for employees by ID, Aadhar Number, or Name.</p>
             
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="search_type" class="form-label">Search By</label>
-                        {{ form.search_type(class="form-control", id="search_type") }}
-                    </div>
-                </div>
+            <form method="POST" class="mb-4">
+                {{ form.hidden_tag() }}
                 
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="search_query" class="form-label">Search Query</label>
-                        {{ form.search_query(class="form-control", id="search_query", placeholder="Enter search term...") }}
-                        <small class="form-text text-muted" id="search_help">
-                            Enter employee name, Employee ID, or Aadhar ID
-                        </small>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            {{ form.search_type.label(class="form-label") }}
+                            {{ form.search_type(class="form-select") }}
+                            {% for error in form.search_type.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            {{ form.search_query.label(class="form-label") }}
+                            {{ form.search_query(class="form-control") }}
+                            {% for error in form.search_query.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            {{ form.submit(class="btn btn-primary w-100") }}
+                        </div>
                     </div>
                 </div>
-                
-                <div class="col-md-2 d-flex align-items-end">
-                    <div class="form-group w-100">
-                        {{ form.submit(class="btn btn-primary btn-block") }}
-                    </div>
-                </div>
+            </form>
+            
+            {% if results %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Aadhar Number</th>
+                            <th>Department</th>
+                            <th>Position</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in results %}
+                        <tr>
+                            <td>{{ employee.employee_id }}</td>
+                            <td>
+                                {% if employee.first_name and employee.last_name %}
+                                    {{ employee.first_name }} {{ employee.last_name }}
+                                {% else %}
+                                    <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ employee.aadhar_id }}</td>
+                            <td>{{ employee.department }}</td>
+                            <td>{{ employee.position }}</td>
+                            <td>
+                                <a href="{{ url_for('view_employee_profile', employee_id=employee.id) }}" class="btn btn-sm btn-primary">View Profile</a>
+                                <a href="{{ url_for('view_employee_documents', employee_id=employee.id) }}" class="btn btn-sm btn-info">View Documents</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </form>
+            {% elif search_performed %}
+            <div class="alert alert-info">
+                No employees found matching your search criteria.
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
-
-<div class="employee-search-results">
-    <h4 class="mb-3">
-        {% if employees %}
-            {{ employees|length }} Search Results
-        {% endif %}
-    </h4>
-    
-    {% if employees %}
-        {% for employee in employees %}
-        <div class="employee-card">
-            <div class="employee-avatar">
-                {{ employee.first_name[0] if employee.first_name else '?' }}{{ employee.last_name[0] if employee.last_name else '' }}
-            </div>
-            <div class="employee-info">
-                <h5 class="employee-name">
-                    {% if employee.first_name and employee.last_name %}
-                        {{ employee.first_name }} {{ employee.last_name }}
-                    {% else %}
-                        <span class="text-muted">Name not set</span>
-                    {% endif %}
-                </h5>
-                <div class="employee-details">
-                    <div><strong>Employee ID:</strong> {{ employee.employee_id }}</div>
-                    <div><strong>Department:</strong> {{ employee.department }}</div>
-                    <div><strong>Position:</strong> {{ employee.position }}</div>
-                </div>
-            </div>
-            <div class="employee-actions">
-                <a href="{{ url_for('employee_detail', employee_id=employee.id) }}" class="btn btn-primary">
-                    <i class="fas fa-user mr-1"></i> View Profile
-                </a>
-            </div>
-        </div>
-        {% endfor %}
-    {% elif request.method == 'POST' or request.args.get('search_query') %}
-        <div class="card">
-            <div class="card-body text-center p-5">
-                <div class="mb-3">
-                    <i class="fas fa-search fa-3x text-muted"></i>
-                </div>
-                <h5 class="mb-2">No employees found</h5>
-                <p class="text-muted">Try adjusting your search criteria or search for a different employee.</p>
-            </div>
-        </div>
-    {% endif %}
-</div>
-{% endblock %}
-
-{% block dashboard_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchTypeSelect = document.getElementById('search_type');
-        const searchQueryInput = document.getElementById('search_query');
-        const searchHelp = document.getElementById('search_help');
-        
-        // Update placeholder and help text based on search type
-        function updateSearchField() {
-            const searchType = searchTypeSelect.value;
-            
-            if (searchType === 'employee_id') {
-                searchQueryInput.placeholder = 'Enter Employee ID (e.g., EMP1001)';
-                searchHelp.textContent = 'Enter the complete Employee ID';
-                searchQueryInput.classList.add('employee-id');
-                searchQueryInput.classList.remove('aadhar-id');
-            } else if (searchType === 'aadhar_id') {
-                searchQueryInput.placeholder = 'Enter 12-digit Aadhar ID';
-                searchHelp.textContent = 'Enter the 12-digit Aadhar ID number';
-                searchQueryInput.classList.add('aadhar-id');
-                searchQueryInput.classList.remove('employee-id');
-            } else {
-                searchQueryInput.placeholder = 'Enter employee name';
-                searchHelp.textContent = 'Enter first name, last name, or both';
-                searchQueryInput.classList.remove('employee-id', 'aadhar-id');
-            }
-        }
-        
-        // Set initial value
-        updateSearchField();
-        
-        // Update on change
-        searchTypeSelect.addEventListener('change', updateSearchField);
-    });
-</script>
 {% endblock %}

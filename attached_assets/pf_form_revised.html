@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}PF Form 2 (Revised) - Nomination and Declaration Form{% endblock %}
+
+{% block content %}
+<div class="container pdf-form">
+    <div class="form-header text-center">
+        <h3>FORM 2 (Revised)</h3>
+        <h4 class="mt-4">NOMINATION AND DECLARATION FORM FOR UNEXEMPTED/ EXEMPTED ESTABLISHMENTS</h4>
+        <p class="mt-3">Declaration and Nomination Form under the Employees' Provident Funds and Employees' Pension Scheme</p>
+        <p class="mt-2 small">(Paragraphs 33 & 61 (1) of the Employees Provident Fund Scheme, 1952 and Paragraph 18 of the Employees' Pension scheme, 1995)</p>
+    </div>
+
+    <form id="pf-form" method="post" enctype="multipart/form-data" action="{% url 'submit_form' form_type='pf' %}">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group row">
+                        <label class="col-md-6 col-form-label">1. Name (in Block letters)</label>
+                        <div class="col-md-6">
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group row">
+                        <label class="col-md-6 col-form-label">2. Father's/Husband's Name</label>
+                        <div class="col-md-6">
+                            <input type="text" name="father_husband_name" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group row">
+                        <label class="col-md-6 col-form-label">3. Date of Birth</label>
+                        <div class="col-md-6">
+                            <input type="date" name="date_of_birth" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group row">
+                        <label class="col-md-6 col-form-label">4. Sex</label>
+                        <div class="col-md-6">
+                            <select name="sex" class="form-control" required>
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group row">
+                        <label class="col-md-6 col-form-label">5. Marital Status</label>
+                        <div class="col-md-6">
+                            <select name="marital_status" class="form-control" required>
+                                <option value="">Select</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Widowed">Widowed</option>
+                                <option value="Divorced">Divorced</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group row">
+                        <label class="col-md-6 col-form-label">6. Account No.</label>
+                        <div class="col-md-6">
+                            <input type="text" name="account_number" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>7. Address</label>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="small">Permanent</label>
+                            </div>
+                            <div class="col-md-9">
+                                <textarea name="permanent_address" class="form-control" rows="3" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="small">Temporary</label>
+                            </div>
+                            <div class="col-md-9">
+                                <textarea name="temporary_address" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group row">
+                        <label class="col-md-6 col-form-label">8. Date of joining</label>
+                        <div class="col-md-6">
+                            <input type="date" name="date_of_joining" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="part-header my-5">
+            <h4 class="text-center">PART – A (EPF)</h4>
+            <p class="text-center">I hereby nominate the person(s) /cancel the nomination made by me previously and nominate the person(s) mentioned below
+            to receive the amount standing to my credit in the Employees' Provident Fund in the event of my death:</p>
+        </div>
+        
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name of nominee/nominees</th>
+                        <th>Address</th>
+                        <th>Nominee's relation-ship with the member</th>
+                        <th>Date of Birth</th>
+                        <th>Total amount of share of Accumulations in Provident Fund to be paid to each nominee</th>
+                        <th>If the nominee is a minor, name & relationship & address of the guardian who may receive the amount during the minority of nominee</th>
+                    </tr>
+                </thead>
+                <tbody id="epf-nominees-container">
+                    <tr class="nominee-row">
+                        <td><input type="text" name="nominee_name_1" class="form-control"></td>
+                        <td><input type="text" name="nominee_address_1" class="form-control"></td>
+                        <td><input type="text" name="nominee_relation_1" class="form-control"></td>
+                        <td><input type="date" name="nominee_dob_1" class="form-control"></td>
+                        <td><input type="text" name="nominee_share_1" class="form-control"></td>
+                        <td><input type="text" name="nominee_guardian_1" class="form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button type="button" id="add-epf-nominee" class="btn btn-sm btn-secondary mb-4">+ Add Nominee</button>
+        
+        <div class="certification-section my-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="cert1" name="certification_1">
+                <label class="form-check-label" for="cert1">
+                    1. Certified that I have no family as defined in para 2(g) of the Employees' Provident Fund Scheme, 1952 and should 
+                    I acquire a Family hereafter, the above nomination should be deemed as cancelled.
+                </label>
+            </div>
+            <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="cert2" name="certification_2">
+                <label class="form-check-label" for="cert2">
+                    2. Certified that my father/mother is/are dependent upon me.
+                </label>
+            </div>
+        </div>
+        
+        <div class="signature-section text-right mb-5">
+            <div class="signature-box d-inline-block">
+                <p class="mb-0">Signature or thumb impression of the subscriber</p>
+            </div>
+        </div>
+        
+        <div class="part-header my-5">
+            <h4 class="text-center">Part B (EPS) (Para 18)</h4>
+            <p class="text-center">I hereby furnish below particulars of the members of my family who would be eligible to receive widow/children pension in the event of my death.</p>
+        </div>
+        
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Name of the family member</th>
+                        <th>Address</th>
+                        <th>Date of Birth</th>
+                        <th>Relationship with the member</th>
+                    </tr>
+                </thead>
+                <tbody id="eps-family-container">
+                    <tr class="family-row">
+                        <td>1</td>
+                        <td><input type="text" name="family_name_1" class="form-control"></td>
+                        <td><input type="text" name="family_address_1" class="form-control"></td>
+                        <td><input type="date" name="family_dob_1" class="form-control"></td>
+                        <td><input type="text" name="family_relation_1" class="form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button type="button" id="add-eps-family" class="btn btn-sm btn-secondary mb-4">+ Add Family Member</button>
+        
+        <div class="certification-section my-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="no_family" name="no_family_cert">
+                <label class="form-check-label" for="no_family">
+                    Certified that I have no family, as defined in para 2(vii) of Employees' Pension Scheme, 1995 and should I acquire a family
+                    hereafter I shall furnish particulars thereon in the above form.
+                </label>
+            </div>
+        </div>
+        
+        <div class="nominee-section my-4">
+            <p>I hereby nominate the following person for receiving the monthly widow pension (admissible under para 16 2(a)(i) and (ii)
+            in the event of my death without leaving any eligible family member for receiving Pension.</p>
+            
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name and Address of the Nominee</th>
+                            <th>Date of Birth</th>
+                            <th>Relationship with the member</th>
+                        </tr>
+                    </thead>
+                    <tbody id="widow-pension-nominees-container">
+                        <tr class="widow-nominee-row">
+                            <td>
+                                <input type="text" name="widow_nominee_name_1" class="form-control mb-2" placeholder="Name">
+                                <input type="text" name="widow_nominee_address_1" class="form-control" placeholder="Address">
+                            </td>
+                            <td><input type="date" name="widow_nominee_dob_1" class="form-control"></td>
+                            <td><input type="text" name="widow_nominee_relation_1" class="form-control"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" id="add-widow-nominee" class="btn btn-sm btn-secondary mb-4">+ Add Nominee</button>
+        </div>
+        
+        <div class="date-section my-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Date:</label>
+                        <input type="date" name="submission_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="signature-box text-center">
+                        <p>Signature or thumb impression of the subscriber</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="employer-certificate mt-5 mb-4">
+            <h5 class="text-center">CERTIFICATE BY EMPLOYER</h5>
+            <p>Certified that the above declaration and nomination has been signed/thumb impressed before me by Shri/Smt./Kum.<input type="text" name="employee_name_cert" class="form-control d-inline-block" style="width: 300px;"> employed in my establishment after he/she has read the entries/entries have been read over to him/her by me and got confirmed by him/her.</p>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Place:</label>
+                        <input type="text" name="employer_place" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <div class="signature-box">
+                        <p>Signature of the employer or other<br>Authoried Officers of the Establishment.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Dated the:</label>
+                        <input type="date" name="employer_date" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <div class="signature-box">
+                        <p>Name & Address of the Factory/<br>Establishment or Rubber Stamp Thereon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions mt-5">
+            <button type="button" class="btn btn-secondary" onclick="previewPDF()">Preview PDF</button>
+            <button type="submit" class="btn btn-primary">Submit Form</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+<style>
+    .pdf-form {
+        font-family: 'Arial', sans-serif;
+        margin-bottom: 40px;
+    }
+    
+    .form-header {
+        margin-bottom: 20px;
+    }
+    
+    .part-header {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        padding: 15px 0;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+    
+    .signature-box {
+        border-top: 1px solid #000;
+        padding-top: 10px;
+        width: 300px;
+        text-align: center;
+    }
+    
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    @media print {
+        .form-actions, button {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    // Counter for dynamic row additions
+    let epfNomineeCount = 1;
+    let epsNomineeCount = 1;
+    let widowNomineeCount = 1;
+    
+    // Add EPF nominee row
+    document.getElementById('add-epf-nominee').addEventListener('click', function() {
+        epfNomineeCount++;
+        const container = document.getElementById('epf-nominees-container');
+        const newRow = document.createElement('tr');
+        newRow.className = 'nominee-row';
+        newRow.innerHTML = `
+            <td><input type="text" name="nominee_name_${epfNomineeCount}" class="form-control"></td>
+            <td><input type="text" name="nominee_address_${epfNomineeCount}" class="form-control"></td>
+            <td><input type="text" name="nominee_relation_${epfNomineeCount}" class="form-control"></td>
+            <td><input type="date" name="nominee_dob_${epfNomineeCount}" class="form-control"></td>
+            <td><input type="text" name="nominee_share_${epfNomineeCount}" class="form-control"></td>
+            <td><input type="text" name="nominee_guardian_${epfNomineeCount}" class="form-control"></td>
+        `;
+        container.appendChild(newRow);
+    });
+    
+    // Add EPS family member row
+    document.getElementById('add-eps-family').addEventListener('click', function() {
+        epsNomineeCount++;
+        const container = document.getElementById('eps-family-container');
+        const newRow = document.createElement('tr');
+        newRow.className = 'family-row';
+        newRow.innerHTML = `
+            <td>${epsNomineeCount + 1}</td>
+            <td><input type="text" name="family_name_${epsNomineeCount + 1}" class="form-control"></td>
+            <td><input type="text" name="family_address_${epsNomineeCount + 1}" class="form-control"></td>
+            <td><input type="date" name="family_dob_${epsNomineeCount + 1}" class="form-control"></td>
+            <td><input type="text" name="family_relation_${epsNomineeCount + 1}" class="form-control"></td>
+        `;
+        container.appendChild(newRow);
+    });
+    
+    // Add widow pension nominee row
+    document.getElementById('add-widow-nominee').addEventListener('click', function() {
+        widowNomineeCount++;
+        const container = document.getElementById('widow-pension-nominees-container');
+        const newRow = document.createElement('tr');
+        newRow.className = 'widow-nominee-row';
+        newRow.innerHTML = `
+            <td>
+                <input type="text" name="widow_nominee_name_${widowNomineeCount}" class="form-control mb-2" placeholder="Name">
+                <input type="text" name="widow_nominee_address_${widowNomineeCount}" class="form-control" placeholder="Address">
+            </td>
+            <td><input type="date" name="widow_nominee_dob_${widowNomineeCount}" class="form-control"></td>
+            <td><input type="text" name="widow_nominee_relation_${widowNomineeCount}" class="form-control"></td>
+        `;
+        container.appendChild(newRow);
+    });
+    
+    // PDF Preview functionality
+    function previewPDF() {
+        // Show loading indicator
+        const loadingDiv = document.createElement('div');
+        loadingDiv.innerHTML = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;"><div><div class="spinner-border text-primary" role="status"></div><div class="mt-2">Generating PDF preview...</div></div></div>';
+        document.body.appendChild(loadingDiv);
+        
+        // Clone form for PDF generation
+        const form = document.querySelector('.pdf-form');
+        const clone = form.cloneNode(true);
+        
+        // Create a temporary container for PDF generation
+        const tempContainer = document.createElement('div');
+        tempContainer.className = 'container pdf-form';
+        tempContainer.style.width = '210mm';
+        tempContainer.style.padding = '20mm';
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        
+        // Remove buttons and form actions
+        const formActions = clone.querySelector('.form-actions');
+        if (formActions) formActions.remove();
+        
+        const buttons = clone.querySelectorAll('button');
+        buttons.forEach(button => button.remove());
+        
+        // Replace inputs with static text
+        const inputs = clone.querySelectorAll('input:not([type="checkbox"]), select, textarea');
+        inputs.forEach(input => {
+            const value = input.value || '';
+            const textNode = document.createElement('div');
+            textNode.className = 'form-control-static';
+            textNode.style.minHeight = '24px';
+            textNode.style.padding = '5px 0';
+            textNode.style.borderBottom = '1px solid #777';
+            textNode.textContent = value;
+            
+            if (input.parentNode) {
+                input.parentNode.replaceChild(textNode, input);
+            }
+        });
+        
+        // Handle checkboxes
+        const checkboxes = clone.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            const checked = checkbox.checked;
+            const symbol = document.createElement('span');
+            symbol.className = 'checkbox-symbol';
+            symbol.style.display = 'inline-block';
+            symbol.style.width = '20px';
+            symbol.style.height = '20px';
+            symbol.style.border = '1px solid #000';
+            symbol.style.textAlign = 'center';
+            symbol.style.lineHeight = '18px';
+            symbol.style.marginRight = '10px';
+            
+            if (checked) {
+                symbol.innerHTML = '✓';
+            }
+            
+            if (checkbox.parentNode) {
+                checkbox.parentNode.replaceChild(symbol, checkbox);
+            }
+        });
+        
+        // Add the form to the body
+        document.body.appendChild(clone);
+        
+        // Generate PDF using html2canvas and jsPDF
+        window.html2canvas(clone, {
+            scale: 1.5,
+            useCORS: true,
+            logging: false,
+            windowWidth: 1200,
+            windowHeight: 1600
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new window.jspdf.jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+            
+            // Calculate how many pages we need
+            const totalPages = Math.ceil(imgHeight * ratio / pdfHeight);
+            
+            // Add each page
+            for (let i = 0; i < totalPages; i++) {
+                if (i > 0) {
+                    pdf.addPage();
+                }
+                
+                // Calculate which portion of the image to use for this page
+                const srcY = i * pdfHeight / ratio;
+                const srcHeight = Math.min(pdfHeight / ratio, imgHeight - srcY);
+                
+                // Add the image to the PDF
+                pdf.addImage(
+                    imgData, 'PNG',
+                    0, 0,
+                    pdfWidth, srcHeight * ratio,
+                    null, 'FAST',
+                    0, srcY
+                );
+            }
+            
+            // Open PDF in new window
+            pdf.output('dataurlnewwindow', { filename: 'PF_Form_2_Revised.pdf' });
+            
+            // Remove temporary elements
+            document.body.removeChild(clone);
+            document.body.removeChild(loadingDiv);
+        });
+    }
+</script>
+{% endblock %}

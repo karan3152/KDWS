@@ -1,0 +1,417 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}Document Management{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Document Management</h2>
+            <a href="{{ url_for('generate_pdf_preview') }}" class="btn btn-success">
+                <i class="fas fa-file-pdf"></i> Generate Combined PDF
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <p><i class="fas fa-info-circle"></i> Please upload all required documents. Documents marked with <span class="text-danger">*</span> are mandatory.</p>
+            </div>
+            
+            <!-- Identity Documents Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Identity Documents</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Aadhar Card -->
+                                <tr>
+                                    <td>Aadhar Card <span class="text-danger">*</span></td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.AADHAR) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.AADHAR) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('upload_aadhar') }}" class="btn btn-sm btn-success">Upload</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- PAN Card -->
+                                <tr>
+                                    <td>PAN Card <span class="text-danger">*</span></td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.PAN) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.PAN) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('upload_pan') }}" class="btn btn-sm btn-success">Upload</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Photo -->
+                                <tr>
+                                    <td>Passport Size Photo <span class="text-danger">*</span></td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.PHOTO) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.PHOTO) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('upload_photo') }}" class="btn btn-sm btn-success">Upload</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Police Verification Certificate -->
+                                <tr>
+                                    <td>Police Verification Certificate <span class="text-danger">*</span></td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.POLICE_VERIFICATION) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.POLICE_VERIFICATION) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('upload_police_verification') }}" class="btn btn-sm btn-success">Upload</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Medical Certificate -->
+                                <tr>
+                                    <td>Medical Certificate <span class="text-danger">*</span></td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.MEDICAL_CERTIFICATE) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.MEDICAL_CERTIFICATE) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('upload_medical_certificate') }}" class="btn btn-sm btn-success">Upload</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bank Details Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Bank Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Bank Passbook -->
+                                <tr>
+                                    <td>Bank Passbook <span class="text-danger">*</span></td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.PASSBOOK) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.PASSBOOK) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('upload_passbook') }}" class="btn btn-sm btn-success">Upload</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Family Details Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Family Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Family Details Document -->
+                                <tr>
+                                    <td>Family Details <span class="text-danger">*</span></td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.FAMILY_DETAILS) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.FAMILY_DETAILS) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('family_details') }}" class="btn btn-sm btn-success">Manage Family Details</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PF Forms Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">PF Forms</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Joining Form -->
+                                <tr>
+                                    <td>New Joining Application</td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.JOINING_FORM) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.JOINING_FORM) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('new_joining_form') }}" class="btn btn-sm btn-success">Fill Form</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- PF Form 2 -->
+                                <tr>
+                                    <td>PF Form 2</td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.PF_FORM) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.PF_FORM) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('pf_form') }}" class="btn btn-sm btn-success">Fill Form</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Form 1 -->
+                                <tr>
+                                    <td>Form 1 (Nomination & Declaration)</td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.FORM1) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.FORM1) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('form_1_nomination') }}" class="btn btn-sm btn-success">Fill Form</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Form 11 -->
+                                <tr>
+                                    <td>Form 11 (Revised)</td>
+                                    <td>
+                                        {% set doc = documents.get(DocumentTypes.FORM11) %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('update_document', document_type=DocumentTypes.FORM11) }}" class="btn btn-sm btn-warning">Update</a>
+                                        {% else %}
+                                            <a href="{{ url_for('form11_revised') }}" class="btn btn-sm btn-success">Fill Form</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

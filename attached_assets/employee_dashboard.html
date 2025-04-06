@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Employee Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="profile-section">
+        <h3>Employee Details</h3>
+        <div class="info"> <strong>Name:</strong> <span>{{ user.get_full_name }}</span> </div>
+        {% if employee_details %}
+        <div class="info"> <strong>Employee ID:</strong> <span>{{ employee_details.employee_id }}</span> </div>
+        <div class="info"> <strong>Working Location:</strong> <span>{{ employee_details.city }}</span> </div>
+        <div class="info"> <strong>Department:</strong> <span>{{ employee_details.department }}</span> </div>
+        <div class="info"> <strong>Position:</strong> <span>{{ employee_details.designation }}</span> </div>
+        <div class="info"> <strong>Joined:</strong> <span>{{ employee_details.date_of_joining }}</span> </div>
+        {% else %}
+        <div class="info">No employee details available. Please complete your profile.</div>
+        {% endif %}
+        
+        <div class="buttons">
+            <button onclick="location.href='{% url 'esi_form' %}'">ESI Form</button>
+            <button onclick="location.href='{% url 'pf_form' %}'">PF Form</button>
+            <button onclick="location.href='{% url 'form11' %}'">Form 11</button>
+            <button onclick="location.href='{% url 'upload_document' %}'">Upload Documents</button>
+        </div>
+    </div>
+    
+    {% if form_submissions %}
+    <div class="submissions-section">
+        <h3>Your Form Submissions</h3>
+        <table class="submissions-table">
+            <thead>
+                <tr>
+                    <th>Form Type</th>
+                    <th>Submitted On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in form_submissions %}
+                <tr>
+                    <td>{{ submission.get_form_type_display }}</td>
+                    <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
+                    <td class="status-{{ submission.status }}">{{ submission.get_status_display }}</td>
+                    <td>
+                        <a href="{% url 'view_form_submission' submission.id %}" class="action-button view">View</a>
+                        <a href="{% url 'download_form_pdf' submission.id %}" class="action-button download">Download PDF</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="submissions-section">
+        <h3>Your Form Submissions</h3>
+        <p>You haven't submitted any forms yet.</p>
+    </div>
+    {% endif %}
+    
+    {% if documents %}
+    <div class="documents-section">
+        <h3>Your Documents</h3>
+        <div class="document-list">
+            {% for document in documents %}
+            <div class="document-item">
+                <div class="document-info">
+                    <strong>{{ document.get_document_type_display }}</strong>
+                    <span>Uploaded on: {{ document.uploaded_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="document-actions">
+                    <a href="{{ document.document_file.url }}" target="_blank" class="action-button download">View</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .submissions-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .submissions-table th, .submissions-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .submissions-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    
+    .status-pending {
+        color: #f39c12;
+    }
+    
+    .status-approved {
+        color: #27ae60;
+    }
+    
+    .status-rejected {
+        color: #e74c3c;
+    }
+    
+    .action-button {
+        display: inline-block;
+        padding: 5px 10px;
+        margin-right: 5px;
+        border-radius: 3px;
+        text-decoration: none;
+        color: white;
+        font-size: 12px;
+    }
+    
+    .action-button.view {
+        background-color: #3498db;
+    }
+    
+    .action-button.download {
+        background-color: #2ecc71;
+    }
+    
+    .document-list {
+        margin-top: 15px;
+    }
+    
+    .document-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+    }
+    
+    .document-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .document-info span {
+        font-size: 12px;
+        color: #777;
+    }
+    
+    .submissions-section, .documents-section {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
