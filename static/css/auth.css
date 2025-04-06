@@ -26,7 +26,8 @@
 }
 
 .auth-logo {
-    height: 4rem;
+    max-height: 80px;
+    max-width: 100%;
     margin-bottom: var(--spacing-md);
 }
 
@@ -244,7 +245,7 @@
     }
     
     .auth-logo {
-        height: 3rem;
+        max-height: 60px;
     }
     
     .first-login-step-label {
