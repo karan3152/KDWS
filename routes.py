@@ -225,7 +225,7 @@ def employer_dashboard():
     pending_documents = Document.query.filter_by(status='pending').count()
     
     # Get recent documents
-    recent_documents = Document.query.order_by(Document.upload_date.desc()).limit(10).all()
+    recent_documents = Document.query.order_by(Document.uploaded_at.desc()).limit(10).all()
     
     # Get recent news updates by this employer
     if employer_profile:
