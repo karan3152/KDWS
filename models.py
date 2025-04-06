@@ -1,12 +1,15 @@
-from app import db, login_manager
+from datetime import datetime, timedelta
 from flask_login import UserMixin
-from datetime import datetime
+import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# User roles
-ROLE_ADMIN = 'admin'
-ROLE_EMPLOYER = 'employer'
+from app import db
+
+# Define user roles
 ROLE_EMPLOYEE = 'employee'
+ROLE_EMPLOYER = 'employer'
+ROLE_ADMIN = 'admin'
+
 
 class User(UserMixin, db.Model):
     """User model for authentication and basic information."""
@@ -17,6 +20,7 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), nullable=False)
     first_login = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime)
     
     # Relationships
     employee_profile = db.relationship('EmployeeProfile', backref='user', uselist=False, cascade='all, delete-orphan')
@@ -43,7 +47,9 @@ class User(UserMixin, db.Model):
         return self.role == ROLE_EMPLOYEE
     
     def __repr__(self):
-        return f'<User {self.username}>'
+        """String representation of the user."""
+        return f'<User {self.username}, role: {self.role}>'
+
 
 class EmployeeProfile(db.Model):
     """Profile specific to employees."""
@@ -59,12 +65,15 @@ class EmployeeProfile(db.Model):
     department = db.Column(db.String(50))
     position = db.Column(db.String(50))
     joining_date = db.Column(db.Date)
+    photo_url = db.Column(db.String(255))
     
-    # Relationship with documents
+    # Relationships
     documents = db.relationship('Document', backref='employee', cascade='all, delete-orphan')
     
     def __repr__(self):
-        return f'<EmployeeProfile {self.first_name} {self.last_name}>'
+        """String representation of the employee profile."""
+        return f'<EmployeeProfile {self.employee_id}: {self.first_name} {self.last_name}>'
+
 
 class EmployerProfile(db.Model):
     """Profile specific to employers/HR."""
@@ -76,7 +85,9 @@ class EmployerProfile(db.Model):
     contact_number = db.Column(db.String(20))
     
     def __repr__(self):
-        return f'<EmployerProfile {self.company_name}>'
+        """String representation of the employer profile."""
+        return f'<EmployerProfile {self.company_id}: {self.company_name}>'
+
 
 class Document(db.Model):
     """Model for storing uploaded PDFs and other documents."""
@@ -87,19 +98,27 @@ class Document(db.Model):
     file_path = db.Column(db.String(255), nullable=False)
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
+    approval_date = db.Column(db.DateTime)
+    approved_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    feedback = db.Column(db.Text)
     
-    # Additional metadata for specific document types
+    # Additional document metadata
     document_number = db.Column(db.String(50))  # For Aadhar, PAN numbers, Bank account
     bank_name = db.Column(db.String(100))  # For passbook
     ifsc_code = db.Column(db.String(20))   # For passbook
     issue_date = db.Column(db.Date)  # For date of issue if applicable
     expiry_date = db.Column(db.Date)  # For documents with expiry
     
+    # Relationships
+    approver = db.relationship('User', backref='approved_documents')
+    
     def __repr__(self):
-        return f'<Document {self.document_name}>'
-        
-# Define constant for document types for consistency across the application
+        """String representation of the document."""
+        return f'<Document {self.document_type}: {self.document_name}, status: {self.status}>'
+
+
 class DocumentTypes:
+    """Constants for document types."""
     AADHAR = 'aadhar'
     PAN = 'pan'
     PHOTO = 'photo'
@@ -116,23 +135,19 @@ class DocumentTypes:
     def all_types(cls):
         """Return a list of all document types."""
         return [
-            cls.AADHAR, 
-            cls.PAN, 
-            cls.PHOTO, 
-            cls.PASSBOOK,
-            cls.JOINING_FORM,
-            cls.PF_FORM,
-            cls.FORM1,
-            cls.FORM11,
-            cls.POLICE_VERIFICATION,
-            cls.MEDICAL_CERTIFICATE,
-            cls.FAMILY_DETAILS
+            cls.AADHAR, cls.PAN, cls.PHOTO, cls.PASSBOOK,
+            cls.JOINING_FORM, cls.PF_FORM, cls.FORM1, cls.FORM11,
+            cls.POLICE_VERIFICATION, cls.MEDICAL_CERTIFICATE, cls.FAMILY_DETAILS
         ]
     
     @classmethod
     def get_required_types(cls):
         """Return a list of required document types."""
-        return [cls.AADHAR, cls.PAN, cls.PHOTO, cls.PASSBOOK, cls.POLICE_VERIFICATION, cls.MEDICAL_CERTIFICATE, cls.FAMILY_DETAILS]
+        return [
+            cls.AADHAR, cls.PAN, cls.PHOTO, cls.PASSBOOK,
+            cls.JOINING_FORM, cls.PF_FORM, cls.FORM1, cls.FORM11
+        ]
+
 
 class PasswordResetToken(db.Model):
     """Model for password reset tokens."""
@@ -142,11 +157,24 @@ class PasswordResetToken(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=False)
     
-    # Relationship with user
+    # Relationships
     user = db.relationship('User', backref='reset_tokens')
     
+    @classmethod
+    def generate_token(cls, user_id, expires_in=3600):
+        """Generate a new token for the user."""
+        token = str(uuid.uuid4())
+        expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+        return cls(user_id=user_id, token=token, expires_at=expires_at)
+    
+    def is_expired(self):
+        """Check if the token is expired."""
+        return datetime.utcnow() > self.expires_at
+    
     def __repr__(self):
-        return f'<PasswordResetToken {self.token}>'
+        """String representation of the token."""
+        return f'<PasswordResetToken for user_id={self.user_id}, expires={self.expires_at}>'
+
 
 class FamilyMember(db.Model):
     """Model for storing family member details."""
@@ -159,11 +187,13 @@ class FamilyMember(db.Model):
     photo_path = db.Column(db.String(255))
     contact_number = db.Column(db.String(20))
     
-    # Relationship with employee
+    # Relationships
     employee = db.relationship('EmployeeProfile', backref='family_members')
     
     def __repr__(self):
-        return f'<FamilyMember {self.name} ({self.relationship})>'
+        """String representation of the family member."""
+        return f'<FamilyMember {self.name}, {self.relationship} of employee_id={self.employee_id}>'
+
 
 class NewsUpdate(db.Model):
     """Model for company news and updates."""
@@ -172,20 +202,27 @@ class NewsUpdate(db.Model):
     content = db.Column(db.Text, nullable=False)
     published_date = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
+    
     # For interview notices
     is_interview_notice = db.Column(db.Boolean, default=False)
     location_address = db.Column(db.Text)
     interview_date = db.Column(db.DateTime)
-    # Created by which employer
+    
+    # Who created this news
     employer_id = db.Column(db.Integer, db.ForeignKey('employer_profile.id'))
     
-    # Relationship
+    # Relationships
     employer = db.relationship('EmployerProfile', backref='news_updates')
     
     def __repr__(self):
-        return f'<NewsUpdate {self.title}>'
+        """String representation of the news update."""
+        return f'<NewsUpdate "{self.title}", published={self.published_date}>'
+
 
 # User loader for Flask-Login
+from app import login_manager
+
 @login_manager.user_loader
 def load_user(user_id):
+    """Load a user by ID for Flask-Login."""
     return User.query.get(int(user_id))
