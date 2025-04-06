@@ -444,7 +444,7 @@ def employer_view_employee(employee_id):
             document_groups['verification'].append(doc)
 
     return render_template('employer/view_employee.html', 
-                          employee=employee_profile, 
+                          employee_profile=employee_profile, 
                           user=user, 
                           document_groups=document_groups)
 
