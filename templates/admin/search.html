@@ -1,0 +1,105 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Admin Search - Employee Data Management System{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">User Search</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Search Users</li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-search me-1"></i>
+            Search for Employees or Employers
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin_search') }}" class="mb-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" name="query" class="form-control" placeholder="Search by name, email, ID..." value="{{ query }}" required>
+                            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Search</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <label class="input-group-text" for="search_type">Search By</label>
+                            <select name="search_type" id="search_type" class="form-select">
+                                <option value="all" {% if request.args.get('search_type') == 'all' %}selected{% endif %}>All Fields</option>
+                                <option value="name" {% if request.args.get('search_type') == 'name' %}selected{% endif %}>Name</option>
+                                <option value="email" {% if request.args.get('search_type') == 'email' %}selected{% endif %}>Email</option>
+                                <option value="employee_id" {% if request.args.get('search_type') == 'employee_id' %}selected{% endif %}>Employee ID</option>
+                                <option value="aadhar" {% if request.args.get('search_type') == 'aadhar' %}selected{% endif %}>Aadhar Number</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            {% if search_performed %}
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Details</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    <td>{{ result.username }}</td>
+                                    <td>{{ result.email }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'primary' if result.role == 'admin' else 'success' if result.role == 'employer' else 'info' }}">
+                                            {{ result.role|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if result.profile_type == 'employee' %}
+                                            <strong>Name:</strong> {{ result.name }}<br>
+                                            <strong>Employee ID:</strong> {{ result.employee_id }}<br>
+                                            <strong>Aadhar ID:</strong> {{ result.aadhar_id }}
+                                        {% elif result.profile_type == 'employer' %}
+                                            <strong>Company:</strong> {{ result.company_name }}<br>
+                                            <strong>Company ID:</strong> {{ result.company_id }}
+                                        {% else %}
+                                            <em>Admin Account</em>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if result.profile_type == 'employee' %}
+                                            <a href="{{ url_for('employer_view_employee', employee_id=result.employee_id) }}" class="btn btn-sm btn-primary">View Profile</a>
+                                        {% elif result.profile_type == 'employer' %}
+                                            <a href="#" class="btn btn-sm btn-secondary">View Company</a>
+                                        {% endif %}
+                                        <a href="#" class="btn btn-sm btn-outline-danger">Reset Password</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No results found for "{{ query }}". Try a different search term or criteria.
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-light border">
+                    <i class="fas fa-search me-2"></i>
+                    Enter a search term above to find users, employees, or employers in the system.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

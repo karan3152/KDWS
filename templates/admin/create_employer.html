@@ -1,0 +1,139 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Create Employer Account - Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Create Employer Account</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Create Employer Account</li>
+    </ol>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-user-plus me-1"></i>
+            New Employer Account
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('create_employer') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            {{ form.username(class="form-control", id="username", placeholder="Username") }}
+                            <label for="username">Username</label>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.email(class="form-control", id="email", placeholder="Email Address") }}
+                            <label for="email">Email Address</label>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            {{ form.password(class="form-control", id="password", placeholder="Password") }}
+                            <label for="password">Password</label>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.confirm_password(class="form-control", id="confirm_password", placeholder="Confirm Password") }}
+                            <label for="confirm_password">Confirm Password</label>
+                            {% if form.confirm_password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.confirm_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> A default employer profile will be created with the username as the company name. The employer can update this information later.
+                </div>
+                
+                <div class="mt-4 mb-0">
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-block">Create Employer Account</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer small text-muted">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    The employer will be able to update their profile after login.
+                </div>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script>
+    // Password strength indicator
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordField = document.getElementById('password');
+        const confirmField = document.getElementById('confirm_password');
+        
+        if (passwordField && confirmField) {
+            confirmField.addEventListener('input', function() {
+                if (passwordField.value !== confirmField.value) {
+                    confirmField.setCustomValidity("Passwords don't match");
+                } else {
+                    confirmField.setCustomValidity('');
+                }
+            });
+            
+            passwordField.addEventListener('input', function() {
+                if (passwordField.value !== confirmField.value && confirmField.value !== '') {
+                    confirmField.setCustomValidity("Passwords don't match");
+                } else {
+                    confirmField.setCustomValidity('');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -6,7 +6,7 @@ import uuid
 
 from app import app, db
 from models import User, EmployeeProfile, EmployerProfile, Document, NewsUpdate, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE
-from forms import EmployeeSearchForm, CreateEmployeeForm, EmployeeProfileEditForm, NewsUpdateForm
+from forms import EmployeeSearchForm, CreateEmployeeForm, EmployeeProfileEditForm, NewsUpdateForm, RegisterForm
 from utils import DocumentTypes
 
 
@@ -547,3 +547,175 @@ def employer_news_list():
     return render_template('employer/news_list.html', 
                            news_updates=news_updates,
                            employer_profile=employer_profile)
+
+
+@app.route('/employer/news/create', methods=['GET', 'POST'])
+@login_required
+def create_news_update():
+    """Create a new news update."""
+    if not current_user.is_employer() and not current_user.is_admin():
+        flash('Access denied. This feature is for employers and admin users only.', 'error')
+        return redirect(url_for('index'))
+    
+    form = NewsUpdateForm()
+    
+    if form.validate_on_submit():
+        # Get employer profile
+        employer_profile = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+        
+        if not employer_profile and not current_user.is_admin():
+            flash('Cannot create a news update without an employer profile.', 'error')
+            return redirect(url_for('employer_dashboard'))
+        
+        # Create news update
+        news = NewsUpdate(
+            title=form.title.data,
+            content=form.content.data,
+            employer_id=employer_profile.id if employer_profile else 1,  # Use ID 1 for admin
+            is_active=form.is_active.data,
+            link=form.link.data,
+            link_text=form.link_text.data,
+            is_interview_notice=form.is_interview_notice.data
+        )
+        
+        if form.is_interview_notice.data:
+            news.location_address = form.location_address.data
+            news.interview_date = form.interview_date.data
+        
+        db.session.add(news)
+        db.session.commit()
+        
+        flash('News update created successfully!', 'success')
+        return redirect(url_for('employer_news_list'))
+    
+    return render_template('employer/create_news.html', form=form)
+
+
+@app.route('/employer/news/<int:news_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_news_update(news_id):
+    """Edit an existing news update."""
+    if not current_user.is_employer() and not current_user.is_admin():
+        flash('Access denied. This feature is for employers and admin users only.', 'error')
+        return redirect(url_for('index'))
+    
+    news = NewsUpdate.query.get_or_404(news_id)
+    
+    # Check if the current user is the employer who created this news or an admin
+    employer_profile = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    if not current_user.is_admin() and (not employer_profile or employer_profile.id != news.employer_id):
+        flash('You do not have permission to edit this news update.', 'error')
+        return redirect(url_for('employer_news_list'))
+    
+    form = NewsUpdateForm(obj=news)
+    
+    if form.validate_on_submit():
+        # Update the news
+        news.title = form.title.data
+        news.content = form.content.data
+        news.is_active = form.is_active.data
+        news.link = form.link.data
+        news.link_text = form.link_text.data
+        news.is_interview_notice = form.is_interview_notice.data
+        
+        if form.is_interview_notice.data:
+            news.location_address = form.location_address.data
+            news.interview_date = form.interview_date.data
+        else:
+            news.location_address = None
+            news.interview_date = None
+        
+        db.session.commit()
+        
+        flash('News update edited successfully!', 'success')
+        return redirect(url_for('employer_news_list'))
+    
+    return render_template('employer/edit_news.html', form=form, news=news)
+
+
+@app.route('/employer/news/<int:news_id>/delete', methods=['POST'])
+@login_required
+def delete_news_update(news_id):
+    """Delete a news update."""
+    if not current_user.is_employer() and not current_user.is_admin():
+        flash('Access denied. This feature is for employers and admin users only.', 'error')
+        return redirect(url_for('index'))
+    
+    news = NewsUpdate.query.get_or_404(news_id)
+    
+    # Check if the current user is the employer who created this news or an admin
+    employer_profile = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    if not current_user.is_admin() and (not employer_profile or employer_profile.id != news.employer_id):
+        flash('You do not have permission to delete this news update.', 'error')
+        return redirect(url_for('employer_news_list'))
+    
+    db.session.delete(news)
+    db.session.commit()
+    
+    flash('News update deleted successfully!', 'success')
+    return redirect(url_for('employer_news_list'))
+
+
+@app.route('/news/<int:news_id>', methods=['GET'])
+def news_detail(news_id):
+    """View a specific news update."""
+    news = NewsUpdate.query.get_or_404(news_id)
+    
+    return render_template('news/detail.html', news=news)
+
+
+# Admin functionality to create new employer accounts
+@app.route('/admin/create-employer', methods=['GET', 'POST'])
+@login_required
+def create_employer():
+    """Create a new employer account."""
+    if not current_user.is_admin():
+        flash('Access denied. This feature is for admin users only.', 'error')
+        return redirect(url_for('index'))
+    
+    form = RegisterForm()  # Using the standard registration form
+    
+    if form.validate_on_submit():
+        # Check if username or email already exists
+        existing_user = User.query.filter(
+            (User.username == form.username.data) | 
+            (User.email == form.email.data)
+        ).first()
+        
+        if existing_user:
+            if existing_user.username == form.username.data:
+                form.username.errors.append('Username already exists. Please choose a different one.')
+            if existing_user.email == form.email.data:
+                form.email.errors.append('Email already exists. Please use a different one.')
+            return render_template('admin/create_employer.html', form=form)
+        
+        # Generate a unique company ID
+        company_id = f"EMP{uuid.uuid4().hex[:8].upper()}"
+        
+        # Create user
+        user = User(
+            username=form.username.data, 
+            email=form.email.data,
+            role=ROLE_EMPLOYER
+        )
+        user.set_password(form.password.data)
+        
+        db.session.add(user)
+        db.session.flush()  # Flush to get the user.id without committing
+        
+        # Create employer profile
+        employer_profile = EmployerProfile(
+            user_id=user.id,
+            company_name=form.username.data,  # Default company name is the username
+            company_id=company_id,
+            department='HR',  # Default department
+            contact_email=form.email.data
+        )
+        
+        db.session.add(employer_profile)
+        db.session.commit()
+        
+        flash(f'Employer account created successfully! Company ID: {company_id}', 'success')
+        return redirect(url_for('admin_dashboard'))
+    
+    return render_template('admin/create_employer.html', form=form)

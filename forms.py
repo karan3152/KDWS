@@ -163,11 +163,13 @@ class EmployerProfileForm(FlaskForm):
 
 class EmployeeSearchForm(FlaskForm):
     """Form for searching employees."""
-    search_term = StringField('Search', validators=[Optional()])
-    search_by = SelectField('Search By', choices=[
+    query = StringField('Search', validators=[Optional()])
+    search_type = SelectField('Search By', choices=[
+        ('all', 'All Fields'),
         ('name', 'Name'),
+        ('email', 'Email'),
         ('employee_id', 'Employee ID'),
-        ('aadhar_id', 'Aadhar Number'),
+        ('aadhar', 'Aadhar Number'),
         ('department', 'Department')
     ])
     submit = SubmitField('Search')
