@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, TextAreaField, FileField, HiddenField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, TextAreaField, FileField, HiddenField, DateTimeField, BooleanField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional
 from models import User, EmployeeProfile, DocumentTypes
 
@@ -200,3 +200,13 @@ class Form11UploadForm(DocumentUploadForm):
         FileRequired(message='Please select a file'),
         FileAllowed(['pdf'], 'Only PDF files are allowed!')
     ])
+    
+class NewsUpdateForm(FlaskForm):
+    """Form for employers to create news and updates."""
+    title = StringField('Title', validators=[DataRequired(), Length(max=200)])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    is_active = BooleanField('Published', default=True)
+    is_interview_notice = BooleanField('This is an interview notice')
+    location_address = TextAreaField('Interview Location', validators=[Optional()])
+    interview_date = DateTimeField('Interview Date and Time', format='%Y-%m-%d %H:%M', validators=[Optional()])
+    submit = SubmitField('Publish Update')

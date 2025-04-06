@@ -47,6 +47,10 @@
                 <i class="fas fa-search sidebar-icon"></i>
                 <span class="sidebar-text">Search Employees</span>
             </a>
+            <a href="{{ url_for('employer_news_list') }}" class="sidebar-item {% if request.endpoint in ['employer_news_list', 'create_news_update', 'edit_news_update'] %}active{% endif %}">
+                <i class="fas fa-newspaper sidebar-icon"></i>
+                <span class="sidebar-text">News & Updates</span>
+            </a>
             {% elif current_user.is_employee() %}
             <!-- Employee Menu -->
             <a href="{{ url_for('employee_dashboard') }}" class="sidebar-item {% if request.endpoint == 'employee_dashboard' %}active{% endif %}">
@@ -60,6 +64,10 @@
             <a href="{{ url_for('employee_forms') }}" class="sidebar-item {% if request.endpoint == 'employee_forms' %}active{% endif %}">
                 <i class="fas fa-file-pdf sidebar-icon"></i>
                 <span class="sidebar-text">Forms & Documents</span>
+            </a>
+            <a href="{{ url_for('news_list') }}" class="sidebar-item {% if request.endpoint in ['news_list', 'news_detail'] %}active{% endif %}">
+                <i class="fas fa-newspaper sidebar-icon"></i>
+                <span class="sidebar-text">News & Updates</span>
             </a>
             {% endif %}
             

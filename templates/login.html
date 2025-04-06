@@ -4,10 +4,122 @@
 
 {% block additional_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<style>
+    .login-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: stretch;
+        max-width: 1200px;
+        margin: 0 auto;
+        gap: 2rem;
+    }
+    
+    @media (max-width: 991px) {
+        .login-container {
+            flex-direction: column;
+        }
+    }
+    
+    .auth-card {
+        flex: 1;
+        max-width: 500px;
+    }
+    
+    .news-panel {
+        flex: 1;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        max-width: 500px;
+    }
+    
+    .news-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 1rem;
+    }
+    
+    .news-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2C5282;
+        margin: 0;
+    }
+    
+    .news-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .news-item {
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .news-item:last-child {
+        border-bottom: none;
+    }
+    
+    .news-item-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2D3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    .news-item-content {
+        color: #4A5568;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .news-item-date {
+        font-size: 0.85rem;
+        color: #718096;
+    }
+    
+    .news-item-interview {
+        background-color: #EBF8FF;
+        border-left: 4px solid #4299E1;
+    }
+    
+    .news-item-location {
+        background-color: #f7fafc;
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .news-date {
+        color: #718096;
+        font-weight: 400;
+        font-size: 0.85rem;
+    }
+    
+    .news-more {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+        color: #4299E1;
+        font-weight: 500;
+    }
+    
+    .no-news {
+        color: #718096;
+        text-align: center;
+        padding: 2rem 0;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-container">
+<div class="login-container">
     <div class="auth-card">
         <div class="auth-header">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HR Talent Solutions Logo" class="auth-logo">
@@ -72,6 +184,40 @@
             <p class="auth-footer-text">
                 Need help? Contact your administrator.
             </p>
+        </div>
+    </div>
+
+    <!-- News and Updates Panel -->
+    <div class="news-panel">
+        <div class="news-header">
+            <h2 class="news-title">Latest News & Updates</h2>
+        </div>
+        
+        <div class="news-content">
+            {% if latest_news %}
+                <ul class="news-list">
+                    {% for news in latest_news %}
+                        <li class="news-item {% if news.interview_date %}news-item-interview{% endif %}">
+                            <h3 class="news-item-title">{{ news.title }}</h3>
+                            <p class="news-item-content">{{ news.content|truncate(100) }}</p>
+                            
+                            {% if news.interview_date %}
+                                <div class="news-item-location">
+                                    <p><strong>Interview Date:</strong> {{ news.interview_date.strftime('%d %b, %Y at %H:%M') }}</p>
+                                    {% if news.location_address %}
+                                        <p><strong>Location:</strong> {{ news.location_address }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            <p class="news-item-date">Posted on {{ news.published_date.strftime('%d %b, %Y') }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('news_list') }}" class="news-more">View All News & Updates</a>
+            {% else %}
+                <p class="no-news">No news or updates available at the moment.</p>
+            {% endif %}
         </div>
     </div>
 </div>

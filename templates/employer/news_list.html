@@ -1,0 +1,140 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Manage News & Updates - Employer Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">News & Updates Management</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">News & Updates</li>
+    </ol>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-newspaper me-1"></i>
+                Manage News & Updates
+            </div>
+            <a href="{{ url_for('create_news_update') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i> Create New Update
+            </a>
+        </div>
+        <div class="card-body">
+            {% if news_updates %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for news in news_updates %}
+                                <tr>
+                                    <td>{{ news.title }}</td>
+                                    <td>{{ news.published_date.strftime('%d %b, %Y') }}</td>
+                                    <td>
+                                        {% if news.interview_date %}
+                                            <span class="badge bg-success">Interview Notice</span>
+                                        {% else %}
+                                            <span class="badge bg-info">News Update</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if news.is_active %}
+                                            <span class="badge bg-success">Published</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Draft</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('news_detail', news_id=news.id) }}" class="btn btn-outline-primary btn-sm" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('edit_news_update', news_id=news.id) }}" class="btn btn-outline-secondary btn-sm" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteNewsModal" 
+                                                    data-news-id="{{ news.id }}"
+                                                    data-news-title="{{ news.title }}"
+                                                    title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You haven't created any news or updates yet. 
+                    <a href="{{ url_for('create_news_update') }}" class="alert-link">Create your first update</a>.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteNewsModal" tabindex="-1" aria-labelledby="deleteNewsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteNewsModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the news update: <strong id="newsTitle"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteNewsForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script>
+    // Set up delete modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteModal = document.getElementById('deleteNewsModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const newsId = button.getAttribute('data-news-id');
+                const newsTitle = button.getAttribute('data-news-title');
+                
+                document.getElementById('newsTitle').textContent = newsTitle;
+                document.getElementById('deleteNewsForm').action = "{{ url_for('delete_news_update', news_id=0) }}".replace('0', newsId);
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ news_update.title }} - Employee Data Management System{% endblock %}
+
+{% block additional_css %}
+<style>
+    .news-detail-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .news-detail-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .news-detail-title {
+        font-size: 2rem;
+        color: #2C5282;
+        margin-bottom: 0.5rem;
+    }
+
+    .news-detail-meta {
+        display: flex;
+        justify-content: space-between;
+        color: #718096;
+        font-size: 0.9rem;
+    }
+
+    .news-detail-content {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #2D3748;
+        margin-bottom: 2rem;
+        white-space: pre-line;
+    }
+
+    .news-detail-interview {
+        background-color: #f0fff4;
+        border: 1px solid #c6f6d5;
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .news-detail-interview h3 {
+        color: #2F855A;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .news-detail-interview-info {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .news-detail-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .news-back-link {
+        color: #4299E1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="news-detail-container">
+    <div class="news-detail-header">
+        <h1 class="news-detail-title">{{ news_update.title }}</h1>
+        <div class="news-detail-meta">
+            <span>Posted on {{ news_update.published_date.strftime('%d %b, %Y') }}</span>
+            {% if news_update.employer %}
+                <span>By {{ news_update.employer.company_name }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="news-detail-content">
+        {{ news_update.content }}
+    </div>
+
+    {% if news_update.interview_date %}
+        <div class="news-detail-interview">
+            <h3>Interview Details</h3>
+            <div class="news-detail-interview-info">
+                <p><strong>Date and Time:</strong> {{ news_update.interview_date.strftime('%A, %d %B, %Y at %H:%M') }}</p>
+                {% if news_update.location_address %}
+                    <p><strong>Location:</strong> {{ news_update.location_address }}</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="news-detail-nav">
+        <a href="{{ url_for('news_list') }}" class="news-back-link">← Back to News List</a>
+        <a href="{{ url_for('login') }}" class="news-back-link">Back to Login</a>
+    </div>
+</div>
+{% endblock %}

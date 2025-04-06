@@ -142,6 +142,25 @@ class PasswordResetToken(db.Model):
     def __repr__(self):
         return f'<PasswordResetToken {self.token}>'
 
+class NewsUpdate(db.Model):
+    """Model for company news and updates."""
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    published_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    # For interview notices
+    location_address = db.Column(db.Text)
+    interview_date = db.Column(db.DateTime)
+    # Created by which employer
+    employer_id = db.Column(db.Integer, db.ForeignKey('employer_profile.id'))
+    
+    # Relationship
+    employer = db.relationship('EmployerProfile', backref='news_updates')
+    
+    def __repr__(self):
+        return f'<NewsUpdate {self.title}>'
+
 # User loader for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):

@@ -1,0 +1,138 @@
+{% extends "layout.html" %}
+
+{% block title %}News & Updates - Employee Data Management System{% endblock %}
+
+{% block additional_css %}
+<style>
+    .news-list-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .news-list-title {
+        font-size: 1.8rem;
+        color: #2C5282;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .news-item {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 6px;
+        background-color: #f7fafc;
+        border-left: 4px solid #4299E1;
+    }
+
+    .news-item-interview {
+        border-left-color: #48BB78;
+        background-color: #f0fff4;
+    }
+
+    .news-item-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2D3748;
+        margin-bottom: 0.75rem;
+    }
+
+    .news-item-content {
+        color: #4A5568;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .news-item-location {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-top: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .news-item-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #718096;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+    }
+
+    .news-item-date {
+        font-style: italic;
+    }
+
+    .news-item-read-more {
+        color: #4299E1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .news-empty {
+        text-align: center;
+        padding: 3rem 0;
+        color: #718096;
+    }
+
+    .news-back-link {
+        display: inline-block;
+        margin-top: 1.5rem;
+        color: #4299E1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="news-list-container">
+    <h1 class="news-list-title">News & Updates</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if news_updates %}
+        {% for news in news_updates %}
+            <article class="news-item {% if news.interview_date %}news-item-interview{% endif %}">
+                <h2 class="news-item-title">{{ news.title }}</h2>
+                <div class="news-item-content">
+                    {{ news.content|truncate(300) }}
+                </div>
+
+                {% if news.interview_date %}
+                    <div class="news-item-location">
+                        <p><strong>Interview Date:</strong> {{ news.interview_date.strftime('%d %b, %Y at %H:%M') }}</p>
+                        {% if news.location_address %}
+                            <p><strong>Location:</strong> {{ news.location_address }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="news-item-meta">
+                    <span class="news-item-date">Posted on {{ news.published_date.strftime('%d %b, %Y') }}</span>
+                    <a href="{{ url_for('news_detail', news_id=news.id) }}" class="news-item-read-more">Read more</a>
+                </div>
+            </article>
+        {% endfor %}
+    {% else %}
+        <div class="news-empty">
+            <p>There are no news or updates available at the moment.</p>
+        </div>
+    {% endif %}
+
+    <a href="{{ url_for('login') }}" class="news-back-link">← Back to Login</a>
+</div>
+{% endblock %}

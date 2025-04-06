@@ -4,13 +4,13 @@ from werkzeug.urls import urlsplit
 from datetime import datetime
 
 from app import app, db
-from models import User, EmployeeProfile, EmployerProfile, Document, PasswordResetToken, DocumentTypes, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE
+from models import User, EmployeeProfile, EmployerProfile, Document, PasswordResetToken, DocumentTypes, ROLE_ADMIN, ROLE_EMPLOYER, ROLE_EMPLOYEE, NewsUpdate
 from forms import (
     LoginForm, PasswordResetRequestForm, PasswordResetForm, FirstLoginForm,
     CreateEmployeeForm, CreateEmployerForm, EmployeeProfileForm,
     EmployeeSearchForm, DocumentUploadForm, AadharUploadForm, PANUploadForm,
     PhotoUploadForm, PassbookUploadForm, JoiningFormUploadForm, PFFormUploadForm,
-    Form1UploadForm, Form11UploadForm
+    Form1UploadForm, Form11UploadForm, NewsUpdateForm
 )
 from utils import (
     generate_reset_token, get_token_expiry, save_document, save_pdf,
@@ -41,6 +41,9 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
         
+    # Get the latest news/updates for login page
+    latest_news = NewsUpdate.query.filter_by(is_active=True).order_by(NewsUpdate.published_date.desc()).limit(5).all()
+        
     form = LoginForm()
     if form.validate_on_submit():
         # Determine the type of identifier (username, employee ID, or Aadhar ID)
@@ -62,7 +65,7 @@ def login():
         
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password', 'error')
-            return render_template('login.html', form=form)
+            return render_template('login.html', form=form, latest_news=latest_news)
             
         login_user(user)
         
@@ -79,7 +82,7 @@ def login():
                 next_page = url_for('employee_dashboard')
         return redirect(next_page)
         
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, latest_news=latest_news)
 
 @app.route('/logout')
 @login_required
@@ -938,3 +941,131 @@ def forbidden_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('errors/500.html'), 500
+
+# News/Update Routes for all users
+@app.route('/news')
+def news_list():
+    """List all active news and updates."""
+    # Get active news/updates sorted by most recent first
+    news_updates = NewsUpdate.query.filter_by(is_active=True).order_by(NewsUpdate.published_date.desc()).all()
+    return render_template('news/list.html', news_updates=news_updates)
+
+@app.route('/news/<int:news_id>')
+def news_detail(news_id):
+    """Show details of a specific news/update."""
+    news_update = NewsUpdate.query.get_or_404(news_id)
+    return render_template('news/detail.html', news_update=news_update)
+
+# News/Update Management Routes for Employers
+@app.route('/employer/news-updates')
+@login_required
+def employer_news_list():
+    """List and manage news/updates created by this employer."""
+    if not current_user.is_employer():
+        abort(403)  # Forbidden
+        
+    employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    if not employer:
+        flash('Employer profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employer_dashboard'))
+        
+    news_updates = NewsUpdate.query.filter_by(employer_id=employer.id).order_by(NewsUpdate.published_date.desc()).all()
+    return render_template('employer/news_list.html', news_updates=news_updates)
+
+@app.route('/employer/news-updates/create', methods=['GET', 'POST'])
+@login_required
+def create_news_update():
+    """Create a new news/update."""
+    if not current_user.is_employer():
+        abort(403)  # Forbidden
+        
+    employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    if not employer:
+        flash('Employer profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employer_dashboard'))
+        
+    form = NewsUpdateForm()
+    if form.validate_on_submit():
+        news_update = NewsUpdate(
+            title=form.title.data,
+            content=form.content.data,
+            is_active=form.is_active.data,
+            employer_id=employer.id
+        )
+        
+        # Only set interview details if this is an interview notice
+        if form.is_interview_notice.data:
+            news_update.location_address = form.location_address.data
+            news_update.interview_date = form.interview_date.data
+            
+        db.session.add(news_update)
+        db.session.commit()
+        
+        flash('News/Update published successfully', 'success')
+        return redirect(url_for('employer_news_list'))
+        
+    return render_template('employer/create_news.html', form=form)
+
+@app.route('/employer/news-updates/edit/<int:news_id>', methods=['GET', 'POST'])
+@login_required
+def edit_news_update(news_id):
+    """Edit an existing news/update."""
+    if not current_user.is_employer():
+        abort(403)  # Forbidden
+        
+    employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    if not employer:
+        flash('Employer profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employer_dashboard'))
+        
+    news_update = NewsUpdate.query.get_or_404(news_id)
+    
+    # Make sure employers can only edit their own updates
+    if news_update.employer_id != employer.id:
+        abort(403)  # Forbidden
+        
+    form = NewsUpdateForm(obj=news_update)
+    
+    # Is this an interview notice?
+    is_interview = bool(news_update.location_address or news_update.interview_date)
+    form.is_interview_notice.data = is_interview
+    
+    if form.validate_on_submit():
+        form.populate_obj(news_update)
+        
+        # Only set interview details if this is an interview notice
+        if not form.is_interview_notice.data:
+            news_update.location_address = None
+            news_update.interview_date = None
+            
+        db.session.commit()
+        
+        flash('News/Update edited successfully', 'success')
+        return redirect(url_for('employer_news_list'))
+        
+    return render_template('employer/edit_news.html', form=form, news_update=news_update)
+
+@app.route('/employer/news-updates/delete/<int:news_id>', methods=['POST'])
+@login_required
+def delete_news_update(news_id):
+    """Delete a news/update."""
+    if not current_user.is_employer():
+        abort(403)  # Forbidden
+        
+    employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+    if not employer:
+        flash('Employer profile not found. Please contact administrator.', 'error')
+        return redirect(url_for('employer_dashboard'))
+        
+    news_update = NewsUpdate.query.get_or_404(news_id)
+    
+    # Make sure employers can only delete their own updates
+    if news_update.employer_id != employer.id:
+        abort(403)  # Forbidden
+        
+    db.session.delete(news_update)
+    db.session.commit()
+    
+    flash('News/Update deleted successfully', 'success')
+    return redirect(url_for('employer_news_list'))
+

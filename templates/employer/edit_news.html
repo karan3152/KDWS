@@ -1,0 +1,160 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Edit News Update - Employer Portal{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    /* Custom styles for news form */
+    .form-check-input:checked {
+        background-color: #2C5282;
+        border-color: #2C5282;
+    }
+    
+    .interview-fields {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-top: 1rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .interview-fields.hidden {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Edit News Update</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('employer_news_list') }}">News & Updates</a></li>
+        <li class="breadcrumb-item active">Edit</li>
+    </ol>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-newspaper me-1"></i>
+            Edit News Update
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('edit_news_update', news_id=news_update.id) }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">{{ form.title.label }}</label>
+                    {{ form.title(class="form-control", id="title", placeholder="Enter update title") }}
+                    {% if form.title.errors %}
+                        <div class="text-danger">
+                            {% for error in form.title.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">{{ form.content.label }}</label>
+                    {{ form.content(class="form-control", rows="6", id="content", placeholder="Enter update content") }}
+                    {% if form.content.errors %}
+                        <div class="text-danger">
+                            {% for error in form.content.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    {{ form.is_active(class="form-check-input", role="switch", id="is_active") }}
+                    <label class="form-check-label" for="is_active">{{ form.is_active.label }}</label>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    {{ form.is_interview_notice(class="form-check-input", role="switch", id="is_interview_notice") }}
+                    <label class="form-check-label" for="is_interview_notice">{{ form.is_interview_notice.label }}</label>
+                </div>
+                
+                <div id="interviewFields" class="interview-fields hidden">
+                    <h4 class="h5 mb-3">Interview Details</h4>
+                    
+                    <div class="mb-3">
+                        <label for="interview_date" class="form-label">{{ form.interview_date.label }}</label>
+                        {{ form.interview_date(class="form-control", id="interview_date", placeholder="Select date and time") }}
+                        {% if form.interview_date.errors %}
+                            <div class="text-danger">
+                                {% for error in form.interview_date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="location_address" class="form-label">{{ form.location_address.label }}</label>
+                        {{ form.location_address(class="form-control", rows="3", id="location_address", placeholder="Enter interview location address") }}
+                        {% if form.location_address.errors %}
+                            <div class="text-danger">
+                                {% for error in form.location_address.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('employer_news_list') }}" class="btn btn-secondary">Cancel</a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize datetime picker
+        flatpickr("#interview_date", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            minDate: "today"
+        });
+        
+        // Toggle interview fields
+        const interviewSwitch = document.getElementById('is_interview_notice');
+        const interviewFields = document.getElementById('interviewFields');
+        
+        function toggleInterviewFields() {
+            if (interviewSwitch.checked) {
+                interviewFields.classList.remove('hidden');
+            } else {
+                interviewFields.classList.add('hidden');
+            }
+        }
+        
+        // Initialize on page load
+        toggleInterviewFields();
+        
+        // Listen for changes
+        interviewSwitch.addEventListener('change', toggleInterviewFields);
+    });
+</script>
+{% endblock %}
