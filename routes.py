@@ -224,6 +224,9 @@ def employer_dashboard():
     employee_count = User.query.filter_by(role='employee').count()
     pending_documents = Document.query.filter_by(status='pending').count()
     
+    # Get recent documents
+    recent_documents = Document.query.order_by(Document.upload_date.desc()).limit(10).all()
+    
     # Get recent news updates by this employer
     if employer_profile:
         news_updates = NewsUpdate.query.filter_by(employer_id=employer_profile.id).order_by(NewsUpdate.published_date.desc()).limit(5).all()
@@ -234,7 +237,8 @@ def employer_dashboard():
                            employer=employer_profile,
                            employee_count=employee_count,
                            pending_documents=pending_documents,
-                           news_updates=news_updates)
+                           news_updates=news_updates,
+                           recent_documents=recent_documents)
 
 
 @app.route('/employee/dashboard')

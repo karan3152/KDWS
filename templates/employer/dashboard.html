@@ -7,7 +7,7 @@
 {% block dashboard_content %}
 <section class="dashboard-overview">
     <h3 class="mb-3">Overview</h3>
-    
+
     <div class="dashboard-cards">
         <div class="dashboard-card">
             <div class="dashboard-card-icon bg-primary">
@@ -18,7 +18,7 @@
                 <div class="dashboard-card-label">Total Employees</div>
             </div>
         </div>
-        
+
         <div class="dashboard-card">
             <div class="dashboard-card-icon" style="background-color: var(--accent);">
                 <i class="fas fa-file-pdf"></i>
@@ -28,7 +28,7 @@
                 <div class="dashboard-card-label">Recent Submissions</div>
             </div>
         </div>
-        
+
         <div class="dashboard-card">
             <div class="dashboard-card-icon bg-secondary">
                 <i class="fas fa-search"></i>
@@ -58,11 +58,11 @@
 <section class="recent-documents mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Recent Document Submissions</h3>
-        <a href="{{ url_for('employee_search') }}" class="btn btn-sm btn-outline-primary">
+        <a href="{{ url_for('employer_search_employee') }}" class="btn btn-sm btn-outline-primary">
             Search All Employees
         </a>
     </div>
-    
+
     <div class="card">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -128,7 +128,7 @@
 
 <section class="quick-actions mt-4">
     <h3 class="mb-3">Quick Actions</h3>
-    
+
     <div class="row">
         <div class="col-md-4 mb-3">
             <div class="card">
@@ -141,7 +141,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-body">
@@ -153,7 +153,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-body">
