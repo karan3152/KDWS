@@ -53,6 +53,40 @@
                     {% endif %}
                 </div>
             </div>
+            
+            {% if news_updates %}
+            <div class="card shadow mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">News & Updates</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for update in news_updates %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ update.title }}</h5>
+                                <small>{{ update.published_date.strftime('%d %b %Y') }}</small>
+                            </div>
+                            <p class="mb-1">{{ update.content }}</p>
+                            {% if update.link %}
+                            <a href="{{ update.link }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                {{ update.link_text or "Read More" }}
+                            </a>
+                            {% endif %}
+                            {% if update.is_interview_notice %}
+                            <div class="mt-2 p-2 bg-light border rounded">
+                                <p class="mb-1"><strong>Interview Date:</strong> {{ update.interview_date.strftime('%d %b %Y, %I:%M %p') }}</p>
+                                {% if update.location_address %}
+                                <p class="mb-0"><strong>Location:</strong> {{ update.location_address }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -238,6 +238,9 @@ class NewsUpdate(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     link = db.Column(db.String(255), nullable=True)
     link_text = db.Column(db.String(100), nullable=True)
+    is_interview_notice = db.Column(db.Boolean, default=False)
+    interview_date = db.Column(db.DateTime, nullable=True)
+    location_address = db.Column(db.Text, nullable=True)
     
     def __repr__(self):
         return f'<NewsUpdate id={self.id}, title={self.title}>'
