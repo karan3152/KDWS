@@ -20,10 +20,9 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a_secure_secret_key_for_development"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
-# Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/employee_management"
+# Configure the database to use SQLite instead
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///employee_management.db"
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
     "pool_pre_ping": True,
 }
 app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, 'static', 'uploads')
