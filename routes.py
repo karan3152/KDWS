@@ -316,7 +316,7 @@ def employer_profile_page(employer_id=None):
         return redirect(url_for('index'))
 
     # Get employer profile
-    if employer_id:
+    if employer_id is not None:
         employer = EmployerProfile.query.get_or_404(employer_id)
         if not current_user.is_admin() and employer.user_id != current_user.id:
             flash('Access denied. You can only view your own profile.', 'error')
@@ -324,6 +324,15 @@ def employer_profile_page(employer_id=None):
         user = User.query.get(employer.user_id)
     else:
         employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+        if not employer and current_user.is_employer():
+            # Create a default profile if none exists
+            employer = EmployerProfile(
+                user_id=current_user.id,
+                company_name=current_user.username,
+                department="HR"
+            )
+            db.session.add(employer)
+            db.session.commit()
         user = current_user
         
     if not employer:
