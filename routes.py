@@ -56,12 +56,9 @@ def login():
             flash('Invalid username or password', 'error')
             return redirect(url_for('login'))
         
-        # Try to update last login time if column exists
-        try:
-            user.last_login = datetime.utcnow()
-            db.session.commit()
-        except:
-            db.session.rollback()
+        # Update last login time
+        user.last_login = datetime.utcnow()
+        db.session.commit()
             
         login_user(user, remember=form.remember_me.data)
         
