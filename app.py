@@ -42,7 +42,8 @@ def load_user(user_id):
 with app.app_context():
     # Import models and create tables
     from models import User, EmployeeProfile, EmployerProfile, Document, FamilyMember, NewsUpdate, PasswordResetToken
-    db.create_all()
+    db.drop_all()  # Drop all tables
+    db.create_all()  # Create all tables with current schema
     
     # Import routes
     import routes
