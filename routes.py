@@ -59,7 +59,7 @@ def login():
         # Update last login time
         user.last_login = datetime.utcnow()
         db.session.commit()
-            
+        
         login_user(user, remember=form.remember_me.data)
         
         # Check if this is the first login (for employees)
@@ -307,7 +307,7 @@ def admin_profile():
 
 
 @app.route('/employer/profile', methods=['GET', 'POST'])
-@app.route('/employer/profile/<employer_id>', methods=['GET', 'POST'])
+@app.route('/employer/profile/<int:employer_id>', methods=['GET', 'POST'])
 @login_required
 def employer_profile_page(employer_id=None):
     """Employer profile page with edit form."""
@@ -316,27 +316,14 @@ def employer_profile_page(employer_id=None):
         return redirect(url_for('index'))
 
     # Get employer profile
-    if employer_id is not None:
-        try:
-            employer_id = int(employer_id)
-            employer = EmployerProfile.query.get_or_404(employer_id)
-            if not current_user.is_admin() and employer.user_id != current_user.id:
-                flash('Access denied. You can only view your own profile.', 'error')
-                return redirect(url_for('index'))
-            user = User.query.get(employer.user_id)
-        except ValueError:
-            abort(404)
+    if employer_id:
+        employer = EmployerProfile.query.get_or_404(employer_id)
+        if not current_user.is_admin() and employer.user_id != current_user.id:
+            flash('Access denied. You can only view your own profile.', 'error')
+            return redirect(url_for('index'))
+        user = User.query.get(employer.user_id)
     else:
         employer = EmployerProfile.query.filter_by(user_id=current_user.id).first()
-        if not employer and current_user.is_employer():
-            # Create a default profile if none exists
-            employer = EmployerProfile(
-                user_id=current_user.id,
-                company_name=current_user.username,
-                department="HR"
-            )
-            db.session.add(employer)
-            db.session.commit()
         user = current_user
         
     if not employer:
