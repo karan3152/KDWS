@@ -1,28 +1,24 @@
-import sys
+
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 
 from app import app, db
-from models import User, EmployerProfile, ROLE_ADMIN
-
+from models import User, ROLE_ADMIN
 
 def create_admin_user():
-    """Create an admin user if it doesn't exist."""
+    """Create an admin user."""
     with app.app_context():
-        # Create tables
-        db.create_all()
-
         # Check if admin already exists
-        existing_user = User.query.filter_by(username='admin').first()
-        if existing_user:
+        admin = User.query.filter_by(username='admin').first()
+        if admin:
             print("Admin user already exists!")
-            return False
+            return
 
         # Create admin user
         admin = User(
             username='admin',
             email='admin@example.com',
-            password_hash=generate_password_hash('admin123'),  # Set default password
+            password_hash=generate_password_hash('admin123'),
             role=ROLE_ADMIN,
             first_login=False,
             created_at=datetime.utcnow(),
@@ -31,9 +27,7 @@ def create_admin_user():
 
         db.session.add(admin)
         db.session.commit()
-        print("Admin user 'admin' created successfully!")
-        return True
-
+        print("Admin user created successfully!")
 
 if __name__ == "__main__":
     create_admin_user()
