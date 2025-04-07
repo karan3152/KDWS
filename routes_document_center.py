@@ -307,10 +307,28 @@ def fill_joining_form():
         flash('Access denied. This page is for employees only.', 'error')
         return redirect(url_for('index'))
     
-    # Implementation for online form filling
-    # ...
+    from flask_wtf import FlaskForm
+    from wtforms import StringField, DateField, SelectField, TextAreaField
+    from wtforms.validators import DataRequired, Email, Length
     
-    return render_template('employee/forms/joining_form.html')
+    class JoiningForm(FlaskForm):
+        full_name = StringField('Full Name', validators=[DataRequired(), Length(max=100)])
+        guardian_name = StringField("Father's/Husband's Name", validators=[DataRequired(), Length(max=100)])
+        date_of_birth = DateField('Date of Birth', validators=[DataRequired()])
+        gender = SelectField('Gender', choices=[('', 'Select Gender'), ('male', 'Male'), ('female', 'Female'), ('other', 'Other')], validators=[DataRequired()])
+        marital_status = SelectField('Marital Status', choices=[('', 'Select Status'), ('single', 'Single'), ('married', 'Married'), ('divorced', 'Divorced'), ('widowed', 'Widowed')], validators=[DataRequired()])
+        contact_number = StringField('Contact Number', validators=[DataRequired(), Length(min=10, max=15)])
+        email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
+        current_address = TextAreaField('Current Address', validators=[DataRequired(), Length(max=200)])
+
+    form = JoiningForm()
+    
+    if form.validate_on_submit():
+        # Handle form submission here
+        flash('Form submitted successfully!', 'success')
+        return redirect(url_for('document_center'))
+    
+    return render_template('employee/forms/joining_form.html', form=form)
 
 
 # PF Form
