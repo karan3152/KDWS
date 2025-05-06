@@ -1,6 +1,6 @@
-# WorkforceHive HR Management System
+# KDWS HR Management System
 
-A comprehensive HR management system built with Flask.
+Enables HR to connect with candidates quickly, efficiently, and effortlessly.
 
 ## Features
 
