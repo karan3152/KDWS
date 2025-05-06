@@ -1,0 +1,77 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Manage News Updates - Admin{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">News Management</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-newspaper me-1"></i>
+                Manage News & Updates
+            </div>
+            <a href="{{ url_for('main.admin_create_news') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i> Create New Update
+            </a>
+        </div>
+        <div class="card-body">
+            {% if news_updates %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for news in news_updates %}
+                                <tr>
+                                    <td>{{ news.title }}</td>
+                                    <td>{{ news.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <span class="badge {% if news.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                            {{ 'Active' if news.is_active else 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('main.admin_edit_news', news_id=news.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit me-1"></i> Edit
+                                            </a>
+                                            <form method="POST" action="{{ url_for('main.admin_delete_news', news_id=news.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this news update?');">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash me-1"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No news updates have been created yet. Click the "Create New Update" button to add your first news update.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock dashboard_content %}

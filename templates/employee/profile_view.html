@@ -1,0 +1,166 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}Employee Profile - {{ employee.first_name }} {{ employee.last_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>
+                {{ employee.first_name }} {{ employee.last_name }}'s Profile
+                <small class="text-muted">({{ employee.employee_id }})</small>
+            </h2>
+            <div>
+                <a href="{{ url_for('main.employer_documents', employee_id=employee.id) }}" class="btn btn-primary">
+                    <i class="fas fa-file-alt"></i> View Documents
+                </a>
+                <a href="{{ url_for('main.employer_employees') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Employees
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center mb-4">
+                    {% if employee.photo_path %}
+                        <img src="{{ url_for('static', filename=employee.photo_path) }}"
+                             alt="Profile Photo"
+                             class="img-fluid rounded-circle profile-photo"
+                             style="width: 200px; height: 200px; object-fit: cover; border: 4px solid #4e73df;"
+                             onerror="this.src='{{ url_for('static', filename='img/default-profile.png') }}';">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile.png') }}"
+                             alt="Default Profile"
+                             class="img-fluid rounded-circle profile-photo"
+                             style="width: 200px; height: 200px; object-fit: cover; border: 4px solid #4e73df;">
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h5 class="text-primary">Personal Information</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th style="width: 40%">Full Name</th>
+                                    <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date of Birth</th>
+                                    <td>{{ employee.date_of_birth.strftime('%d-%m-%Y') if employee.date_of_birth else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Gender</th>
+                                    <td>{{ employee.gender|title if employee.gender else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone Number</th>
+                                    <td>{{ employee.phone_number if employee.phone_number else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <td>{{ employee.address if employee.address else 'Not provided' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <h5 class="text-primary">Employment Information</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th style="width: 40%">Department</th>
+                                    <td>{{ employee.department if employee.department else 'Not assigned' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Position</th>
+                                    <td>{{ employee.position if employee.position else 'Not assigned' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Hire Date</th>
+                                    <td>{{ employee.hire_date.strftime('%d-%m-%Y') if employee.hire_date else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Employment Status</th>
+                                    <td>{{ employee.employment_status|title if employee.employment_status else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tax ID</th>
+                                    <td>{{ employee.tax_id if employee.tax_id else 'Not provided' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h5 class="text-primary">Emergency Contact</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th style="width: 40%">Name</th>
+                                    <td>{{ employee.emergency_contact_name if employee.emergency_contact_name else 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>{{ employee.emergency_contact_phone if employee.emergency_contact_phone else 'Not provided' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <h5 class="text-primary">Banking Information</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th style="width: 40%">Bank Account</th>
+                                    <td>
+                                        {% if employee.bank_account %}
+                                            {{ employee.bank_account[:4] + '*******' if employee.bank_account|length > 4 else employee.bank_account }}
+                                        {% else %}
+                                            Not provided
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family Members Section -->
+            {% if family_members %}
+            <div class="mt-4">
+                <h5 class="text-primary">Family Members</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Relationship</th>
+                                <th>Date of Birth</th>
+                                <th>Aadhar ID</th>
+                                <th>Contact Number</th>
+                                <th>Photo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in family_members %}
+                            <tr>
+                                <td>{{ member.name }}</td>
+                                <td>{{ member.relationship|title }}</td>
+                                <td>{{ member.date_of_birth.strftime('%d-%m-%Y') if member.date_of_birth else '--' }}</td>
+                                <td>{{ member.aadhar_id if member.aadhar_id else '--' }}</td>
+                                <td>{{ member.contact_number if member.contact_number else '--' }}</td>
+                                <td>
+                                    {% if member.photo_path %}
+                                    <img src="{{ url_for('static', filename=member.photo_path) }}" alt="Family Member Photo" style="width: 40px; height: 40px; object-fit: cover;" class="img-thumbnail" onerror="this.parentNode.innerHTML='<span class=\'text-muted\'>No photo</span>';">
+                                    {% else %}
+                                    <span class="text-muted">No photo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

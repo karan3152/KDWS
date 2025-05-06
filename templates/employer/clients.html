@@ -1,0 +1,61 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}Clients/Projects{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Clients/Projects</h5>
+                </div>
+                <div class="card-body">
+                    {% if clients %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Code</th>
+                                    <th>Contact Person</th>
+                                    <th>Contact Email</th>
+                                    <th>Contact Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for client in clients %}
+                                <tr>
+                                    <td>{{ client.name }}</td>
+                                    <td>{{ client.code }}</td>
+                                    <td>{{ client.contact_person }}</td>
+                                    <td>{{ client.contact_email }}</td>
+                                    <td>{{ client.contact_phone }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if client.is_active else 'danger' }}">
+                                            {{ 'Active' if client.is_active else 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('clients.employer_client_employees', client_id=client.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-users"></i> View Employees
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No clients/projects available. Please contact the administrator to add clients.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

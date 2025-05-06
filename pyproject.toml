@@ -1,20 +1,31 @@
 [project]
-name = "repl-nix-workspace"
+name = "kdws"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.11"
-dependencies = [
-    "email-validator>=2.2.0",
-    "flask-login>=0.6.3",
-    "flask>=3.1.0",
-    "flask-sqlalchemy>=3.1.1",
-    "gunicorn>=23.0.0",
-    "psycopg2-binary>=2.9.10",
-    "flask-wtf>=1.2.2",
-    "sqlalchemy>=2.0.40",
-    "werkzeug>=3.1.3",
-    "wtforms>=3.2.1",
-    "pypdf2>=3.0.1",
-    "pymysql>=1.1.1",
-    "pillow>=11.1.0",
+description = "KDWS - Employee Document Management System"
+requires-python = ">=3.8"
+authors = [
+    {name = "KDWS Team"}
 ]
+dependencies = [
+    "flask>=2.0.1",
+    "flask-sqlalchemy>=2.5.1",
+    "flask-login>=0.5.0",
+    "flask-wtf>=0.15.1",
+    "flask-mail>=0.9.1",
+    "flask-migrate>=3.1.0",
+    "werkzeug>=2.0.1",
+    "sqlalchemy>=1.4.23",
+    "python-dotenv>=0.19.0",
+    "pyjwt>=2.1.0",
+    "pillow>=9.0.0",
+    "qrcode>=7.3",
+    "pyotp>=2.6.0",
+    "pymysql>=1.0.2",
+    "gunicorn>=20.1.0",
+    "email-validator>=2.0.0",
+    "pypdf2>=3.0.0"
+]
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"

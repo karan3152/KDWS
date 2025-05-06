@@ -1,40 +1,413 @@
-
 {% extends "dashboard_layout.html" %}
 
-{% block title %}PF Form 2{% endblock %}
+{% block title %}PF Form - Employee Data Management System{% endblock %}
 
 {% block dashboard_content %}
-<div class="container">
-    <h2>PF Form 2 (Revised)</h2>
+<div class="container-fluid">
+    <h2 class="mb-4">NOMINATION AND DECLARATION FORM</h2>
+    <p class="mb-4">For Unexempted/Exempted Establishments - FORM 2 (Revised)</p>
+    <p class="mb-3">Declaration and Nomination Form under the Employees' Provident Funds and Employees' Pension Scheme</p>
+    <p class="mb-4 text-muted small">(Paragraphs 33 & 61(1) of the Employees Provident Fund Scheme, 1952 and Paragraph 18 of the Employees' Pension Scheme, 1995)</p>
+
     <form method="POST" class="needs-validation" novalidate>
         {{ form.hidden_tag() }}
-        
-        <div class="form-group">
-            <label>Employee Name</label>
-            <input type="text" name="employee_name" class="form-control" required>
+
+        <!-- Personal Information Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">1. Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Name (in Block letters) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Father's/Husband's Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="father_husband_name" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="date_of_birth" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sex <span class="text-danger">*</span></label>
+                        <select class="form-select" name="sex" required>
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Marital Status <span class="text-danger">*</span></label>
+                        <select class="form-select" name="marital_status" required>
+                            <option value="">Select</option>
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="widowed">Widowed</option>
+                            <option value="divorced">Divorced</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Account No.</label>
+                        <input type="text" class="form-control" name="account_no">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Joining <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="date_joining" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Permanent Address <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="permanent_address" rows="3" required></textarea>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Temporary Address</label>
+                        <textarea class="form-control" name="temporary_address" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Father's/Spouse's Name</label>
-            <input type="text" name="guardian_name" class="form-control" required>
+        <!-- PART A - EPF Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">2. PART – A (EPF)</h5>
+            </div>
+            <div class="card-body">
+                <p>I hereby nominate the person(s)/cancel the nomination made by me previously and nominate the person(s) mentioned below to receive the amount standing to my credit in the Employees' Provident Fund in the event of my death:</p>
+
+                <div class="table-responsive">
+                    <table id="epf-nominees-table" class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name of nominee</th>
+                                <th>Address</th>
+                                <th>Relationship with member</th>
+                                <th>Date of Birth</th>
+                                <th>Share of Accumulations (%)</th>
+                                <th>Guardian details if nominee is minor</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="form-control" name="epf_nominee_name[]"></td>
+                                <td><input type="text" class="form-control" name="epf_nominee_address[]"></td>
+                                <td><input type="text" class="form-control" name="epf_nominee_relation[]"></td>
+                                <td><input type="date" class="form-control" name="epf_nominee_dob[]"></td>
+                                <td><input type="text" class="form-control" name="epf_nominee_share[]"></td>
+                                <td><input type="text" class="form-control" name="epf_nominee_guardian[]"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="add-epf-nominee">Add More Nominees</button>
+
+                <div class="form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="epf-no-family" name="epf_no_family">
+                    <label class="form-check-label" for="epf-no-family">Certified that I have no family as defined in para 2(g) of the Employees' Provident Fund Scheme, 1952 and should I acquire a Family hereafter, the above nomination should be deemed as cancelled.</label>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="epf-dependent-parents" name="epf_dependent_parents">
+                    <label class="form-check-label" for="epf-dependent-parents">Certified that my father/mother is/are dependent upon me.</label>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Date of Birth</label>
-            <input type="date" name="date_of_birth" class="form-control" required>
+        <!-- PART B - EPS Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">3. PART B (EPS) (Para 18)</h5>
+            </div>
+            <div class="card-body">
+                <p>I hereby furnish below particulars of the members of my family who would be eligible to receive widow/children pension in the event of my death.</p>
+
+                <div class="table-responsive">
+                    <table id="eps-family-table" class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>S.No.</th>
+                                <th>Name of family member</th>
+                                <th>Address</th>
+                                <th>Date of Birth</th>
+                                <th>Relationship with member</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td><input type="text" class="form-control" name="eps_family_name[]"></td>
+                                <td><input type="text" class="form-control" name="eps_family_address[]"></td>
+                                <td><input type="date" class="form-control" name="eps_family_dob[]"></td>
+                                <td><input type="text" class="form-control" name="eps_family_relation[]"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="add-eps-family">Add More Family Members</button>
+
+                <div class="form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="eps-no-family" name="eps_no_family">
+                    <label class="form-check-label" for="eps-no-family">Certified that I have no family, as defined in para 2(vii) of Employees' Pension Scheme, 1995 and should I acquire a family hereafter I shall furnish particulars thereon in the above form.</label>
+                </div>
+
+                <p class="mt-4">I hereby nominate the following person for receiving the monthly widow pension (admissible under para 16 2(a)(i) and (ii) in the event of my death without leaving any eligible family member for receiving Pension.</p>
+
+                <div class="table-responsive">
+                    <table id="eps-nominees-table" class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name and Address of the Nominee</th>
+                                <th>Date of Birth</th>
+                                <th>Relationship with the member</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="form-control" name="eps_nominee_name[]"></td>
+                                <td><input type="date" class="form-control" name="eps_nominee_dob[]"></td>
+                                <td><input type="text" class="form-control" name="eps_nominee_relation[]"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="add-eps-nominee">Add More Nominees</button>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Account Number</label>
-            <input type="text" name="account_number" class="form-control" required>
+        <!-- Signature Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">4. Signature</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="signature_date" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center mt-4">
+                        <p>Signature or thumb impression of the subscriber</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Permanent Address</label>
-            <textarea name="permanent_address" class="form-control" rows="3" required></textarea>
+        <!-- Employer Certificate Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">5. Certificate by Employer</h5>
+            </div>
+            <div class="card-body">
+                <p>Certified that the above declaration and nomination has been signed/thumb impressed before me by:</p>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Shri/Smt./Kum.</label>
+                        <input type="text" class="form-control" name="employee_name">
+                    </div>
+                </div>
+
+                <p>employed in my establishment after he/she has read the entries/entries have been read over to him/her by me and got confirmed by him/her.</p>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Place</label>
+                        <input type="text" class="form-control" name="employer_place">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Dated the</label>
+                        <input type="date" class="form-control" name="employer_date">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Designation</label>
+                        <input type="text" class="form-control" name="employer_designation">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Name & Address of the Factory/Establishment or Rubber Stamp Thereon</label>
+                        <textarea class="form-control" name="establishment_name" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Submit Form</button>
+        <!-- Form Guidance Section (Collapsible) -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">6. Guidance for Filling the Form No - 2</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="guidanceAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingGuidance">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGuidance" aria-expanded="false" aria-controls="collapseGuidance">
+                                Click to view guidance information
+                            </button>
+                        </h2>
+                        <div id="collapseGuidance" class="accordion-collapse collapse" aria-labelledby="headingGuidance" data-bs-parent="#guidanceAccordion">
+                            <div class="accordion-body">
+                                <div class="alert alert-info">
+                                    <h5>Employee's Provident Fund Scheme, 1952 (EPF)</h5>
+                                    <p><strong>Para 33:</strong> Declaration by persons already employed at the time of institution of the fund</p>
+                                    <p>Every person who is required or entitled to become a member of the Fund shall be asked forthwith by his employer to furnish and shall, on such demand, furnish to him, for communication to the Commissioner, particulars concerning himself and his nominee required for the declaration form in Form 2. Such employer shall enter the particulars in the declaration form and obtain the signature or thumb impression of the person concerned.</p>
+
+                                    <p><strong>Para 61:</strong> Nomination</p>
+                                    <ol>
+                                        <li>Each member shall make in his declaration in Form 2, a nomination conferring the right to receive the amount that may stand to his credit in the Fund in the event of his death before the amount standing to his credit has become payable, or where the amount has become payable before payment has been made.</li>
+                                        <li>A member may in this nomination distribute the amount that may stand to his credit in the Fund amongst his nominees at his own discretion.</li>
+                                        <li>If a member has a family at the time of making a nomination, the nomination shall be in favour of one or more persons belonging to his family. Any nomination made by such member in favour of a person not belonging to his family shall be invalid. Provided that a fresh nomination shall be made by the member on his marriage and any nomination made before such marriage shall be deemed to be invalid.</li>
+                                        <li>If at the time of making a nomination the member has no family, the nomination may be in favour of any person or persons but if the member subsequently acquires a family, such nomination shall forthwith be deemed to be invalid and the member shall make a fresh nomination in favour of one or more persons belonging to his family.</li>
+                                        <li>Where the nomination is wholly or partly in favour of a minor, the member may, for the purposes of this scheme appoint a major person of his family, as defined in clause (g) of paragraph 2, to be the guardian of the minor nominee in the event of the member predeceasing the nominee and the guardian so appointed. Provided that where there is no major person in the family, the member may, at his discretion, appoint any other person to be a guardian of the minor nominee.</li>
+                                        <li>A nomination made under sub-paragraph(1) may at any time be modified by a member after giving a written notice of his intention of doing so in form 2. If the nominee predeceases the member, the interest of the nominee shall revert to the member who may make a fresh nomination in respect of such interest.</li>
+                                        <li>A nomination or its modification shall take effect to the extent that it is valid on the date on which it is received by the commissioner.</li>
+                                    </ol>
+
+                                    <p><strong>Para 2(g): Family Means:</strong></p>
+                                    <ol>
+                                        <li>In the case of a male member, his wife, his children, whether married or unmarried, his dependent parents and his deceased son's widow and children;<br>
+                                        Provided that if a member proves that his wife has ceased, under the personal law governing him or the customary law of the community to which the spouses belong, to be entitled to maintenance she shall no longer be deemed to be a part of the member's family for the purpose of this scheme, unless the member subsequently intimates by express notice in writing to the commissioner that she shall continue to be so regarded; and</li>
+                                        <li>In the case of a female member, her husband, her children, whether married or unmarried, her dependent parents, her husband's dependent parents, her deceased son's widow and children;<br>
+                                        Provided that if a member by notice in writing to the commissioner expresses her desire to exclude her husband from the family, the husband and his dependent parents shall no longer be deemed to be a part of the member's family for the purpose of this scheme, unless the member subsequently cancels in writing any such notice.</li>
+                                    </ol>
+                                    <p><strong>Explanation:</strong> In either of the above two cases, if the child of a member [or as the case may be, the child of a deceased son of the member] has been adopted by another person and if, under the personal law of the adopter, adoption is legally recognised, such a child shall be considered as excluded from the family of the member.</p>
+
+                                    <h5 class="mt-4">Employees Pension Scheme, 1995 (EPS)</h5>
+                                    <p><strong>Para 18:</strong> Particulars to be supplied by the Employees already employed at the time of commencement of the Employees Pension Scheme.</p>
+                                    <p>Every person who is entitled to become a member of the Employees Pension Fund shall be asked forthwith by his employer to furnish and that person shall, on such demand, furnish to him for communication to the Commissioner particulars concerning himself and his family in the form prescribed by the Central Provident Fund Commissioner.</p>
+
+                                    <p><strong>Para 2(vii): Family means:</strong></p>
+                                    <ol>
+                                        <li>Wife in the case of male member of the Employees' Pension Fund;</li>
+                                        <li>Husband in the case of a female member of the Employees' Pension fund; and</li>
+                                        <li>Sons and daughters of a member of the Employees Pension fund;</li>
+                                    </ol>
+                                    <p><strong>Explanation:</strong> The expression "Sons" and "daughters" shall include children [Legally adopted by the member]</p>
+
+                                    <p><strong>NOTE:</strong> Members can nominate a person to receive benefits under the Employees' Pension Scheme 1995 where a member is unmarried or does not have any family. Such nominee shall be paid pension equal to widow pension in case of death of member.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Button Section -->
+        <div class="text-center mb-4">
+            <button type="button" class="btn btn-secondary me-2">Save as Draft</button>
+            <button type="submit" class="btn btn-primary">Submit Form</button>
+        </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Add EPF Nominee Row
+    document.getElementById('add-epf-nominee').addEventListener('click', function() {
+        const tbody = document.querySelector('#epf-nominees-table tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" class="form-control" name="epf_nominee_name[]"></td>
+            <td><input type="text" class="form-control" name="epf_nominee_address[]"></td>
+            <td><input type="text" class="form-control" name="epf_nominee_relation[]"></td>
+            <td><input type="date" class="form-control" name="epf_nominee_dob[]"></td>
+            <td><input type="text" class="form-control" name="epf_nominee_share[]"></td>
+            <td><input type="text" class="form-control" name="epf_nominee_guardian[]"></td>
+            <td><button type="button" class="btn btn-danger btn-sm">Remove</button></td>
+        `;
+        tbody.appendChild(newRow);
+    });
+
+    // Add EPS Family Member Row
+    document.getElementById('add-eps-family').addEventListener('click', function() {
+        const tbody = document.querySelector('#eps-family-table tbody');
+        const rows = tbody.querySelectorAll('tr');
+        const rowCount = rows.length + 1;
+
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${rowCount}</td>
+            <td><input type="text" class="form-control" name="eps_family_name[]"></td>
+            <td><input type="text" class="form-control" name="eps_family_address[]"></td>
+            <td><input type="date" class="form-control" name="eps_family_dob[]"></td>
+            <td><input type="text" class="form-control" name="eps_family_relation[]"></td>
+            <td><button type="button" class="btn btn-danger btn-sm">Remove</button></td>
+        `;
+        tbody.appendChild(newRow);
+    });
+
+    // Add EPS Nominee Row
+    document.getElementById('add-eps-nominee').addEventListener('click', function() {
+        const tbody = document.querySelector('#eps-nominees-table tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" class="form-control" name="eps_nominee_name[]"></td>
+            <td><input type="date" class="form-control" name="eps_nominee_dob[]"></td>
+            <td><input type="text" class="form-control" name="eps_nominee_relation[]"></td>
+            <td><button type="button" class="btn btn-danger btn-sm">Remove</button></td>
+        `;
+        tbody.appendChild(newRow);
+    });
+
+    // Remove Row Event Delegation
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('btn-danger')) {
+            const row = e.target.closest('tr');
+            const tbody = row.parentNode;
+
+            if (tbody.children.length > 1) {
+                tbody.removeChild(row);
+
+                // Renumber the S.No. column for EPS family table
+                if (tbody.parentNode.id === 'eps-family-table') {
+                    const rows = tbody.querySelectorAll('tr');
+                    rows.forEach((row, index) => {
+                        row.cells[0].textContent = index + 1;
+                    });
+                }
+            } else {
+                alert('At least one row is required.');
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Employee Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #2d3748;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e2e8f0;
+    }
+
+    .required-field::after {
+        content: "*";
+        color: #e53e3e;
+        margin-left: 4px;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="profile-container">
+        <div class="profile-header">
+            <div>
+                <h2 class="mb-1">Edit Employee Profile</h2>
+                <p class="text-muted">Update employee information and settings</p>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4>Basic Information</h4>
+                    <hr>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- Email -->
+                <div class="col-md-6">
+                    <label for="{{ form.email.id }}" class="form-label required-field">Email Address</label>
+                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Employee ID -->
+                <div class="col-md-6">
+                    <label class="form-label">Employee ID</label>
+                    <input type="text" class="form-control" value="{{ employee.employee_id }}" readonly>
+                    <small class="form-text">Employee ID cannot be changed</small>
+                </div>
+
+                <!-- First Name -->
+                <div class="col-md-6">
+                    <label for="{{ form.first_name.id }}" class="form-label required-field">First Name</label>
+                    {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else "")) }}
+                    {% if form.first_name.errors %}
+                        {% for error in form.first_name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-md-6">
+                    <label for="{{ form.last_name.id }}" class="form-label required-field">Last Name</label>
+                    {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else "")) }}
+                    {% if form.last_name.errors %}
+                        {% for error in form.last_name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="col-md-6">
+                    <label for="{{ form.date_of_birth.id }}" class="form-label required-field">Date of Birth</label>
+                    {{ form.date_of_birth(class="form-control" + (" is-invalid" if form.date_of_birth.errors else "")) }}
+                    {% if form.date_of_birth.errors %}
+                        {% for error in form.date_of_birth.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Phone Number -->
+                <div class="col-md-6">
+                    <label for="{{ form.phone_number.id }}" class="form-label">Phone Number</label>
+                    {{ form.phone_number(class="form-control" + (" is-invalid" if form.phone_number.errors else "")) }}
+                    {% if form.phone_number.errors %}
+                        {% for error in form.phone_number.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mt-4 mb-4">
+                <div class="col-12">
+                    <h4>Employment Details</h4>
+                    <hr>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- Department -->
+                <div class="col-md-6">
+                    <label for="{{ form.department.id }}" class="form-label">Department</label>
+                    {{ form.department(class="form-control" + (" is-invalid" if form.department.errors else "")) }}
+                    {% if form.department.errors %}
+                        {% for error in form.department.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Position -->
+                <div class="col-md-6">
+                    <label for="{{ form.position.id }}" class="form-label">Position</label>
+                    {{ form.position(class="form-control" + (" is-invalid" if form.position.errors else "")) }}
+                    {% if form.position.errors %}
+                        {% for error in form.position.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Joining Date -->
+                <div class="col-md-6">
+                    <label for="{{ form.joining_date.id }}" class="form-label">Joining Date</label>
+                    {{ form.joining_date(class="form-control" + (" is-invalid" if form.joining_date.errors else "")) }}
+                    {% if form.joining_date.errors %}
+                        {% for error in form.joining_date.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                {% if current_user.is_admin() %}
+                <!-- Aadhar ID (Admin only) -->
+                <div class="col-md-6">
+                    <label for="{{ form.aadhar_id.id }}" class="form-label required-field">Aadhar ID</label>
+                    {{ form.aadhar_id(class="form-control" + (" is-invalid" if form.aadhar_id.errors else "")) }}
+                    {% if form.aadhar_id.errors %}
+                        {% for error in form.aadhar_id.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Address -->
+                <div class="col-12">
+                    <label for="{{ form.address.id }}" class="form-label">Address</label>
+                    {{ form.address(class="form-control" + (" is-invalid" if form.address.errors else ""), rows=3) }}
+                    {% if form.address.errors %}
+                        {% for error in form.address.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    <a href="{{ url_for('employer_view_employee', employee_id=employee.employee_id) }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="registration-form">
+        <h2 class="text-center mb-4">Employee Registration Form</h2>
+        <p class="text-muted text-center mb-4">Employee's Joining Application Form - Fill all information in BLOCK letters</p>
+
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <div class="form-section">
+                <h3 class="section-header">1. Personal Information</h3>
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="photo-upload-area">
+                            <label for="photo" class="form-label text-center">
+                                <i class="fas fa-camera fa-2x mb-2"></i>
+                                <br>
+                                AFFIX YOUR LATEST<br>PASSPORT SIZE<br>PHOTOGRAPH
+                            </label>
+                            <input type="file" id="photo" name="photo" class="form-control d-none" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Surname</label>
+                                <input type="text" class="form-control" name="surname" placeholder="Enter Surname" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" name="first_name" placeholder="Enter First Name" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Middle Name</label>
+                                <input type="text" class="form-control" name="middle_name" placeholder="Enter Middle Name">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Father/Mother/Spouse Name</label>
+                        <input type="text" class="form-control" name="parent_name" placeholder="Enter Name" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" name="date_of_birth" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Age (in Years)</label>
+                        <input type="number" class="form-control" name="age" readonly>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Place of Birth</label>
+                        <input type="text" class="form-control" name="place_of_birth" placeholder="Enter Place of Birth" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sex</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="sex" value="male" class="form-check-input" required> Male
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="sex" value="female" class="form-check-input"> Female
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Marital Status</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="marital_status" value="single" class="form-check-input" required> Single
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="marital_status" value="married" class="form-check-input"> Married
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-header">2. Contact Details</h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Mobile Number</label>
+                        <input type="tel" class="form-control" name="mobile" placeholder="Enter Mobile Number" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" placeholder="Enter Email Address" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-4">
+                    <div class="col-12">
+                        <label class="form-label">Permanent Address</label>
+                        <textarea class="form-control" name="address" rows="3" placeholder="Enter Permanent Address" required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-header">3. PF Account Details</h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Previous PF Account Number (if any)</label>
+                        <input type="text" class="form-control" name="prev_pf_number" placeholder="Enter Previous PF Number">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">UAN Number (if any)</label>
+                        <input type="text" class="form-control" name="uan_number" placeholder="Enter UAN Number">
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Joining</label>
+                        <input type="date" class="form-control" name="date_of_joining" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Employee ID</label>
+                        <input type="text" class="form-control" name="employee_id" placeholder="Enter Employee ID" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-header">4. Declaration</h3>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="declaration" required>
+                            <label class="form-check-label" for="declaration">
+                                I hereby declare that the above information provided by me is true and correct to the best of my knowledge.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save me-2"></i>Submit Form
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Photo preview
+    const photoInput = document.getElementById('photo');
+    const photoArea = document.querySelector('.photo-upload-area');
+    
+    photoInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                photoArea.style.backgroundImage = `url(${e.target.result})`;
+                photoArea.style.backgroundSize = 'cover';
+                photoArea.style.backgroundPosition = 'center';
+                photoArea.innerHTML = '';
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Age calculation
+    const dobInput = document.querySelector('input[name="date_of_birth"]');
+    const ageInput = document.querySelector('input[name="age"]');
+    
+    function calculateAge(birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    dobInput.addEventListener('change', function() {
+        if (this.value) {
+            ageInput.value = calculateAge(this.value);
+        }
+    });
+
+    // Form validation with modern styling
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Profile Settings</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Profile Photo</label>
+                            {{ form.photo(class="form-control") }}
+                            {% if form.photo.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.photo.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if current_user.is_employee() %}
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label required">First Name</label>
+                                {{ form.first_name(class="form-control") }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label required">Last Name</label>
+                                {{ form.last_name(class="form-control") }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="date_of_birth" class="form-label required">Date of Birth</label>
+                                {{ form.date_of_birth(class="form-control", type="date") }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date_of_birth.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="phone_number" class="form-label required">Phone Number</label>
+                                {{ form.phone_number(class="form-control") }}
+                                {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.phone_number.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                {{ form.address(class="form-control", rows=3) }}
+                                {% if form.address.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.address.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="department" class="form-label">Department</label>
+                                {{ form.department(class="form-control") }}
+                                {% if form.department.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.department.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="position" class="form-label">Position</label>
+                                {{ form.position(class="form-control") }}
+                                {% if form.position.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.position.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="joining_date" class="form-label">Date of Joining</label>
+                                {{ form.joining_date(class="form-control", type="date") }}
+                                {% if form.joining_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.joining_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        {% elif current_user.is_employer() %}
+                            <div class="mb-3">
+                                <label for="company_name" class="form-label">Company Name</label>
+                                {{ form.company_name(class="form-control") }}
+                                {% if form.company_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.company_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="department" class="form-label">Department</label>
+                                {{ form.department(class="form-control") }}
+                                {% if form.department.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.department.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.required:after {
+    content: " *";
+    color: red;
+}
+</style>
+{% endblock %} 

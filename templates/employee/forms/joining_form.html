@@ -1,66 +1,430 @@
-
 {% extends "dashboard_layout.html" %}
 
-{% block title %}New Joining Form{% endblock %}
+{% block title %}Employee Registration Form{% endblock %}
 
 {% block dashboard_content %}
-<div class="container">
-    <h2>New Joining Form</h2>
-    <form method="POST" class="needs-validation" novalidate>
-        {{ form.hidden_tag() }}
-        
-        <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" name="full_name" class="form-control" required>
-        </div>
+<div class="container-fluid">
+    <h2 class="mb-4">Employee Registration Form</h2>
+    <p class="mb-4">Employee's Joining Application Form - Fill all information in BLOCK letters</p>
 
-        <div class="form-group">
-            <label>Father's/Husband's Name</label>
-            <input type="text" name="guardian_name" class="form-control" required>
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">1. Personal Information</h5>
         </div>
+        <div class="card-body">
+            <form id="employeeForm" method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-4">
+                    <div class="col-md-3 text-center">
+                        <div class="photo-upload mb-3">
+                            <div class="photo-container" onclick="document.getElementById('photoInput').click()">
+                                <img id="photoPreview" class="photo-preview" alt="Your photo">
+                                <span id="uploadText">AFFIX YOUR LATEST<br>PASSPORT SIZE<br>PHOTOGRAPH</span>
+                                {{ form.photo(id="photoInput", style="display:none;", onchange="previewPhoto(event)") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="surname" class="form-label">Surname</label>
+                                {{ form.surname(class="form-control", placeholder="Surname") }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="first_name" class="form-label">First Name</label>
+                                {{ form.first_name(class="form-control", placeholder="First Name") }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="middle_name" class="form-label">Middle Name</label>
+                                {{ form.middle_name(class="form-control", placeholder="Middle Name") }}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="parent_name" class="form-label">Father/Mother/Spouse Name</label>
+                                {{ form.parent_name(class="form-control", placeholder="Father/Mother/Spouse Name") }}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                {{ form.date_of_birth(class="form-control") }}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="age" class="form-label">Age (in Years)</label>
+                                {{ form.age(class="form-control", placeholder="Age") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label>Date of Birth</label>
-            <input type="date" name="date_of_birth" class="form-control" required>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="place_of_birth" class="form-label">Place of Birth</label>
+                        {{ form.place_of_birth(class="form-control", placeholder="Place of Birth") }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sex</label>
+                        {{ form.sex(class="form-control") }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Marital Status</label>
+                        {{ form.marital_status(class="form-control") }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="nationality" class="form-label">Nationality</label>
+                        {{ form.nationality(class="form-control", placeholder="Nationality") }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="religion" class="form-label">Religion</label>
+                        {{ form.religion(class="form-control", placeholder="Religion") }}
+                    </div>
+                    <div class="col-md-2">
+                        <label for="blood_group" class="form-label">Blood Group</label>
+                        {{ form.blood_group(class="form-select") }}
+                    </div>
+                    <div class="col-md-2">
+                        <label for="category" class="form-label">Category</label>
+                        {{ form.category(class="form-select") }}
+                    </div>
+                </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label>Gender</label>
-            <select name="gender" class="form-control" required>
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-            </select>
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">2. Contact Information</h5>
         </div>
-
-        <div class="form-group">
-            <label>Marital Status</label>
-            <select name="marital_status" class="form-control" required>
-                <option value="">Select Status</option>
-                <option value="single">Single</option>
-                <option value="married">Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
-            </select>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label for="correspondence_address" class="form-label">Address (for Correspondence)</label>
+                    {{ form.correspondence_address(class="form-control", rows="3", placeholder="Enter address for correspondence") }}
+                </div>
+                <div class="col-md-4">
+                    <label for="correspondence_pin" class="form-label">PIN Code</label>
+                    {{ form.correspondence_pin(class="form-control", placeholder="PIN Code") }}
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label for="permanent_address" class="form-label">Permanent Address</label>
+                    {{ form.permanent_address(class="form-control", rows="3", placeholder="Enter permanent address") }}
+                </div>
+                <div class="col-md-4">
+                    <label for="permanent_pin" class="form-label">PIN Code</label>
+                    {{ form.permanent_pin(class="form-control", placeholder="PIN Code") }}
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="mobile_number" class="form-label">Mobile Number</label>
+                    {{ form.mobile_number(class="form-control", placeholder="Mobile Number") }}
+                </div>
+                <div class="col-md-4">
+                    <label for="emergency_contact" class="form-label">Emergency Contact Number</label>
+                    {{ form.emergency_contact(class="form-control", placeholder="Emergency Contact") }}
+                </div>
+                <div class="col-md-4">
+                    <label for="email" class="form-label">Email ID</label>
+                    {{ form.email(class="form-control", placeholder="Email") }}
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label>Contact Number</label>
-            <input type="tel" name="contact_number" class="form-control" required>
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">3. Identity Information</h5>
         </div>
-
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" class="form-control" required>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="aadhar_no" class="form-label">AADHAR Number</label>
+                    {{ form.aadhar_no(class="form-control", placeholder="AADHAR Number") }}
+                </div>
+                <div class="col-md-3">
+                    <label for="pan_no" class="form-label">PAN Number</label>
+                    {{ form.pan_no(class="form-control", placeholder="PAN Number") }}
+                </div>
+                <div class="col-md-3">
+                    <label for="voter_id" class="form-label">Voter ID Number</label>
+                    {{ form.voter_id(class="form-control", placeholder="Voter ID (optional)") }}
+                </div>
+                <div class="col-md-3">
+                    <label for="esi_no" class="form-label">ESI Number (if any)</label>
+                    {{ form.esi_no(class="form-control", placeholder="ESI Number (optional)") }}
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label>Current Address</label>
-            <textarea name="current_address" class="form-control" rows="3" required></textarea>
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">4. Bank Account Details</h5>
         </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="bank_name" class="form-label">Bank Name</label>
+                    {{ form.bank_name(class="form-control", placeholder="Bank Name") }}
+                </div>
+                <div class="col-md-3">
+                    <label for="account_no" class="form-label">Account Number</label>
+                    {{ form.account_no(class="form-control", placeholder="Account Number") }}
+                </div>
+                <div class="col-md-3">
+                    <label for="ifsc_code" class="form-label">IFSC Code</label>
+                    {{ form.ifsc_code(class="form-control", placeholder="IFSC Code") }}
+                </div>
+                <div class="col-md-3">
+                    <label for="branch_name" class="form-label">Branch Name</label>
+                    {{ form.branch_name(class="form-control", placeholder="Branch Name") }}
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">5. Family Details</h5>
+        </div>
+        <div class="card-body">
+            <table id="familyTable" class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Relation</th>
+                        <th>Date of Birth</th>
+                        <th>Education</th>
+                        <th>Profession</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="form-control" name="familyName[]"></td>
+                        <td><input type="text" class="form-control" name="familyRelation[]"></td>
+                        <td><input type="date" class="form-control" name="familyDOB[]"></td>
+                        <td><input type="text" class="form-control" name="familyEducation[]"></td>
+                        <td><input type="text" class="form-control" name="familyProfession[]"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addFamilyRow()">Add Family Member</button>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">6. Academic Performance</h5>
+        </div>
+        <div class="card-body">
+            <table id="academicTable" class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Qualification</th>
+                        <th>Institution</th>
+                        <th>Board/University</th>
+                        <th>From (MM/YY)</th>
+                        <th>To (MM/YY)</th>
+                        <th>Branch/Stream</th>
+                        <th>% of Marks</th>
+                        <th>Mode of Study</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SSC</td>
+                        <td><input type="text" class="form-control" name="sscInstitution"></td>
+                        <td><input type="text" class="form-control" name="sscBoard"></td>
+                        <td><input type="month" class="form-control" name="sscFrom"></td>
+                        <td><input type="month" class="form-control" name="sscTo"></td>
+                        <td><input type="text" class="form-control" name="sscBranch"></td>
+                        <td><input type="number" class="form-control" name="sscMarks" min="0" max="100" step="0.01"></td>
+                        <td><input type="text" class="form-control" name="sscMode"></td>
+                    </tr>
+                    <tr>
+                        <td>Intermediate (10+2)</td>
+                        <td><input type="text" class="form-control" name="interInstitution"></td>
+                        <td><input type="text" class="form-control" name="interBoard"></td>
+                        <td><input type="month" class="form-control" name="interFrom"></td>
+                        <td><input type="month" class="form-control" name="interTo"></td>
+                        <td><input type="text" class="form-control" name="interBranch"></td>
+                        <td><input type="number" class="form-control" name="interMarks" min="0" max="100" step="0.01"></td>
+                        <td><input type="text" class="form-control" name="interMode"></td>
+                    </tr>
+                    <tr>
+                        <td>Graduation</td>
+                        <td><input type="text" class="form-control" name="gradInstitution"></td>
+                        <td><input type="text" class="form-control" name="gradBoard"></td>
+                        <td><input type="month" class="form-control" name="gradFrom"></td>
+                        <td><input type="month" class="form-control" name="gradTo"></td>
+                        <td><input type="text" class="form-control" name="gradBranch"></td>
+                        <td><input type="number" class="form-control" name="gradMarks" min="0" max="100" step="0.01"></td>
+                        <td><input type="text" class="form-control" name="gradMode"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">7. Previous Experience (Employment)</h5>
+        </div>
+        <div class="card-body">
+            <table id="experienceTable" class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Organization</th>
+                        <th>Designation at Joining</th>
+                        <th>Designation at Relieving</th>
+                        <th>Pay at Joining (₹)</th>
+                        <th>Pay at Relieving (₹)</th>
+                        <th>From (MM/YY)</th>
+                        <th>To (MM/YY)</th>
+                        <th>Total Service (Years)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="form-control" name="expOrganization[]"></td>
+                        <td><input type="text" class="form-control" name="expDesignationJoining[]"></td>
+                        <td><input type="text" class="form-control" name="expDesignationRelieving[]"></td>
+                        <td><input type="number" class="form-control" name="expPayJoining[]"></td>
+                        <td><input type="number" class="form-control" name="expPayRelieving[]"></td>
+                        <td><input type="month" class="form-control" name="expFrom[]"></td>
+                        <td><input type="month" class="form-control" name="expTo[]"></td>
+                        <td><input type="number" class="form-control" name="expTotalService[]" step="0.1"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addExperienceRow()">Add Experience</button>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">8. Declaration</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="form-check">
+                        {{ form.declaration(class="form-check-input") }}
+                        <label class="form-check-label" for="declaration">
+                            I hereby declare that the above particulars are true to the best of my knowledge and belief.
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="place" class="form-label">Place</label>
+                    {{ form.place(class="form-control", placeholder="Place") }}
+                </div>
+                <div class="col-md-6">
+                    <label for="date" class="form-label">Date</label>
+                    {{ form.date(class="form-control") }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
         <button type="submit" class="btn btn-primary">Submit Form</button>
+    </div>
     </form>
 </div>
+
+<style>
+    .photo-container {
+        width: 150px;
+        height: 180px;
+        border: 2px dashed #ccc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+    .photo-preview {
+        width: 100%;
+        height: 100%;
+        display: none;
+        object-fit: cover;
+    }
+    #uploadText {
+        text-align: center;
+        font-size: 12px;
+    }
+</style>
+
+<script>
+    function previewPhoto(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('photoPreview');
+            output.src = reader.result;
+            document.getElementById('uploadText').style.display = 'none';
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function addFamilyRow() {
+        const table = document.querySelector('#familyTable tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" class="form-control" name="familyName[]"></td>
+            <td><input type="text" class="form-control" name="familyRelation[]"></td>
+            <td><input type="date" class="form-control" name="familyDOB[]"></td>
+            <td><input type="text" class="form-control" name="familyEducation[]"></td>
+            <td><input type="text" class="form-control" name="familyProfession[]"></td>
+        `;
+        table.appendChild(newRow);
+    }
+
+    function addExperienceRow() {
+        const table = document.querySelector('#experienceTable tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" class="form-control" name="expOrganization[]"></td>
+            <td><input type="text" class="form-control" name="expDesignationJoining[]"></td>
+            <td><input type="text" class="form-control" name="expDesignationRelieving[]"></td>
+            <td><input type="number" class="form-control" name="expPayJoining[]"></td>
+            <td><input type="number" class="form-control" name="expPayRelieving[]"></td>
+            <td><input type="month" class="form-control" name="expFrom[]"></td>
+            <td><input type="month" class="form-control" name="expTo[]"></td>
+            <td><input type="number" class="form-control" name="expTotalService[]" step="0.1"></td>
+        `;
+        table.appendChild(newRow);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calculate age automatically when date of birth changes
+        var dobInput = document.getElementById('date_of_birth');
+        var ageInput = document.getElementById('age');
+        
+        if (dobInput && ageInput) {
+            dobInput.addEventListener('change', function() {
+                var dob = new Date(this.value);
+                var today = new Date();
+                var age = today.getFullYear() - dob.getFullYear();
+                var m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                ageInput.value = age;
+            });
+        }
+    });
+</script>
 {% endblock %}

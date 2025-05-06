@@ -8,48 +8,60 @@
 <section class="dashboard-overview">
     <h3 class="mb-3">Overview</h3>
 
-    <div class="dashboard-cards">
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-primary">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="dashboard-card-content">
-                <div class="dashboard-card-value">{{ employee_count }}</div>
-                <div class="dashboard-card-label">Total Employees</div>
-            </div>
-        </div>
-
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon" style="background-color: var(--accent);">
-                <i class="fas fa-file-pdf"></i>
-            </div>
-            <div class="dashboard-card-content">
-                <div class="dashboard-card-value">{{ recent_documents|length }}</div>
-                <div class="dashboard-card-label">Recent Submissions</div>
-            </div>
-        </div>
-
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-secondary">
-                <i class="fas fa-search"></i>
-            </div>
-            <div class="dashboard-card-content">
-                <div class="dashboard-card-value">
-                    <a href="{{ url_for('employer_search_employee') }}" class="text-secondary">Search</a>
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Total Employees</h6>
+                            <h2 class="mt-2 mb-0">{{ employee_count or 0 }}</h2>
+                        </div>
+                        <i class="fas fa-users fa-2x opacity-50"></i>
+                    </div>
                 </div>
-                <div class="dashboard-card-label">Find Employees</div>
             </div>
         </div>
 
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon" style="background-color: #48BB78;">
-                <i class="fas fa-newspaper"></i>
-            </div>
-            <div class="dashboard-card-content">
-                <div class="dashboard-card-value">
-                    <a href="{{ url_for('employer_news_list') }}" style="color: #48BB78;">News</a>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Recent Documents</h6>
+                            <h2 class="mt-2 mb-0">{{ recent_documents|default([])|length }}</h2>
+                        </div>
+                        <i class="fas fa-file-pdf fa-2x opacity-50"></i>
+                    </div>
                 </div>
-                <div class="dashboard-card-label">Manage Updates</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">News Updates</h6>
+                            <h2 class="mt-2 mb-0">{{ news_updates|default([])|length }}</h2>
+                        </div>
+                        <i class="fas fa-newspaper fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Quick Actions</h6>
+                            <a href="{{ url_for('main.employer_employees') }}" class="btn btn-light btn-sm mt-2">Search</a>
+                        </div>
+                        <i class="fas fa-search fa-2x opacity-50"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -58,20 +70,19 @@
 <section class="recent-documents mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Recent Document Submissions</h3>
-        <a href="{{ url_for('employer_search_employee') }}" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-search me-1"></i> Search All Employees
+        <a href="{{ url_for('main.employer_documents') }}" class="btn btn-primary">
+            <i class="fas fa-search me-1"></i> View All Documents
         </a>
     </div>
 
     <div class="card">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th>Document Name</th>
+                            <th>Document Type</th>
                             <th>Employee</th>
-                            <th>Type</th>
                             <th>Status</th>
                             <th>Uploaded</th>
                             <th>Actions</th>
@@ -81,7 +92,9 @@
                         {% if recent_documents %}
                             {% for document in recent_documents %}
                             <tr>
-                                <td>{{ document.document_name }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ document.document_type | replace('_', ' ') | title }}</span>
+                                </td>
                                 <td>
                                     {% if document.employee %}
                                         {{ document.employee.first_name }} {{ document.employee.last_name }}
@@ -90,20 +103,17 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge badge-info">{{ document.document_type | title }}</span>
-                                </td>
-                                <td>
                                     {% if document.status == 'pending' %}
-                                        <span class="badge badge-warning">Pending</span>
+                                        <span class="badge bg-warning">Pending</span>
                                     {% elif document.status == 'approved' %}
-                                        <span class="badge badge-success">Approved</span>
+                                        <span class="badge bg-success">Approved</span>
                                     {% elif document.status == 'rejected' %}
-                                        <span class="badge badge-danger">Rejected</span>
+                                        <span class="badge bg-danger">Rejected</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ document.uploaded_at.strftime('%b %d, %Y') }}</td>
                                 <td>
-                                    <a href="{{ url_for('view_document', document_id=document.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ url_for('main.view_document', document_id=document.id) }}" class="btn btn-sm btn-primary">
                                         <i class="fas fa-eye"></i> View
                                     </a>
                                 </td>
@@ -111,9 +121,9 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="6" class="text-center p-4">
-                                    <div class="empty-state">
-                                        <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
+                                <td colspan="5" class="text-center p-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-file-pdf fa-3x mb-3"></i>
                                         <p>No recent document submissions.</p>
                                     </div>
                                 </td>
@@ -131,40 +141,92 @@
 
     <div class="row">
         <div class="col-md-4 mb-3">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-header">Employee Search</h5>
-                    <p class="card-body">Find employees by Employee ID, Aadhar ID, or name to view their details and documents.</p>
-                    <div class="card-footer">
-                        <a href="{{ url_for('employer_search_employee') }}" class="btn btn-primary">Search Employees</a>
-                    </div>
+                    <h5 class="card-title">
+                        <i class="fas fa-users text-primary me-2"></i>
+                        Employee Search
+                    </h5>
+                    <p class="card-text">Search and manage employee profiles, view documents, and track submissions.</p>
+                    <a href="{{ url_for('main.employer_employees') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i> Search Employees
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <div class="card">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-header">News & Updates</h5>
-                    <p class="card-body">Manage news, updates, and interview notices for employees and applicants.</p>
-                    <div class="card-footer">
-                        <a href="{{ url_for('employer_news_list') }}" class="btn btn-success">Manage Updates</a>
-                    </div>
+                    <h5 class="card-title">
+                        <i class="fas fa-newspaper text-success me-2"></i>
+                        News & Updates
+                    </h5>
+                    <p class="card-text">Post company news, announcements, and important updates for employees.</p>
+                    <a href="{{ url_for('main.employer_news') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i> Create Update
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <div class="card">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-header">Your Profile</h5>
-                    <p class="card-body">View and update your employer profile information and preferences.</p>
-                    <div class="card-footer">
-                        <a href="#" class="btn btn-outline-secondary">View Profile</a>
-                    </div>
+                    <h5 class="card-title">
+                        <i class="fas fa-images text-warning me-2"></i>
+                        Login Showcase
+                    </h5>
+                    <p class="card-text">Upload and manage images for the login page slideshow.</p>
+                    <a href="{{ url_for('images.manage_images') }}" class="btn btn-warning text-white">
+                        <i class="fas fa-upload me-1"></i> Manage Images
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-building text-info me-2"></i>
+                        Company Profile
+                    </h5>
+                    <p class="card-text">Update your company information, departments, and contact details.</p>
+                    <a href="{{ url_for('main.profile') }}" class="btn btn-info text-white">
+                        <i class="fas fa-edit me-1"></i> Edit Profile
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+{% if news_updates %}
+<section class="news-updates mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Recent News & Updates</h3>
+        <a href="{{ url_for('main.employer_news') }}" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Create Update
+        </a>
+    </div>
+
+    <div class="row">
+        {% for update in news_updates %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ update.title }}</h5>
+                    <p class="card-text">{{ update.content }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ update.created_at.strftime('%b %d, %Y') }}</small>
+                        <a href="{{ url_for('main.news_detail', news_id=update.id) }}" class="btn btn-sm btn-outline-primary">Read More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 {% endblock %}

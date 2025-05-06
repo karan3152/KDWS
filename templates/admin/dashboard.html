@@ -1,108 +1,115 @@
-{% extends "dashboard_layout.html" %}
+{% extends "base.html" %}
 
-{% block title %}Admin Dashboard - Employee Data Management System{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Admin Dashboard</h1>
 
-{% block dashboard_title %}Admin Dashboard{% endblock %}
-
-{% block dashboard_content %}
-<section class="dashboard-overview">
-    <h3 class="mb-3">System Overview</h3>
-    
-    <div class="dashboard-cards">
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-primary">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="dashboard-card-content">
-                <div class="dashboard-card-value">{{ employee_count }}</div>
-                <div class="dashboard-card-label">Total Employees</div>
-            </div>
-        </div>
-        
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-secondary">
-                <i class="fas fa-building"></i>
-            </div>
-            <div class="dashboard-card-content">
-                <div class="dashboard-card-value">{{ employer_count }}</div>
-                <div class="dashboard-card-label">Total Employers</div>
-            </div>
-        </div>
-        
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon" style="background-color: var(--accent);">
-                <i class="fas fa-file-pdf"></i>
-            </div>
-            <div class="dashboard-card-content">
-                <div class="dashboard-card-value">{{ document_count }}</div>
-                <div class="dashboard-card-label">Total Documents</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="quick-actions mb-4">
-    <h3 class="mb-3">Quick Actions</h3>
-    
     <div class="row">
-        <div class="col-md-4 mb-3">
+        <!-- Total Employees Card -->
+        <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-header">Employee Management</h5>
-                    <p class="card-body">Create and manage employee accounts, assign IDs, and set up initial access.</p>
-                    <div class="card-footer">
-                        <a href="{{ url_for('create_employee') }}" class="btn btn-primary">Add Employee</a>
-                    </div>
+                    <h5 class="card-title">Total Employees</h5>
+                    <p class="card-text display-4">{{ total_employees or 0 }}</p>
+                    <a href="{{ url_for('main.admin_employees') }}" class="btn btn-primary">View Employees</a>
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-header">Employer Management</h5>
-                    <p class="card-body">Set up employer/HR accounts with appropriate access levels to employee data.</p>
-                    <div class="card-footer">
-                        <a href="{{ url_for('create_employer') }}" class="btn btn-secondary">Add Employer</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-header">Account Overview</h5>
-                    <p class="card-body">View, edit, and manage all user accounts in the system.</p>
-                    <div class="card-footer">
-                        <a href="{{ url_for('admin_search') }}" class="btn btn-outline-primary">Manage Accounts</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<section class="system-info">
-    <h3 class="mb-3">System Information</h3>
-    
-    <div class="card">
-        <div class="card-body p-4">
-            <h5 class="mb-3">Employee Data Management System</h5>
-            <p>Welcome to the administrator portal. From here, you can manage all aspects of the employee data management system:</p>
-            
-            <ul class="mt-3">
-                <li>Create and manage employee and employer accounts</li>
-                <li>Monitor document submissions and approvals</li>
-                <li>Maintain system security and access control</li>
-                <li>View system statistics and usage data</li>
-            </ul>
-            
-            <div class="alert alert-info mt-4">
-                <i class="fas fa-info-circle mr-2"></i>
-                Remember that all account creation and deletion actions are logged for security purposes.
+        <!-- Total Employers Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Employers</h5>
+                    <p class="card-text display-4">{{ total_employers or 0 }}</p>
+                    <a href="{{ url_for('main.admin_employers') }}" class="btn btn-primary">View Employers</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Documents Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Documents</h5>
+                    <p class="card-text display-4">{{ pending_documents or 0 }}</p>
+                    <a href="{{ url_for('main.admin_documents') }}" class="btn btn-primary">View Documents</a>
+                </div>
             </div>
         </div>
     </div>
-</section>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('main.admin_employees') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-users"></i> Manage Employees
+                        </a>
+                        <a href="{{ url_for('main.admin_employers') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-building"></i> Manage Employers
+                        </a>
+                        <a href="{{ url_for('main.admin_documents') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-file-alt"></i> Review Documents
+                        </a>
+                        <a href="{{ url_for('main.admin_bulk_employee_upload') }}" class="btn btn-outline-success">
+                            <i class="fas fa-file-upload"></i> Bulk Employee Upload
+                        </a>
+                        <a href="{{ url_for('images.manage_images') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-images"></i> Login Page Showcase
+                        </a>
+                        <a href="{{ url_for('main.admin_news') }}" class="btn btn-outline-info">
+                            <i class="fas fa-newspaper"></i> Manage News
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page Showcase -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Login Page Showcase</h5>
+                </div>
+                <div class="card-body">
+                    <p>Upload and manage images for the login page slideshow. These images will be displayed in a rotating slideshow on the login page.</p>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('images.admin_upload_image') }}" class="btn btn-warning">
+                            <i class="fas fa-upload"></i> Upload New Image
+                        </a>
+                        <a href="{{ url_for('images.manage_images') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-images"></i> Manage Images
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- News Management -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">News Management</h5>
+                </div>
+                <div class="card-body">
+                    <p>Create and manage news updates that will be displayed on the login page. Keep users informed about important announcements.</p>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('main.admin_create_news') }}" class="btn btn-info text-white">
+                            <i class="fas fa-plus"></i> Create News Update
+                        </a>
+                        <a href="{{ url_for('main.admin_news') }}" class="btn btn-outline-info">
+                            <i class="fas fa-newspaper"></i> Manage News
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

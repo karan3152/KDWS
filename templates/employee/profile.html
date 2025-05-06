@@ -1,142 +1,302 @@
-{% extends "dashboard_layout.html" %}
+{% extends "base.html" %}
 
-{% block title %}My Profile - Employee Dashboard{% endblock %}
+{% block title %}Employee Profile - KDWS{% endblock %}
 
-{% block dashboard_title %}My Profile{% endblock %}
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Employee Profile</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.employee_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Profile</li>
+    </ol>
 
-{% block dashboard_content %}
-<div class="row">
-    <div class="col-md-10 offset-md-1">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Update Profile Information</h4>
+    <div class="profile-container">
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+
+            <div class="profile-upload-container">
+                {% if employee.photo_path %}
+                    <img src="{{ url_for('static', filename=employee.photo_path) }}"
+                         alt="Profile Photo"
+                         class="profile-photo"
+                         id="currentPhoto"
+                         onerror="this.src='{{ url_for('static', filename='img/default-profile.png') }}';">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/default-profile.png') }}"
+                         alt="Default Profile"
+                         class="profile-photo"
+                         id="currentPhoto">
+                {% endif %}
+
+                <div class="upload-overlay">
+                    <label for="photo">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </label>
+                    <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                </div>
             </div>
-            
-            <div class="card-body p-4">
-                <form class="needs-validation" method="POST" action="{{ url_for('employee_profile_page') }}">
-                    {{ form.hidden_tag() }}
-                    
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle mr-2"></i>
-                                Your basic employment information is provided by your administrator and cannot be changed. Please complete your personal details below.
-                            </div>
-                        </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.first_name.label(class="form-label") }}
+                        {{ form.first_name(class="form-control") }}
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="first_name" class="form-label">First Name</label>
-                                {{ form.first_name(class="form-control", id="first_name", placeholder="Enter your first name") }}
-                                {% if form.first_name.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.first_name.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="last_name" class="form-label">Last Name</label>
-                                {{ form.last_name(class="form-control", id="last_name", placeholder="Enter your last name") }}
-                                {% if form.last_name.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.last_name.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.last_name.label(class="form-label") }}
+                        {{ form.last_name(class="form-control") }}
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="date_of_birth" class="form-label">Date of Birth</label>
-                                {{ form.date_of_birth(class="form-control", id="date_of_birth", type="date") }}
-                                {% if form.date_of_birth.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.date_of_birth.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="phone_number" class="form-label">Phone Number</label>
-                                {{ form.phone_number(class="form-control", id="phone_number", placeholder="Enter your phone number") }}
-                                {% if form.phone_number.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.phone_number.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="address" class="form-label">Address</label>
-                        {{ form.address(class="form-control", id="address", rows="3", placeholder="Enter your full address") }}
-                        {% if form.address.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.address.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h5 class="mb-3">Employment Information</h5>
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <tbody>
-                                        <tr>
-                                            <th width="30%">Employee ID</th>
-                                            <td>{{ employee.employee_id }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Aadhar ID</th>
-                                            <td>{{ employee.aadhar_id }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Department</th>
-                                            <td>{{ employee.department }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Position</th>
-                                            <td>{{ employee.position }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <small class="text-muted">If you need to update this information, please contact your HR department or administrator.</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group mt-4">
-                        {{ form.submit(class="btn btn-primary") }}
-                        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
-                    </div>
-                </form>
+                </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.date_of_birth.label(class="form-label") }}
+                        {{ form.date_of_birth(class="form-control") }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.phone_number.label(class="form-label") }}
+                        {{ form.phone_number(class="form-control") }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form.address.label(class="form-label") }}
+                {{ form.address(class="form-control") }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.department.label(class="form-label") }}
+                        {{ form.department(class="form-control", readonly=true) }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.position.label(class="form-label") }}
+                        {{ form.position(class="form-control", readonly=true) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form.joining_date.label(class="form-label") }}
+                {{ form.joining_date(class="form-control", readonly=true) }}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ url_for('main.employee_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-container" id="previewContainer">
+    <div class="preview-content">
+        <img id="photoPreview" class="preview-image" src="#" alt="Preview">
+        <div class="preview-actions">
+            <button type="button" class="btn btn-secondary" onclick="cancelPreview()">
+                <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="button" class="btn btn-primary" onclick="confirmUpload()">
+                <i class="fas fa-check me-2"></i>Use This Photo
+            </button>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block dashboard_js %}
-<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+{% block head %}
+{{ super() }}
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 2rem;
+        border: 3px solid var(--primary-color);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        color: #2C5282;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-role {
+        color: #718096;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #2D3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #E2E8F0;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25);
+    }
+
+    .profile-upload-container {
+        position: relative;
+        width: 200px;
+        margin: 0 auto 2rem;
+    }
+
+    .profile-photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--primary-color);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(44, 82, 130, 0.9);
+        padding: 10px;
+        border-bottom-left-radius: 100px;
+        border-bottom-right-radius: 100px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-overlay:hover {
+        background: rgba(44, 82, 130, 1);
+    }
+
+    .upload-overlay label {
+        color: white;
+        margin: 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .upload-overlay i {
+        margin-right: 5px;
+    }
+
+    #photo {
+        display: none;
+    }
+
+    .preview-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+    }
+
+    .preview-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .preview-image {
+        max-width: 300px;
+        max-height: 300px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+    }
+
+    .preview-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    const photoInput = document.getElementById('photo');
+    const currentPhoto = document.getElementById('currentPhoto');
+    const photoPreview = document.getElementById('photoPreview');
+    const previewContainer = document.getElementById('previewContainer');
+    let selectedFile = null;
+
+    photoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                photoPreview.src = e.target.result;
+                previewContainer.style.display = 'flex';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function cancelPreview() {
+        previewContainer.style.display = 'none';
+        photoInput.value = '';
+        selectedFile = null;
+    }
+
+    function confirmUpload() {
+        if (selectedFile) {
+            currentPhoto.src = photoPreview.src;
+            previewContainer.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

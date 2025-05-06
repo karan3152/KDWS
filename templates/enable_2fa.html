@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Enable Two-Factor Authentication</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">To enable two-factor authentication, follow these steps:</p>
+                    <ol>
+                        <li>Install an authenticator app on your phone (like Google Authenticator, Authy, or Microsoft Authenticator)</li>
+                        <li>Scan the QR code below with your authenticator app</li>
+                        <li>Enter the 6-digit code from your authenticator app to verify</li>
+                    </ol>
+                    
+                    <div class="text-center my-4">
+                        <img src="data:image/png;base64,{{ qr_code }}" alt="2FA QR Code" class="img-fluid">
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('auth.enable_2fa') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ form.token.label(class="form-label") }}
+                            {{ form.token(class="form-control" + (" is-invalid" if form.token.errors else "")) }}
+                            {% if form.token.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.token.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

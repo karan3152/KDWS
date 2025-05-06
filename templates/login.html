@@ -1,112 +1,837 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - KDWS</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-orange: #E74C13;
+      --secondary-orange: #F47D30;
+      --primary-blue: #2A3293;
+      --secondary-blue: #3A42B3;
+      --white: #ffffff;
+      --light-gray: #f9f9f9;
+      --text-dark: #333333;
+    }
 
-{% block title %}Login - HR Talent Solutions{% endblock %}
+    body {
+      background-color: var(--light-gray);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
 
-{% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Login</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('login') }}">
-                    {% if form %}
-                    {{ form.hidden_tag() }}
-                    
-                    <div class="mb-3">
-                        {{ form.username.label(class="form-label") }}
-                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="Enter username") }}
-                        {% if form.username.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.username.errors %}
-                            {{ error }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter password") }}
-                        {% if form.password.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.password.errors %}
-                            {{ error }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3 form-check">
-                        {{ form.remember_me(class="form-check-input") }}
-                        {{ form.remember_me.label(class="form-check-label") }}
-                    </div>
-                    {% else %}
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" name="username" id="username" class="form-control" placeholder="Enter username" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required>
-                    </div>
-                    
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" name="remember_me" id="remember_me" class="form-check-input">
-                        <label for="remember_me" class="form-check-label">Remember Me</label>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                </form>
-                
-                <div class="mt-3 text-center">
-                    <a href="{{ url_for('reset_password_request') }}">Forgot Password?</a>
+    .login-container {
+      perspective: 1000px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      border: none;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(42, 50, 147, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+      transform-style: preserve-3d;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      background-color: white;
+      height: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(42, 50, 147, 0.15), 0 10px 20px rgba(0, 0, 0, 0.07);
+    }
+
+    .logo-header {
+      background: var(--white);
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(42, 50, 147, 0.1);
+    }
+
+    .logo-img {
+      max-width: 200px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .card-header {
+      background: linear-gradient(120deg, var(--primary-blue), var(--secondary-blue));
+      padding: 1.2rem;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .card-header::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      top: -50%;
+      left: -50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+      animation: shimmer 5s infinite linear;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .card-header h4 {
+      position: relative;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 12px 15px;
+      border: 1px solid rgba(42, 50, 147, 0.2);
+      transition: all 0.3s ease;
+      background-color: var(--light-gray);
+    }
+
+    .form-control:focus {
+      box-shadow: 0 0 0 3px rgba(42, 50, 147, 0.2);
+      border-color: var(--primary-blue);
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, var(--primary-orange), var(--secondary-orange));
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(120deg, var(--secondary-orange), var(--primary-orange));
+      box-shadow: 0 7px 14px rgba(231, 76, 19, 0.2), 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0));
+      transform: rotate(30deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+    }
+
+    .btn-primary:hover::after {
+      animation: shine 1.5s ease;
+    }
+
+    @keyframes shine {
+      0% { opacity: 0; transform: translateX(-100%) rotate(30deg); }
+      50% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(100%) rotate(30deg); }
+    }
+
+    a {
+      color: var(--primary-blue);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--primary-orange);
+    }
+
+    .news-card {
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.3s;
+    }
+
+    @keyframes fadeUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .news-header {
+      background: linear-gradient(120deg, var(--primary-orange), var(--secondary-orange));
+      color: var(--white);
+      padding: 1.2rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(42, 50, 147, 0.2), transparent);
+      margin: 20px 0;
+    }
+
+    .form-check-input:checked {
+      background-color: var(--primary-orange);
+      border-color: var(--primary-orange);
+    }
+
+    .company-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--primary-blue);
+      margin-top: 1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: #666;
+      text-align: center;
+    }
+
+    .floating-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .particle-blue {
+      background: rgba(42, 50, 147, 0.1);
+      box-shadow: 0 0 10px rgba(42, 50, 147, 0.2);
+    }
+
+    .particle-orange {
+      background: rgba(231, 76, 19, 0.1);
+      box-shadow: 0 0 10px rgba(231, 76, 19, 0.2);
+    }
+
+    .p1 { width: 10px; height: 10px; left: 10%; top: 20%; animation: float 15s infinite ease-in-out; }
+    .p2 { width: 15px; height: 15px; left: 20%; top: 80%; animation: float 25s infinite ease-in-out; animation-delay: 2s; }
+    .p3 { width: 8px; height: 8px; left: 50%; top: 30%; animation: float 20s infinite ease-in-out; animation-delay: 1s; }
+    .p4 { width: 12px; height: 12px; left: 70%; top: 10%; animation: float 22s infinite ease-in-out; animation-delay: 3s; }
+    .p5 { width: 6px; height: 6px; left: 80%; top: 60%; animation: float 18s infinite ease-in-out; animation-delay: 0.5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-20px) translateX(10px); }
+      50% { transform: translateY(0) translateX(20px); }
+      75% { transform: translateY(20px) translateX(10px); }
+    }
+
+    /* Enhanced Slideshow styles */
+    .slideshow-wrapper {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slideshow-container {
+      flex-grow: 1;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+
+    .slideshow-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Changed from cover to contain to show the whole image */
+      background-color: #f8f9fa;
+      padding: 10px;
+      box-sizing: border-box;
+      transition: transform 1s ease, opacity 1s ease;
+    }
+
+    .slideshow-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+      padding: 20px;
+      transform: translateY(0);
+      transition: transform 0.5s ease;
+    }
+
+    .slideshow-caption h5 {
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    .slideshow-caption p {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .slideshow-caption small {
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+
+    .image-showcase {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      height: 100%;
+    }
+
+    .section-title {
+      color: var(--primary-blue);
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary-orange), var(--secondary-orange));
+      border-radius: 2px;
+    }
+
+    .carousel-indicators {
+      margin-bottom: 0.5rem;
+    }
+
+    .carousel-indicators button {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin: 0 5px;
+    }
+
+    .carousel-indicators button.active {
+      background-color: var(--primary-orange);
+    }
+
+    .carousel-control-prev, .carousel-control-next {
+      width: 10%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #imageSlideshow:hover .carousel-control-prev,
+    #imageSlideshow:hover .carousel-control-next {
+      opacity: 0.7;
+    }
+
+    .carousel-control-prev-icon, .carousel-control-next-icon {
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      padding: 15px;
+    }
+
+    .carousel-item {
+      height: 380px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 4px;
+      background-color: rgba(255, 255, 255, 0.3);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary-orange);
+      width: 0;
+      transition: width 0.1s linear;
+    }
+
+    .timer-indicator {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      z-index: 5;
+    }
+
+    .carousel-pause-btn {
+      position: absolute;
+      bottom: 15px;
+      right: 55px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: none;
+      z-index: 5;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .carousel-pause-btn:hover {
+      background: rgba(0,0,0,0.8);
+    }
+
+    .update-item {
+      padding: 15px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .update-item:hover {
+      background-color: rgba(42, 50, 147, 0.05);
+    }
+
+    .update-content {
+      display: none;
+      padding: 15px 0 5px;
+      background-color: rgba(42, 50, 147, 0.03);
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .update-item.active {
+      border-left: 4px solid var(--primary-orange);
+      padding-left: 20px;
+    }
+
+    .update-item.active .update-content {
+      display: block;
+    }
+
+    .news-toggle {
+      color: var(--primary-blue);
+      font-size: 0.8rem;
+      transition: transform 0.3s ease;
+    }
+
+    .update-item.active .news-toggle {
+      transform: rotate(180deg);
+    }
+
+    .fade-scale-in {
+      animation: fadeScaleIn 0.5s forwards;
+    }
+
+    @keyframes fadeScaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .highlight-text {
+      color: var(--primary-orange);
+      font-weight: 600;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
+      .carousel-item {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .carousel-item {
+        height: 250px;
+      }
+
+      body {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      .card-body {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-particles">
+    <div class="particle particle-blue p1"></div>
+    <div class="particle particle-orange p2"></div>
+    <div class="particle particle-blue p3"></div>
+    <div class="particle particle-orange p4"></div>
+    <div class="particle particle-blue p5"></div>
+  </div>
+
+  <div class="container login-container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card shadow h-100">
+          <div class="logo-header">
+            <img src="{{ url_for('static', filename='img/ChatGPT Image May 5, 2025, 09_22_19 PM.png') }}" alt="KDWS" class="logo-img" style="max-width: 250px;">
+            <div class="company-name">KDWS</div>
+          </div>
+          <div class="card-header">
+            <h4>Login to Your Account</h4>
+          </div>
+          <div class="card-body p-4">
+            <form method="POST" action="{{ url_for('main.login') }}" id="loginForm">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                      {% for category, message in messages %}
+                          <div class="alert alert-{{ category }}">{{ message }}</div>
+                      {% endfor %}
+                  {% endif %}
+              {% endwith %}
+
+              <div class="mb-4">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
                 </div>
-                
-                <div class="mt-4 text-center">
-                    <p class="mb-0">First-time employee login? <a href="{{ url_for('first_login') }}">Click here</a></p>
+              </div>
+
+              <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                  <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
                 </div>
+              </div>
+
+              <div class="mb-4 form-check">
+                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                <label for="remember" class="form-check-label">Remember Me</label>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="loginButton">
+                  <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+              </div>
+            </form>
+
+            <div class="divider"></div>
+
+            <div class="text-center">
+              <a href="{{ url_for('auth.reset_password_request') }}" class="text-decoration-none"><i class="fas fa-key me-1"></i>Forgot Password?</a>
             </div>
+
+            <div class="mt-3 text-center">
+              <p class="mb-0">First-time employee login? <a href="{{ url_for('auth.activate_account') }}" class="highlight-text">Activate Account</a></p>
+            </div>
+          </div>
         </div>
-        
-        {% if news_updates %}
-        <div class="card shadow mt-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">News & Updates</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    {% for update in news_updates %}
-                    <div class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{ update.title }}</h5>
-                            <small>{{ update.published_date.strftime('%d %b %Y') }}</small>
-                        </div>
-                        <p class="mb-1">{{ update.content }}</p>
-                        {% if update.link %}
-                        <a href="{{ update.link }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-                            {{ update.link_text or "Read More" }}
-                        </a>
-                        {% endif %}
-                        {% if update.is_interview_notice %}
-                        <div class="mt-2 p-2 bg-light border rounded">
-                            <p class="mb-1"><strong>Interview Date:</strong> {{ update.interview_date.strftime('%d %b %Y, %I:%M %p') }}</p>
-                            {% if update.location_address %}
-                            <p class="mb-0"><strong>Location:</strong> {{ update.location_address }}</p>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                    </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card shadow news-card h-100">
+          <!-- Enhanced Image Slideshow Section -->
+          <div class="slideshow-wrapper">
+            <div class="image-showcase">
+              <h5 class="section-title">Latest Updates</h5>
+              <div id="imageSlideshow" class="carousel slide carousel-fade h-100" data-bs-ride="carousel" data-bs-interval="20000">
+                <div class="carousel-indicators">
+                  {% if latest_images %}
+                    {% for image in latest_images %}
+                      <button type="button" data-bs-target="#imageSlideshow" data-bs-slide-to="{{ loop.index0 }}"
+                        {% if loop.first %}class="active" aria-current="true"{% endif %}
+                        aria-label="Slide {{ loop.index }}"></button>
                     {% endfor %}
+                  {% else %}
+                    <button type="button" data-bs-target="#imageSlideshow" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                  {% endif %}
                 </div>
+
+                <div class="carousel-inner h-100">
+                  {% if latest_images %}
+                    {% for image in latest_images %}
+                      <div class="carousel-item h-100 {% if loop.first %}active{% endif %}" data-bs-interval="20000">
+                        <div class="slideshow-container h-100">
+                          <img src="{{ url_for('static', filename=image.file_path) }}"
+                              alt="{{ image.title }}"
+                              class="slideshow-image"
+                              data-bs-toggle="modal"
+                              data-bs-target="#imageModal{{ loop.index }}">
+                          <div class="slideshow-caption">
+                            <h5>{{ image.title }}</h5>
+                            {% if image.description %}
+                              <p>{{ image.description|truncate(100) }}</p>
+                            {% endif %}
+                            <small>Uploaded by {{ image.uploaded_by }} on {{ image.upload_date.strftime('%d %b %Y') }}</small>
+                          </div>
+                          <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar{{ loop.index0 }}"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Modal for each image -->
+                      <div class="modal fade" id="imageModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">{{ image.title }}</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                              <div style="background-color: #f8f9fa; border-radius: 5px; padding: 15px; display: flex; justify-content: center; align-items: center;">
+                                <img src="{{ url_for('static', filename=image.file_path) }}"
+                                     alt="{{ image.title }}"
+                                     class="img-fluid rounded"
+                                     style="max-height: 60vh; object-fit: contain;">
+                              </div>
+                              {% if image.description %}
+                              <p class="mt-3">{{ image.description }}</p>
+                              {% endif %}
+                              <div class="text-muted mt-2">
+                                <small>Uploaded by {{ image.uploaded_by }} on {{ image.upload_date.strftime('%d %b %Y') }}</small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="carousel-item active h-100" data-bs-interval="20000">
+                      <div class="slideshow-container h-100">
+                        <img src="{{ url_for('static', filename='img/placeholder.jpg') }}"
+                            alt="No images available"
+                            class="slideshow-image">
+                        <div class="slideshow-caption">
+                          <h5>No images available</h5>
+                          <p>Images uploaded by employers and admins will appear here.</p>
+                        </div>
+                        <div class="progress-bar-container">
+                          <div class="progress-bar" id="progressBar0"></div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#imageSlideshow" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#imageSlideshow" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+
+                <button class="carousel-pause-btn" id="pauseButton">
+                  <i class="fas fa-pause" id="pauseIcon"></i>
+                </button>
+                <div class="timer-indicator" id="timerDisplay">20</div>
+              </div>
             </div>
+          </div>
         </div>
-        {% endif %}
+      </div>
     </div>
-</div>
-{% endblock %}
+
+    <!-- News Updates Section -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card shadow news-card">
+          <div class="card-header news-header">
+            <h5 class="mb-0">News & Updates</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+              {% if news_updates %}
+                {% for update in news_updates %}
+                <div class="list-group-item update-item">
+                  <div class="d-flex w-100 justify-content-between align-items-center">
+                    <h5 class="mb-1">{{ update.title }}</h5>
+                    <span>
+                      <small class="text-muted me-3">{{ update.created_at.strftime('%d %b %Y') }}</small>
+                      <i class="fas fa-chevron-down news-toggle"></i>
+                    </span>
+                  </div>
+                  <p class="mb-1 update-summary">{{ update.content|truncate(100) }}</p>
+                  <div class="update-content">
+                    <p>{{ update.content }}</p>
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="list-group-item p-4">
+                  <div class="text-center">
+                    <i class="fas fa-newspaper fa-3x mb-3 text-muted"></i>
+                    <p class="mb-0">No news updates available. News posted by employers and admins will appear here.</p>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      const loginButton = document.getElementById('loginButton');
+      const togglePasswordBtn = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+      const pauseButton = document.getElementById('pauseButton');
+      const pauseIcon = document.getElementById('pauseIcon');
+      const timerDisplay = document.getElementById('timerDisplay');
+
+      // Password visibility toggle
+      togglePasswordBtn.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+      });
+
+      // Initialize the Bootstrap carousel with 20-second interval
+      const myCarousel = document.getElementById('imageSlideshow');
+      const carousel = new bootstrap.Carousel(myCarousel, {
+        interval: 20000,
+        wrap: true,
+        keyboard: true,
+        pause: 'hover'
+      });
+
+      let remainingTime = 20;
+      let timerInterval;
+      let isPaused = false;
+
+      // Start timer for carousel progress bar
+      function startProgressBarTimer(slideIndex) {
+        // Reset all progress bars
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+          bar.style.width = '0%';
+        });
+
+        // Reset timer
+        remainingTime = 20;
+        timerDisplay.textContent = remainingTime;
+
+        const currentProgressBar = document.getElementById(`progressBar${slideIndex}`);
+
+        // Clear previous interval
+        if (timerInterval) {
+          clearInterval(timerInterval);
+        }
+
+        // Start new interval
+        timerInterval = setInterval(() => {
+          if (!isPaused) {
+            remainingTime--;
+            timerDisplay.textContent = remainingTime;
+
+            // Update progress bar
+            const percentage = (20 - remainingTime) * 5;
+            currentProgressBar.style.width = `${percentage}%`;
+
+            if (remainingTime <= 0) {
+              clearInterval(timerInterval);
+            }
+          }
+        }, 1000);
+      }
+
+      // Handle slide change events
+      myCarousel.addEventListener('slide.bs.carousel', function (event) {
+        clearInterval(timerInterval);
+      });
+
+      myCarousel.addEventListener('slid.bs.carousel', function (event) {
+        const slideIndex = event.to;
+        startProgressBarTimer(slideIndex);
+      });
+
+      // Pause/Play button
+      pauseButton.addEventListener('click', function() {
+        if (isPaused) {
+          carousel.cycle();
+          pauseIcon.classList.replace('fa-play', 'fa-pause');
+          isPaused = false;
+        } else {
+          carousel.pause();
+          pauseIcon.classList.replace('fa-pause', 'fa-play');
+          isPaused = true;
+        }
+      });
+
+      // Initialize progress bar for first slide
+      startProgressBarTimer(0);
+
+      loginForm.addEventListener('submit', function(e) {
+        // Validate form
+        if (!loginForm.checkValidity()) {
+          e.preventDefault();
+          e.stopPropagation();
+          loginForm.classList.add('was-validated');
+          return;
+        }
+
+        // Disable the button and show loading state
+        loginButton.disabled = true;
+        loginButton.innerHTML = '<span class="spinner-border

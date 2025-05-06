@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Verify OTP - KDWS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm mt-5">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Verify OTP</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="mb-4">
+                        {% if purpose == 'password_reset' %}
+                            We've sent a One-Time Password (OTP) to your email and WhatsApp (if available).
+                            Please enter the OTP below to reset your password.
+                        {% else %}
+                            We've sent a One-Time Password (OTP) to your email and WhatsApp (if available).
+                            Please enter the OTP below to activate your account.
+                        {% endif %}
+                    </p>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="purpose" value="{{ purpose }}">
+
+                        <div class="mb-4">
+                            <label for="otp" class="form-label">Enter OTP</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input type="text" class="form-control" id="otp" name="otp"
+                                       placeholder="Enter 6-digit OTP" maxlength="6" required
+                                       pattern="[0-9]{6}" title="Please enter a 6-digit number">
+                            </div>
+                            <div class="form-text">Enter the 6-digit code sent to your email and WhatsApp.</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check-circle me-2"></i>Verify OTP
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-4 text-center">
+                        <p>Didn't receive the OTP? <a href="{{ url_for('auth.resend_otp', user_id=user_id, purpose=purpose) }}" class="text-decoration-none" id="resendOtpLink">Resend OTP</a></p>
+                        <a href="{{ url_for('main.login') }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const otpInput = document.getElementById('otp');
+
+        // Auto-focus the OTP input field
+        otpInput.focus();
+
+        // Auto-submit when 6 digits are entered
+        otpInput.addEventListener('input', function(e) {
+            if (this.value.length === 6 && /^\d{6}$/.test(this.value)) {
+                // Wait a moment before submitting to give user a chance to see what they entered
+                setTimeout(() => {
+                    this.form.submit();
+                }, 500);
+            }
+        });
+    });
+</script>
+{% endblock %}

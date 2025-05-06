@@ -1,0 +1,108 @@
+/* Custom CSS for employer documents page */
+
+/* Reduce spacing between document sections */
+.tab-pane .card.mb-4 {
+    margin-bottom: 0.25rem !important;
+    margin-top: 0 !important;
+}
+
+/* Make the card headers more compact */
+.card-header {
+    padding: 0.5rem 1rem;
+}
+
+/* Make the card body more compact */
+.card-body {
+    padding: 0.75rem;
+}
+
+/* Make the table more compact */
+.table {
+    margin-bottom: 0;
+}
+
+/* Reduce spacing in table cells */
+.table td, .table th {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Make buttons more compact */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Reduce spacing between buttons */
+.btn + .btn {
+    margin-left: 0.25rem;
+}
+
+/* Make the tab content more compact */
+.tab-content {
+    padding-top: 0.5rem;
+}
+
+/* Reduce spacing in the tab navigation */
+.nav-tabs {
+    margin-bottom: 0.5rem;
+}
+
+/* Remove bottom margin from the last card in each tab */
+.tab-pane .card.mb-4:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Add subtle border between sections instead of large gaps */
+.tab-pane .card.mb-4 {
+    border: 1px solid #e9ecef;
+    box-shadow: none;
+}
+
+/* Make card headers more visually distinct */
+.card-header.bg-primary {
+    background-color: #2C5282 !important;
+    color: white;
+    border-bottom: none;
+}
+
+/* Add a subtle hover effect to rows */
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Make the overall container more compact */
+.container {
+    padding: 0.5rem;
+}
+
+/* Reduce spacing in the card header */
+.card-header h3.mb-0 {
+    margin-bottom: 0 !important;
+    font-size: 1.1rem;
+}
+
+/* Style for the All Submitted Documents section */
+.tab-pane > h2 {
+    font-size: 1.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+/* Make the document list more compact */
+#all-submitted-documents {
+    margin-top: 0.5rem;
+}
+
+/* Reduce spacing in the document list */
+#all-submitted-documents .table {
+    margin-bottom: 0;
+}
+
+/* Make the document list header more compact */
+#all-submitted-documents .table thead th {
+    padding: 0.5rem;
+}

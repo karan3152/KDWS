@@ -2,6 +2,10 @@
 
 {% block title %}Employee Documents{% endblock %}
 
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/employer_documents.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="card">
@@ -11,25 +15,83 @@
                 <small class="text-muted">({{ employee.employee_id }})</small>
             </h2>
             <div>
-                <a href="{{ url_for('view_employee_profile', employee_id=employee.id) }}" class="btn btn-primary">
+<a href="{{ url_for('main.view_employee_profile', employee_id=employee.id) }}" class="btn btn-primary">
                     <i class="fas fa-user"></i> View Profile
                 </a>
-                <a href="{{ url_for('employee_search') }}" class="btn btn-secondary">
+                <a href="{{ url_for('main.employer_employees') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Search
                 </a>
             </div>
         </div>
         <div class="card-body">
+            <!-- Debug Section -->
+            <div id="debugSection" class="mb-4 p-3 border rounded bg-light">
+                <h5>Debug Information</h5>
+                <p>Total documents: {{ documents|length }}</p>
+                <h6>All Documents:</h6>
+                <ul>
+                    {% for doc in documents %}
+                    <li>ID: {{ doc.id }}, Type: {{ doc.document_type }}, Status: {{ doc.status }}, User ID: {{ doc.user_id }}, Employee ID: {{ doc.employee_id }}</li>
+                    {% endfor %}
+                </ul>
+                <h6>Document Dictionary:</h6>
+                <ul>
+                    {% for key, doc in document_dict.items() %}
+                    <li>Key: {{ key }}, ID: {{ doc.id }}, Type: {{ doc.document_type }}, Status: {{ doc.status }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
             <!-- Download All Button -->
             <div class="mb-4">
-                <a href="{{ url_for('download_all_documents', employee_id=employee.id) }}" class="btn btn-success">
+                <a href="{{ url_for('main.download_all_documents', employee_id=employee.id) }}" class="btn btn-success">
                     <i class="fas fa-download"></i> Download All Documents as ZIP
                 </a>
-                <a href="{{ url_for('generate_combined_pdf', employee_id=employee.id) }}" class="btn btn-info">
+                <a href="{{ url_for('main.generate_combined_documents', employee_id=employee.id) }}" class="btn btn-info">
                     <i class="fas fa-file-pdf"></i> Generate Combined PDF
                 </a>
+                <button class="btn btn-secondary" onclick="document.getElementById('debugSection').style.display = 'none'">Hide Debug Info</button>
             </div>
-            
+
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs mb-4" id="documentTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-documents-tab" data-bs-toggle="tab" data-bs-target="#all-documents" type="button" role="tab" aria-controls="all-documents" aria-selected="true">
+                        All Documents
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pending-documents-tab" data-bs-toggle="tab" data-bs-target="#pending-documents" type="button" role="tab" aria-controls="pending-documents" aria-selected="false">
+                        Pending Documents
+                        {% set pending_count = 0 %}
+                        {% for document in documents %}
+                            {% if document.status == 'pending' %}
+                                {% set pending_count = pending_count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                        <span class="badge bg-warning text-dark">{{ pending_count }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="submitted-documents-tab" data-bs-toggle="tab" data-bs-target="#submitted-documents" type="button" role="tab" aria-controls="submitted-documents" aria-selected="false">
+                        Submitted Documents
+                        {% set submitted_count = 0 %}
+                        {% for document in documents %}
+                            {% if document %}
+                                {% set submitted_count = submitted_count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                        <span class="badge bg-info">{{ submitted_count }}</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="documentTabsContent">
+                <!-- All Documents Tab -->
+                <div class="tab-pane fade show active" id="all-documents" role="tabpanel" aria-labelledby="all-documents-tab">
+
+
             <!-- Identity Documents Section -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -52,16 +114,18 @@
                                 <tr>
                                     <td>Aadhar Card</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.AADHAR) %}
+                                        {% set doc = document_dict.get('aadhar_card') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                            <!-- Debug info -->
+                                            <small class="text-muted d-block mt-1">ID: {{ doc.id }}, Type: {{ doc.document_type }}</small>
                                         {% else %}
                                             <span class="badge bg-danger">Not Uploaded</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
@@ -75,23 +139,23 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
                                         {% endif %}
                                     </td>
                                 </tr>
-                                
+
                                 <!-- PAN Card -->
                                 <tr>
                                     <td>PAN Card</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.PAN) %}
+                                        {% set doc = document_dict.get('pan_card') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -100,7 +164,7 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
@@ -114,23 +178,23 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
                                         {% endif %}
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Photo -->
                                 <tr>
                                     <td>Passport Size Photo</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.PHOTO) %}
+                                        {% set doc = document_dict.get('photo') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -139,7 +203,7 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
@@ -147,23 +211,23 @@
                                     <td>--</td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
                                         {% endif %}
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Police Verification Certificate -->
                                 <tr>
                                     <td>Police Verification Certificate</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.POLICE_VERIFICATION) %}
+                                        {% set doc = document_dict.get('police_verification') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -172,7 +236,7 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
@@ -186,32 +250,34 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
                                         {% endif %}
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Medical Certificate -->
                                 <tr>
                                     <td>Medical Certificate</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.MEDICAL_CERTIFICATE) %}
+                                        {% set doc = document_dict.get('medical_certificate') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                            <!-- Debug info -->
+                                            <small class="text-muted d-block mt-1">ID: {{ doc.id }}, Type: {{ doc.document_type }}</small>
                                         {% else %}
                                             <span class="badge bg-danger">Not Uploaded</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
@@ -219,11 +285,52 @@
                                     <td>--</td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">Not Available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- Passport -->
+                                <tr>
+                                    <td>Passport</td>
+                                    <td>
+                                        {% set doc = document_dict.get('passport') %}
+                                        {% if doc %}
+                                            <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                            <!-- Debug info -->
+                                            <small class="text-muted d-block mt-1">ID: {{ doc.id }}, Type: {{ doc.document_type }}</small>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc and doc.document_number %}
+                                            {{ doc.document_number }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc %}
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            {% if doc.status == 'pending' %}
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
@@ -235,7 +342,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Bank Details Section -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -260,7 +367,7 @@
                                 <tr>
                                     <td>Bank Passbook</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.PASSBOOK) %}
+                                        {% set doc = document_dict.get('bank_passbook') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -269,7 +376,7 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
@@ -297,11 +404,11 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
@@ -313,7 +420,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Family Details Section -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -335,7 +442,7 @@
                                 <tr>
                                     <td>Family Details</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.FAMILY_DETAILS) %}
+                                        {% set doc = document_dict.get('family_declaration') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -344,18 +451,18 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
@@ -365,10 +472,15 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     {% if family_members %}
                     <div class="mt-4">
-                        <h4>Family Members List</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>Family Members List</h4>
+                            <a href="{{ url_for('main.employer_view_family_details', employee_id=employee.id) }}" class="btn btn-primary">
+                                <i class="fas fa-users me-1"></i> View Detailed Family Information
+                            </a>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -402,10 +514,14 @@
                             </table>
                         </div>
                     </div>
+                    {% else %}
+                    <div class="alert alert-info mt-3">
+                        No family members have been added for this employee.
+                    </div>
                     {% endif %}
                 </div>
             </div>
-            
+
             <!-- PF Forms Section -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -427,39 +543,50 @@
                                 <tr>
                                     <td>New Joining Application</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.JOINING_FORM) %}
+                                        {% set doc = document_dict.get('new_joining_form') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
+                                            <!-- Debug info -->
+                                            <small class="text-muted d-block mt-1">ID: {{ doc.id }}, Type: {{ doc.document_type }}</small>
                                         {% else %}
                                             <span class="badge bg-danger">Not Uploaded</span>
+                                            <!-- Debug info -->
+                                            <small class="text-muted d-block mt-1">Debug: Checked for 'new_joining_form' or 'new_joining_application'</small>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.employer_view_form', form_type='joining_form', employee_id=employee.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-file-alt"></i> View Form
+                                            </a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-pdf"></i> View PDF
+                                            </a>
+                                            <a href="{{ url_for('main.download_document', document_id=doc.id) }}" class="btn btn-sm btn-success">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-warning">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
                                         {% endif %}
                                     </td>
                                 </tr>
-                                
+
                                 <!-- PF Form 2 -->
                                 <tr>
                                     <td>PF Form 2</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.PF_FORM) %}
+                                        {% set doc = document_dict.get('pf_form') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -468,30 +595,37 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.employer_view_form', form_type='pf_form', employee_id=employee.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-file-alt"></i> View Form
+                                            </a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-pdf"></i> View PDF
+                                            </a>
+                                            <a href="{{ url_for('main.download_document', document_id=doc.id) }}" class="btn btn-sm btn-success">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-warning">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
                                         {% endif %}
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Form 1 -->
                                 <tr>
                                     <td>Form 1 (Nomination & Declaration)</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.FORM1) %}
+                                        {% set doc = document_dict.get('form_1_nomination') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -500,30 +634,37 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.employer_view_form', form_type='form1', employee_id=employee.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-file-alt"></i> View Form
+                                            </a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-pdf"></i> View PDF
+                                            </a>
+                                            <a href="{{ url_for('main.download_document', document_id=doc.id) }}" class="btn btn-sm btn-success">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-warning">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
                                         {% endif %}
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Form 11 -->
                                 <tr>
                                     <td>Form 11 (Revised)</td>
                                     <td>
-                                        {% set doc = documents.get(DocumentTypes.FORM11) %}
+                                        {% set doc = document_dict.get('form_11') %}
                                         {% if doc %}
                                             <span class="badge bg-{{ status_colors[doc.status] }}">{{ doc.status|title }}</span>
                                         {% else %}
@@ -532,18 +673,25 @@
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            {{ doc.upload_date.strftime('%d-%m-%Y') }}
+                                            {{ doc.uploaded_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             --
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if doc %}
-                                            <a href="{{ url_for('download_document', document_id=doc.id) }}" class="btn btn-sm btn-primary">Download</a>
-                                            <a href="{{ url_for('view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">View</a>
+                                            <a href="{{ url_for('main.employer_view_form', form_type='form11', employee_id=employee.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-file-alt"></i> View Form
+                                            </a>
+                                            <a href="{{ url_for('main.view_document', document_id=doc.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-pdf"></i> View PDF
+                                            </a>
+                                            <a href="{{ url_for('main.download_document', document_id=doc.id) }}" class="btn btn-sm btn-success">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
                                             {% if doc.status == 'pending' %}
-                                            <a href="{{ url_for('approve_document', document_id=doc.id) }}" class="btn btn-sm btn-success">Approve</a>
-                                            <a href="{{ url_for('reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            <a href="{{ url_for('main.approve_document', document_id=doc.id) }}" class="btn btn-sm btn-warning">Approve</a>
+                                            <a href="{{ url_for('main.reject_document', document_id=doc.id) }}" class="btn btn-sm btn-danger">Reject</a>
                                             {% endif %}
                                         {% else %}
                                             <span class="text-muted">Not Available</span>
@@ -556,6 +704,113 @@
                 </div>
             </div>
         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Documents Tab -->
+            <div class="tab-pane fade" id="pending-documents" role="tabpanel" aria-labelledby="pending-documents-tab">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">Pending Documents</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Document Type</th>
+                                        <th>Uploaded On</th>
+                                        <th>Document Number</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for document in documents %}
+                                        {% if document.status == 'pending' %}
+                                    <tr>
+                                        <td>{{ document.document_type|replace('_', ' ')|title }}</td>
+                                        <td>{{ document.uploaded_at.strftime('%d-%m-%Y') }}</td>
+                                        <td>
+                                            {{ document.document_number | default('--') }}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('main.view_document', document_id=document.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                                <a href="{{ url_for('main.view_document', document_id=document.id) }}" class="btn btn-sm btn-info">View</a>
+                                                <a href="{{ url_for('main.approve_document', document_id=document.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                                <a href="{{ url_for('main.reject_document', document_id=document.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if not documents|selectattr('status', 'equalto', 'pending')|list %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No pending documents found.</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submitted Documents Tab -->
+            <div class="tab-pane fade" id="submitted-documents" role="tabpanel" aria-labelledby="submitted-documents-tab">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">All Submitted Documents</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Document Type</th>
+                                        <th>Status</th>
+                                        <th>Uploaded On</th>
+                                        <th>Document Number</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for document in documents %}
+                                    <tr>
+                                        <td>{{ document.document_type|replace('_', ' ')|title }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ status_colors[document.status] }}">{{ document.status|title }}</span>
+                                        </td>
+                                        <td>{{ document.uploaded_at.strftime('%d-%m-%Y') }}</td>
+                                        <td>
+                                            {{ document.document_number | default('--') }}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('main.view_document', document_id=document.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                                <a href="{{ url_for('main.view_document', document_id=document.id) }}" class="btn btn-sm btn-info">View</a>
+                                                {% if document.status == 'pending' %}
+                                                    <a href="{{ url_for('main.approve_document', document_id=document.id) }}" class="btn btn-sm btn-success">Accept</a>
+                                                    <a href="{{ url_for('main.reject_document', document_id=document.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                    {% if not documents %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No documents have been submitted yet.</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 {% endblock %}

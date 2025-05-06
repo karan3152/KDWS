@@ -1,0 +1,190 @@
+<div class="form-view">
+    <div class="form-header text-center mb-4">
+        <h3>FORM 11</h3>
+        <p class="text-muted">EMPLOYEES' STATE INSURANCE CORPORATION</p>
+        <p>Declaration Form</p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">1. Employee Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Name:</label>
+                                <p>{{ form.employee_name.data or employee.get_full_name() }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Father's/Husband's Name:</label>
+                                <p>{{ form.father_husband_name.data or '--' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Date of Birth:</label>
+                                <p>{{ form.date_of_birth.data.strftime('%d-%m-%Y') if form.date_of_birth.data else '--' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Gender:</label>
+                                <p>{{ form.gender.data or '--' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Marital Status:</label>
+                                <p>{{ form.marital_status.data or '--' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Permanent Address:</label>
+                                <p>{{ form.permanent_address.data or '--' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Current Address:</label>
+                                <p>{{ form.current_address.data or '--' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mobile Number:</label>
+                                <p>{{ form.mobile_number.data or employee.phone_number or '--' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">2. Employment Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Date of Appointment:</label>
+                                <p>{{ form.date_of_appointment.data.strftime('%d-%m-%Y') if form.date_of_appointment.data else employee.date_of_joining.strftime('%d-%m-%Y') if employee.date_of_joining else '--' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Designation:</label>
+                                <p>{{ form.designation.data or employee.designation or '--' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Department:</label>
+                                <p>{{ form.department.data or employee.department or '--' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ESI Number (if already allotted):</label>
+                                <p>{{ form.esi_number.data or '--' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">3. Family Particulars</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Sr. No.</th>
+                                    <th>Name</th>
+                                    <th>Relationship with Insured Person</th>
+                                    <th>Date of Birth</th>
+                                    <th>Residing with Insured Person</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if form.family_members.data %}
+                                    {% for i in range(form.family_members.data|length) %}
+                                    <tr>
+                                        <td>{{ i+1 }}</td>
+                                        <td>{{ form.family_members.data[i].name }}</td>
+                                        <td>{{ form.family_members.data[i].relationship }}</td>
+                                        <td>{{ form.family_members.data[i].dob.strftime('%d-%m-%Y') if form.family_members.data[i].dob else '--' }}</td>
+                                        <td>{{ 'Yes' if form.family_members.data[i].residing_with_insured else 'No' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No family members added</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">4. Declaration</h5>
+                </div>
+                <div class="card-body">
+                    <p>I hereby declare that the particulars given by me are correct to the best of my knowledge and belief.</p>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Date:</label>
+                                <p>{{ form.declaration_date.data.strftime('%d-%m-%Y') if form.declaration_date.data else document.uploaded_at.strftime('%d-%m-%Y') if document else '--' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Place:</label>
+                                <p>{{ form.declaration_place.data or '--' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-end">
+                            <p class="fw-bold mb-0">{{ form.employee_name.data or employee.get_full_name() }}</p>
+                            <p class="text-muted">Signature of the Insured Person</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

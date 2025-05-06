@@ -1,79 +1,84 @@
+{% extends "base.html" %}
 
-{% extends "dashboard_layout.html" %}
-
-{% block title %}Search Employee - Employer Dashboard{% endblock %}
-
-{% block dashboard_title %}Search Employee{% endblock %}
-
-{% block dashboard_content %}
-<div class="card">
-    <div class="card-header">
-        <h4>Employee Search</h4>
-    </div>
-    <div class="card-body">
-        <form method="POST" class="mb-4">
-            {{ form.hidden_tag() }}
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="form-group">
-                        {{ form.query(class="form-control", placeholder="Enter Employee ID, Aadhar ID or Name") }}
+{% block content %}
+<div class="container mt-4">
+    <h2>Search Employees</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST" class="mb-3">
+                {{ form.hidden_tag() }}
+                <div class="input-group">
+                    {{ form.query(class="form-control", placeholder="Enter name, Employee ID, or Aadhar number") }}
+                    {{ form.search_type(class="form-select") }}
+                    <div class="input-group-append">
+                        {{ form.submit(class="btn btn-primary") }}
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-2"></i>Search
-                    </button>
-                </div>
-            </div>
-        </form>
-
-        {% if results %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Employee ID</th>
-                        <th>Name</th>
-                        <th>Department</th>
-                        <th>Position</th>
-                        <th>Document Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for result in results %}
-                    <tr>
-                        <td>{{ result.employee_id }}</td>
-                        <td>{{ result.name }}</td>
-                        <td>{{ result.department }}</td>
-                        <td>{{ result.position }}</td>
-                        <td>
-                            <div class="progress" style="height: 20px;">
-                                <div class="progress-bar" role="progressbar" 
-                                     style="width: {{ result.document_completion }}%;"
-                                     aria-valuenow="{{ result.document_completion }}" 
-                                     aria-valuemin="0" aria-valuemax="100">
-                                    {{ result.document_completion }}%
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('employer_view_employee', employee_id=result.employee_id) }}" 
-                               class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye me-1"></i>View
-                            </a>
-                        </td>
-                    </tr>
+                {% if form.query.errors %}
+                    {% for error in form.query.errors %}
+                        <small class="text-danger">{{ error }}</small>
                     {% endfor %}
-                </tbody>
-            </table>
+                {% endif %}
+            </form>
         </div>
-        {% elif search_performed %}
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>
-            No employees found matching your search criteria.
-        </div>
-        {% endif %}
     </div>
+
+    {% if search_performed %}
+        {% if employees %}
+            <div class="row">
+                {% for employee in employees %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            {% if employee.photo %}
+                                <img src="{{ url_for('images.serve_profile_photo', filename=employee.photo) }}" 
+                                     class="card-img-top employee-photo" 
+                                     alt="{{ employee.first_name }}'s photo">
+                            {% else %}
+                                <div class="card-img-top default-photo">
+                                    <i class="fas fa-user-circle fa-5x"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ employee.first_name }} {{ employee.last_name }}</h5>
+                                <p class="card-text">
+                                    <strong>Employee ID:</strong> {{ employee.employee_id }}<br>
+                                    <strong>Position:</strong> {{ employee.position }}<br>
+                                    <strong>Department:</strong> {{ employee.department }}<br>
+                                    <strong>Phone:</strong> {{ employee.phone_number }}
+                                </p>
+                                <a href="{{ url_for('main.view_employee_profile', employee_id=employee.id) }}" 
+                                   class="btn btn-primary">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No employees found matching your search criteria.
+            </div>
+        {% endif %}
+    {% endif %}
 </div>
+
+<style>
+.employee-photo {
+    height: 200px;
+    object-fit: cover;
+}
+.default-photo {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+.form-select {
+    width: auto;
+    min-width: 150px;
+}
+</style>
 {% endblock %}

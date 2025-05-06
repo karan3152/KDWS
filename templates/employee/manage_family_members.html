@@ -8,8 +8,8 @@
         <div class="col-12 mb-4">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('employee_dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('document_center') }}">Document Center</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.employee_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.document_center') }}">Document Center</a></li>
                     <li class="breadcrumb-item active">Manage Family Members</li>
                 </ol>
             </nav>
@@ -17,18 +17,28 @@
     </div>
 
     <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-4">
+        <div class="col-12 mb-4">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Family Members Information:</strong> You can add up to 10 family members. Please provide accurate information including photos and Aadhar card details.
+            </div>
+        </div>
+    </div>
+
+    {% if family_members|length < 10 %}
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="card mb-4 shadow">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Add Family Member</h5>
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Add Family Member ({{ family_members|length }}/10)</h5>
                 </div>
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
-                        
+
                         <div class="mb-3">
                             {{ form.name.label(class="form-label") }}
-                            {{ form.name(class="form-control") }}
+                            {{ form.name(class="form-control", placeholder="Enter full name") }}
                             {% if form.name.errors %}
                                 <div class="text-danger">
                                     {% for error in form.name.errors %}
@@ -37,10 +47,10 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.relationship.label(class="form-label") }}
-                            {{ form.relationship(class="form-control") }}
+                            {{ form.relationship(class="form-select") }}
                             {% if form.relationship.errors %}
                                 <div class="text-danger">
                                     {% for error in form.relationship.errors %}
@@ -49,7 +59,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.date_of_birth.label(class="form-label") }}
                             {{ form.date_of_birth(class="form-control", type="date") }}
@@ -61,10 +71,10 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.aadhar_id.label(class="form-label") }}
-                            {{ form.aadhar_id(class="form-control") }}
+                            {{ form.aadhar_id(class="form-control", placeholder="12-digit Aadhar number") }}
                             {% if form.aadhar_id.errors %}
                                 <div class="text-danger">
                                     {% for error in form.aadhar_id.errors %}
@@ -72,11 +82,12 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
+                            <small class="text-muted">Enter 12-digit Aadhar number without spaces</small>
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.contact_number.label(class="form-label") }}
-                            {{ form.contact_number(class="form-control") }}
+                            {{ form.contact_number(class="form-control", placeholder="Enter contact number") }}
                             {% if form.contact_number.errors %}
                                 <div class="text-danger">
                                     {% for error in form.contact_number.errors %}
@@ -85,22 +96,33 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
-                        <div class="mb-3">
-                            {{ form.photo.label(class="form-label") }}
-                            {{ form.photo(class="form-control") }}
-                            {% if form.photo.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.photo.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Photo <span class="text-danger">*</span></label>
+                                    {{ form.photo(class="form-control", accept=".jpg,.jpeg,.png") }}
+                                    {% if form.photo.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.photo.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Upload a recent photo (JPG, JPEG, PNG only)</small>
                                 </div>
-                            {% endif %}
-                            <small class="text-muted">Upload a recent photo (JPG, JPEG, PNG only)</small>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Aadhar Card <span class="text-danger">*</span></label>
+                                    <input type="file" name="aadhar_card" class="form-control" accept=".jpg,.jpeg,.png,.pdf" required>
+                                    <small class="text-muted">Upload Aadhar card (PDF or image)</small>
+                                </div>
+                            </div>
                         </div>
-                        
+
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-plus-circle me-2"></i>Add Family Member
                             </button>
                         </div>
@@ -108,24 +130,27 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">Family Members List</h5>
+
+        <div class="col-lg-7">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Family Members List ({{ family_members|length }}/10)</h5>
+                    {% if family_members|length > 0 %}
+                    <span class="badge bg-primary">{{ family_members|length }} member{% if family_members|length != 1 %}s{% endif %} added</span>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     {% if family_members %}
                         <div class="table-responsive">
                             <table class="table table-hover">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
                                         <th>Name</th>
                                         <th>Relationship</th>
                                         <th>Date of Birth</th>
                                         <th>Aadhar Number</th>
                                         <th>Contact</th>
-                                        <th>Photo</th>
+                                        <th>Documents</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -133,21 +158,38 @@
                                     {% for member in family_members %}
                                     <tr>
                                         <td>{{ member.name }}</td>
-                                        <td>{{ member.relationship }}</td>
+                                        <td><span class="badge bg-info text-dark">{{ member.relationship|title }}</span></td>
                                         <td>{{ member.date_of_birth.strftime('%d-%m-%Y') if member.date_of_birth else '--' }}</td>
                                         <td>{{ member.aadhar_id or '--' }}</td>
                                         <td>{{ member.contact_number or '--' }}</td>
                                         <td>
-                                            {% if member.photo_path %}
-                                                <img src="{{ url_for('static', filename=member.photo_path.replace('static/', '')) }}" 
-                                                    alt="Photo" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
-                                            {% else %}
-                                                <span class="badge bg-secondary">No Photo</span>
-                                            {% endif %}
+                                            <div class="btn-group btn-group-sm">
+                                                {% if member.photo_path %}
+                                                <button type="button" class="btn btn-outline-primary view-photo" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo="{{ url_for('static', filename=member.photo_path.replace('static/', '')) }}" data-name="{{ member.name }}" data-raw-path="{{ member.photo_path }}">
+                                                    <i class="fas fa-image"></i>
+                                                </button>
+                                                {% else %}
+                                                <button type="button" class="btn btn-outline-secondary" disabled>
+                                                    <i class="fas fa-image"></i>
+                                                </button>
+                                                {% endif %}
+
+                                                {% if member.aadhar_card_path %}
+                                                <button type="button" class="btn btn-outline-info view-aadhar" data-bs-toggle="modal" data-bs-target="#aadharModal" data-aadhar="{{ url_for('static', filename=member.aadhar_card_path.replace('static/', '')) }}" data-name="{{ member.name }}" data-raw-path="{{ member.aadhar_card_path }}">
+                                                    <i class="fas fa-id-card"></i>
+                                                </button>
+                                                {% else %}
+                                                <button type="button" class="btn btn-outline-secondary" disabled>
+                                                    <i class="fas fa-id-card"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                         <td>
-                                            <form action="{{ url_for('remove_family_member', member_id=member.id) }}" method="POST" class="d-inline">
-                                                <button type="submit" class="btn btn-sm btn-danger" 
+                                            <form action="{{ url_for('main.remove_family_member') }}" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="member_id" value="{{ member.id }}">
+                                                <button type="submit" class="btn btn-sm btn-danger"
                                                         onclick="return confirm('Are you sure you want to remove {{ member.name }}?')">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
@@ -167,5 +209,295 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Maximum limit reached!</strong> You have already added 10 family members, which is the maximum allowed. To add a new member, please remove an existing one first.
+            </div>
+        </div>
+
+        <div class="col-12 mt-3">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Family Members List (10/10)</h5>
+                    <span class="badge bg-danger">Maximum limit reached</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Relationship</th>
+                                    <th>Date of Birth</th>
+                                    <th>Aadhar Number</th>
+                                    <th>Contact</th>
+                                    <th>Documents</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in family_members %}
+                                <tr>
+                                    <td>{{ member.name }}</td>
+                                    <td><span class="badge bg-info text-dark">{{ member.relationship|title }}</span></td>
+                                    <td>{{ member.date_of_birth.strftime('%d-%m-%Y') if member.date_of_birth else '--' }}</td>
+                                    <td>{{ member.aadhar_id or '--' }}</td>
+                                    <td>{{ member.contact_number or '--' }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            {% if member.photo_path %}
+                                            <button type="button" class="btn btn-outline-primary view-photo" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo="{{ url_for('static', filename=member.photo_path.replace('static/', '')) }}" data-name="{{ member.name }}" data-raw-path="{{ member.photo_path }}">
+                                                <i class="fas fa-image"></i>
+                                            </button>
+                                            {% else %}
+                                            <button type="button" class="btn btn-outline-secondary" disabled>
+                                                <i class="fas fa-image"></i>
+                                            </button>
+                                            {% endif %}
+
+                                            {% if member.aadhar_card_path %}
+                                            <button type="button" class="btn btn-outline-info view-aadhar" data-bs-toggle="modal" data-bs-target="#aadharModal" data-aadhar="{{ url_for('static', filename=member.aadhar_card_path.replace('static/', '')) }}" data-name="{{ member.name }}" data-raw-path="{{ member.aadhar_card_path }}">
+                                                <i class="fas fa-id-card"></i>
+                                            </button>
+                                            {% else %}
+                                            <button type="button" class="btn btn-outline-secondary" disabled>
+                                                <i class="fas fa-id-card"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <form action="{{ url_for('main.remove_family_member') }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="member_id" value="{{ member.id }}">
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Are you sure you want to remove {{ member.name }}?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<!-- Photo Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="photoModalLabel">Family Member Photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalPhoto" src="" alt="Family Member Photo" class="img-fluid rounded">
+                <div id="photoDebugInfo" class="mt-3">
+                    <div class="alert alert-info">
+                        <h6>Debug Information:</h6>
+                        <p><strong>URL:</strong> <span id="photoDebugPath"></span></p>
+                        <p><strong>Raw Path:</strong> <span id="photoRawPath"></span></p>
+                        <p><strong>Filename:</strong> <span id="photoFilename"></span></p>
+                        <p><strong>Direct URL:</strong> <a id="photoDirectLink" href="#" target="_blank">View Direct Link</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Aadhar Card Modal -->
+<div class="modal fade" id="aadharModal" tabindex="-1" aria-labelledby="aadharModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="aadharModalLabel">Aadhar Card</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="aadharPdfContainer" class="d-none">
+                    <iframe id="aadharPdf" src="" width="100%" height="500px" frameborder="0"></iframe>
+                </div>
+                <div id="aadharImageContainer" class="d-none">
+                    <img id="aadharImage" src="" alt="Aadhar Card" class="img-fluid rounded">
+                </div>
+                <div id="aadharDebugInfo" class="mt-3">
+                    <div class="alert alert-info">
+                        <h6>Debug Information:</h6>
+                        <p><strong>URL:</strong> <span id="aadharDebugPath"></span></p>
+                        <p><strong>Raw Path:</strong> <span id="aadharRawPath"></span></p>
+                        <p><strong>File Type:</strong> <span id="aadharFileType"></span></p>
+                        <p><strong>Filename:</strong> <span id="aadharFilename"></span></p>
+                        <p><strong>Direct URL:</strong> <a id="aadharDirectLink" href="#" target="_blank">View Direct Link</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="aadharDownloadLink" href="" class="btn btn-primary" download>
+                    <i class="fas fa-download me-2"></i>Download
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle photo modal
+        const photoModal = document.getElementById('photoModal');
+        if (photoModal) {
+            photoModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const photoUrl = button.getAttribute('data-photo');
+                const rawPath = button.getAttribute('data-raw-path');
+                const memberName = button.getAttribute('data-name');
+
+                // Extract filename from path
+                const filename = rawPath ? rawPath.split('/').pop() : '';
+
+                // Update debug info
+                document.getElementById('photoDebugPath').textContent = photoUrl;
+                document.getElementById('photoRawPath').textContent = rawPath;
+                document.getElementById('photoFilename').textContent = filename;
+
+                // Set direct link
+                const directLink = '/static/uploads/family_photos/' + filename;
+                document.getElementById('photoDirectLink').href = directLink;
+
+                document.getElementById('photoModalLabel').textContent = memberName + ' - Photo';
+
+                try {
+                    // Create a new image to force reload
+                    const img = new Image();
+                    img.onload = function() {
+                        document.getElementById('modalPhoto').src = this.src;
+                    };
+                    img.onerror = function(error) {
+                        console.error('Error loading photo:', photoUrl, error);
+                        document.getElementById('modalPhoto').alt = 'Error loading photo. Please check the file path.';
+
+                        // Try direct approaches as fallback
+                        const directPath = '/static/uploads/family_photos/' + filename;
+                        console.log('Trying direct path:', directPath);
+                        document.getElementById('modalPhoto').src = directPath;
+
+                        // If that fails, try another approach with a timeout
+                        setTimeout(() => {
+                            const img2 = new Image();
+                            img2.onload = function() {
+                                document.getElementById('modalPhoto').src = this.src;
+                            };
+                            img2.onerror = function() {
+                                console.error('All fallback approaches failed');
+                            };
+                            img2.src = '/static/' + rawPath;
+                        }, 500);
+                    };
+                    // Add cache-busting parameter to prevent caching
+                    img.src = photoUrl + '?t=' + new Date().getTime();
+                } catch (error) {
+                    console.error('Error in photo modal:', error);
+                    alert('Error displaying photo: ' + error.message);
+                }
+            });
+        }
+
+        // Handle Aadhar card modal
+        const aadharModal = document.getElementById('aadharModal');
+        if (aadharModal) {
+            aadharModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const aadharUrl = button.getAttribute('data-aadhar');
+                const rawPath = button.getAttribute('data-raw-path');
+                const memberName = button.getAttribute('data-name');
+
+                // Extract filename from path
+                const filename = rawPath ? rawPath.split('/').pop() : '';
+
+                // Update debug info
+                document.getElementById('aadharDebugPath').textContent = aadharUrl;
+                document.getElementById('aadharRawPath').textContent = rawPath;
+                document.getElementById('aadharFilename').textContent = filename;
+
+                // Set direct link
+                const directLink = '/static/uploads/family_documents/' + filename;
+                document.getElementById('aadharDirectLink').href = directLink;
+
+                document.getElementById('aadharModalLabel').textContent = memberName + ' - Aadhar Card';
+                document.getElementById('aadharDownloadLink').href = aadharUrl;
+
+                // Check if it's a PDF or an image
+                const isPdf = aadharUrl.toLowerCase().endsWith('.pdf');
+                const isImage = /\.(jpe?g|png|gif|bmp)$/i.test(aadharUrl);
+
+                // Update file type info
+                document.getElementById('aadharFileType').textContent = isPdf ? 'PDF' : (isImage ? 'Image' : 'Unknown');
+
+                try {
+                    if (isPdf) {
+                        // Handle PDF
+                        document.getElementById('aadharPdfContainer').classList.remove('d-none');
+                        document.getElementById('aadharImageContainer').classList.add('d-none');
+                        document.getElementById('aadharPdf').src = aadharUrl;
+                    } else if (isImage) {
+                        // Handle Image
+                        document.getElementById('aadharPdfContainer').classList.add('d-none');
+                        document.getElementById('aadharImageContainer').classList.remove('d-none');
+
+                        // Create a new image to force reload
+                        const img = new Image();
+                        img.onload = function() {
+                            document.getElementById('aadharImage').src = this.src;
+                        };
+                        img.onerror = function(error) {
+                            console.error('Error loading image:', aadharUrl, error);
+                            document.getElementById('aadharImage').alt = 'Error loading image. Please check the file path.';
+
+                            // Try direct approaches as fallback
+                            const directPath = '/static/uploads/family_documents/' + filename;
+                            console.log('Trying direct path:', directPath);
+                            document.getElementById('aadharImage').src = directPath;
+
+                            // If that fails, try another approach with a timeout
+                            setTimeout(() => {
+                                const img2 = new Image();
+                                img2.onload = function() {
+                                    document.getElementById('aadharImage').src = this.src;
+                                };
+                                img2.onerror = function() {
+                                    console.error('All fallback approaches failed');
+                                };
+                                img2.src = '/static/' + rawPath;
+                            }, 500);
+                        };
+                        // Add cache-busting parameter to prevent caching
+                        img.src = aadharUrl + '?t=' + new Date().getTime();
+                    } else {
+                        // Unknown file type
+                        document.getElementById('aadharPdfContainer').classList.add('d-none');
+                        document.getElementById('aadharImageContainer').classList.remove('d-none');
+                        document.getElementById('aadharImage').alt = 'Unsupported file type';
+                        document.getElementById('aadharImage').src = '';
+                    }
+                } catch (error) {
+                    console.error('Error in Aadhar card modal:', error);
+                    alert('Error displaying Aadhar card: ' + error.message);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+
 {% endblock %}

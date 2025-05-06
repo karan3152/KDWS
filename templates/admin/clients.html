@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Manage Clients</h1>
+        <div>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClientModal">
+                <i class="fas fa-plus me-2"></i>Add Client
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Contact Person</th>
+                            <th>Contact Email</th>
+                            <th>Status</th>
+                            <th>Employees</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                        <tr>
+                            <td>{{ client.id }}</td>
+                            <td>{{ client.name }}</td>
+                            <td><code>{{ client.code }}</code></td>
+                            <td>{{ client.contact_person or 'N/A' }}</td>
+                            <td>{{ client.contact_email or 'N/A' }}</td>
+                            <td>
+                                <span class="badge {% if client.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ 'Active' if client.is_active else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>{{ client.employees|length }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('clients.admin_edit_client', client_id=client.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a href="{{ url_for('clients.admin_toggle_client_status', client_id=client.id) }}" class="btn btn-sm btn-outline-danger">
+                                        {% if client.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </a>
+                                    <a href="{{ url_for('clients.admin_client_employees', client_id=client.id) }}" class="btn btn-sm btn-outline-info">Employees</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteClientModal"
+                                            data-client-id="{{ client.id }}"
+                                            data-client-name="{{ client.name }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Client Modal -->
+    <div class="modal fade" id="addClientModal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ url_for('clients.admin_add_client') }}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addClientModalLabel">Add New Client/Project</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Client/Project Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Client/Project Code</label>
+                            <input type="text" class="form-control" id="code" name="code" maxlength="10" required>
+                            <small class="text-muted">Short code for the client (e.g., ABC, XYZ). Used for employee IDs.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_person" class="form-label">Contact Person</label>
+                            <input type="text" class="form-control" id="contact_person" name="contact_person">
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_email" class="form-label">Contact Email</label>
+                            <input type="email" class="form-control" id="contact_email" name="contact_email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_phone" class="form-label">Contact Phone</label>
+                            <input type="text" class="form-control" id="contact_phone" name="contact_phone">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">
+                                    Active
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Client</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Client Modal -->
+    <div class="modal fade" id="deleteClientModal" tabindex="-1" aria-labelledby="deleteClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteClientModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the client <span id="clientName" class="fw-bold"></span>?</p>
+                    <p class="text-danger">This action cannot be undone. All associated data will be permanently deleted.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteClientForm" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle delete client modal
+        const deleteModal = document.getElementById('deleteClientModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const clientId = button.getAttribute('data-client-id');
+                const clientName = button.getAttribute('data-client-name');
+
+                document.getElementById('clientName').textContent = clientName;
+                document.getElementById('deleteClientForm').action = "{{ url_for('clients.admin_remove_client', client_id=0) }}".replace('0', clientId);
+            });
+        }
+
+        // Auto-uppercase client code in add client modal
+        const codeInput = document.getElementById('code');
+        if (codeInput) {
+            codeInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

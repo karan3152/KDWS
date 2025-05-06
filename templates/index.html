@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDWS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 4rem 2rem;
+        }
+
+        .logo-container {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .logo-container img {
+            max-width: 300px;
+            height: auto;
+        }
+
+        .title {
+            color: #2D3748;
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #4A5568;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .welcome-message {
+            margin-bottom: 1.5rem;
+            color: #2D3748;
+            font-size: 1.25rem;
+        }
+
+        .login-button {
+            background: linear-gradient(135deg, #4299E1, #667EEA);
+            color: white;
+            padding: 0.8rem 3rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+            color: white;
+        }
+
+        .news-section {
+            margin-top: 3rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .news-header {
+            background: #00B5D8;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+
+        .news-content {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 1rem;
+        }
+
+        .news-item {
+            padding: 1rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-date {
+            color: #718096;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/ChatGPT Image May 5, 2025, 09_22_19 PM.png') }}" alt="KDWS" style="max-width: 400px;">
+        </div>
+        <h1 class="title">KDWS</h1>
+        <p class="subtitle">Employee Document Management System</p>
+
+        <div class="welcome-card">
+            <p class="welcome-message">Welcome to the Portal</p>
+            <p class="mb-4">Please log in to access your account and manage your documents.</p>
+            <a href="{{ url_for('login') }}" class="login-button">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+
+        {% if news_updates %}
+        <div class="news-section">
+            <div class="news-header">
+                <h2 class="mb-0">News & Updates</h2>
+            </div>
+            <div class="news-content">
+                {% for update in news_updates %}
+                <div class="news-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="mb-1">{{ update.title }}</h5>
+                        <span class="news-date">{{ update.published_date.strftime('%d %b %Y') }}</span>
+                    </div>
+                    <p class="mb-1">{{ update.content|truncate(100) }}</p>
+                    {% if update.link %}
+                    <a href="{{ update.link }}" class="btn btn-sm btn-outline-primary mt-2">Read More</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+</body>
+</html>

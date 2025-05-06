@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Placeholder Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .instructions {
+            max-width: 600px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Document Placeholder Generator</h1>
+    
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <p>This tool generates a simple document placeholder image. Click the "Generate Placeholder" button to create the image, then right-click on the canvas and select "Save Image As..." to save it as "document-placeholder.png" in the current directory.</p>
+    </div>
+    
+    <div class="controls">
+        <button id="generateBtn">Generate Placeholder</button>
+        <button id="downloadBtn">Download Image</button>
+    </div>
+    
+    <canvas id="canvas" width="200" height="200"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function generatePlaceholder() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Background
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Document shape
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(40, 30, 120, 140);
+            
+            // Document shadow
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillRect(45, 35, 120, 140);
+            
+            // Document outline
+            ctx.strokeStyle = '#cccccc';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(40, 30, 120, 140);
+            
+            // Document lines
+            ctx.strokeStyle = '#dddddd';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(55, 60 + i * 20);
+                ctx.lineTo(145, 60 + i * 20);
+                ctx.stroke();
+            }
+            
+            // Document icon
+            ctx.fillStyle = '#4b6584';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('DOCUMENT', 100, 180);
+            
+            // Warning icon
+            ctx.fillStyle = '#f0932b';
+            ctx.beginPath();
+            ctx.moveTo(100, 50);
+            ctx.lineTo(120, 85);
+            ctx.lineTo(80, 85);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('!', 100, 80);
+        }
+        
+        document.getElementById('generateBtn').addEventListener('click', generatePlaceholder);
+        
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'document-placeholder.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+        
+        // Generate placeholder on load
+        generatePlaceholder();
+    </script>
+</body>
+</html>

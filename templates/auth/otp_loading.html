@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Generating OTP - KDWS{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .otp-loading-container {
+        text-align: center;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        max-width: 500px;
+    }
+
+    .otp-loading-spinner {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        border: 5px solid rgba(0,123,255,0.3);
+        border-radius: 50%;
+        border-top-color: #007bff;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .otp-loading-text {
+        font-size: 20px;
+        color: #007bff;
+        margin-bottom: 15px;
+    }
+
+    .otp-loading-subtext {
+        font-size: 16px;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="otp-loading-container">
+                <div class="otp-loading-spinner"></div>
+                <h3 class="otp-loading-text">Wait, your OTP is generating...</h3>
+                <p class="otp-loading-subtext">We're sending a verification code to your email and WhatsApp (if available).</p>
+                <p class="otp-loading-subtext">You will be redirected automatically once the OTP is sent.</p>
+
+                <!-- Hidden form with user data to be submitted via JavaScript -->
+                <form id="redirectForm" method="GET" action="{{ url_for('auth.verify_otp') }}" style="display: none;">
+                    <input type="hidden" name="user_id" value="{{ user_id }}">
+                    <input type="hidden" name="purpose" value="{{ purpose }}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Redirect to OTP verification page after a delay
+    // This simulates waiting for the OTP to be sent
+    setTimeout(function() {
+        document.getElementById('redirectForm').submit();
+    }, 3000); // 3 seconds delay - adjust as needed
+</script>
+{% endblock %}

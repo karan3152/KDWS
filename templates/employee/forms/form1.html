@@ -1,35 +1,211 @@
-
 {% extends "dashboard_layout.html" %}
 
-{% block title %}Form 1 - Nomination{% endblock %}
+{% block title %}Form 1 - Nomination & Declaration{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Print-specific styles */
+    @media print {
+        body {
+            font-size: 12pt;
+            line-height: 1.2;
+            background: white !important;
+            color: black !important;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .card {
+            border: 1px solid #000 !important;
+            margin-bottom: 1.5rem !important;
+            page-break-inside: avoid;
+            box-shadow: none !important;
+        }
+        
+        .card-header {
+            background-color: #f1f1f1 !important;
+            color: black !important;
+            border-bottom: 1px solid #000 !important;
+            font-weight: bold !important;
+            padding: 0.5rem 1rem !important;
+        }
+        
+        input, select, textarea {
+            border: 1px solid #000 !important;
+            background-color: white !important;
+            color: black !important;
+            padding: 0.25rem !important;
+            font-size: 12pt !important;
+        }
+        
+        .btn, .navbar, footer, .alert {
+            display: none !important;
+        }
+        
+        h2 {
+            font-size: 16pt !important;
+            margin-bottom: 1rem !important;
+            text-align: center !important;
+        }
+        
+        p.form-subtitle {
+            font-size: 11pt !important;
+            text-align: center !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        /* Add form number in top right corner */
+        .form-header {
+            position: relative;
+        }
+        
+        .form-number {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        
+        /* Add declaration signature line */
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 2rem;
+            padding-top: 0.5rem;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+        
+        /* Form grid layout for print */
+        .print-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block dashboard_content %}
-<div class="container">
-    <h2>Form 1 (Nomination & Declaration)</h2>
+<div class="container my-4">
+    <div class="form-header mb-4">
+        <div class="form-number">Form 1</div>
+        <h2 class="text-center text-primary print-primary">Form 1 - Nomination & Declaration</h2>
+        <p class="text-center text-muted form-subtitle">Under the Payment of Wages Act – [See Rule 3]</p>
+    </div>
+
     <form method="POST" class="needs-validation" novalidate>
         {{ form.hidden_tag() }}
+
+        <!-- Section 1: Personal Details -->
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-primary text-white fw-bold">1. Employee Details</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6">
+                    {{ form.employee_name.label(class="form-label") }}
+                    {{ form.employee_name(class="form-control") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.father_or_husband_name.label(class="form-label") }}
+                    {{ form.father_or_husband_name(class="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.date_of_birth.label(class="form-label") }}
+                    {{ form.date_of_birth(class="form-control", type="date") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.sex.label(class="form-label") }}
+                    {{ form.sex(class="form-select") }}
+                </div>
+                <div class="col-md-12">
+                    {{ form.permanent_address.label(class="form-label") }}
+                    {{ form.permanent_address(class="form-control", rows="2") }}
+                </div>
+                <div class="col-md-12">
+                    {{ form.temporary_address.label(class="form-label") }}
+                    {{ form.temporary_address(class="form-control", rows="2") }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Nominee Details -->
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-secondary text-white fw-bold">2. Nominee Details</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6">
+                    {{ form.nominee_name.label(class="form-label") }}
+                    {{ form.nominee_name(class="form-control") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.nominee_relationship.label(class="form-label") }}
+                    {{ form.nominee_relationship(class="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.nominee_dob.label(class="form-label") }}
+                    {{ form.nominee_dob(class="form-control", type="date") }}
+                </div>
+                <div class="col-md-8">
+                    {{ form.nominee_address.label(class="form-label") }}
+                    {{ form.nominee_address(class="form-control", rows="2") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.distribution_percentage.label(class="form-label") }}
+                    {{ form.distribution_percentage(class="form-control") }}
+                </div>
+                <div class="col-md-8">
+                    {{ form.guardian_details.label(class="form-label") }}
+                    {{ form.guardian_details(class="form-control", rows="2") }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Declaration -->
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-info text-white fw-bold">3. Declaration</div>
+            <div class="card-body">
+                <div class="form-check mb-2">
+                    {{ form.no_family(class="form-check-input") }}
+                    {{ form.no_family.label(class="form-check-label") }}
+                </div>
+                <div class="form-check mb-2">
+                    {{ form.parents_dependent(class="form-check-input") }}
+                    {{ form.parents_dependent.label(class="form-check-label") }}
+                </div>
+                <p class="mt-3"><strong>Signature / Thumb Impression of Employee:</strong></p>
+                {{ form.employee_signature(class="form-control", placeholder="Enter full name or upload scanned signature") }}
+                
+                <div class="mt-4 row">
+                    <div class="col-md-6">
+                        <label class="form-label">Date:</label>
+                        <input type="date" name="signature_date" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Place:</label>
+                        <input type="text" name="signature_place" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="signature-line mt-4 d-none d-print-block">
+                    <p>Employee Signature</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <button type="button" class="btn btn-outline-primary d-print-none" onclick="window.print();">
+                <i class="fas fa-print me-2"></i>Print Form
+            </button>
+            <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm d-print-none">Submit Form</button>
+        </div>
         
-        <div class="form-group">
-            <label>Nominee Name</label>
-            <input type="text" name="nominee_name" class="form-control" required>
+        <div class="mt-4 text-center d-print-none">
+            <p class="text-muted small">Note: Please review all information before printing or submitting the form</p>
         </div>
-
-        <div class="form-group">
-            <label>Nominee Relationship</label>
-            <input type="text" name="nominee_relationship" class="form-control" required>
-        </div>
-
-        <div class="form-group">
-            <label>Nominee Address</label>
-            <textarea name="nominee_address" class="form-control" rows="3" required></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Percentage of Share</label>
-            <input type="number" name="share_percentage" class="form-control" min="0" max="100" required>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Submit Form</button>
     </form>
 </div>
 {% endblock %}

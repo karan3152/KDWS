@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Manage Employees</h1>
+        <div class="d-flex">
+            {% if clients %}
+            <div class="dropdown me-2">
+                <button class="btn btn-success dropdown-toggle" type="button" id="addEmployeeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-plus me-2"></i>Add Employee
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="addEmployeeDropdown">
+                    <li><h6 class="dropdown-header">Select Client/Project</h6></li>
+                    {% for client in clients %}
+                        <li><a class="dropdown-item" href="{{ url_for('main.admin_add_employee', client_id=client.id) }}">{{ client.name }} ({{ client.code }})</a></li>
+                    {% endfor %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.admin_add_employee') }}">No specific client</a></li>
+                </ul>
+            </div>
+            {% else %}
+            <a href="{{ url_for('main.admin_add_employee') }}" class="btn btn-success me-2">
+                <i class="fas fa-user-plus me-2"></i>Add Employee
+            </a>
+            {% endif %}
+            <a href="{{ url_for('main.admin_bulk_employee_upload') }}" class="btn btn-primary me-2">
+                <i class="fas fa-file-upload me-2"></i>Bulk Upload
+            </a>
+            {% if clients is defined and clients %}
+            <a href="{{ url_for('main.admin_clients') }}" class="btn btn-outline-primary">
+                <i class="fas fa-project-diagram me-2"></i>Manage Clients
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            {% if clients is defined and clients %}
+                            <th>Employee Code</th>
+                            {% endif %}
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Full Name</th>
+                            {% if clients is defined and clients %}
+                            <th>Client/Project</th>
+                            {% endif %}
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Password Status</th>
+                            <th>Initial Temporary Password</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                        <tr>
+                            <td>{{ employee.id }}</td>
+                            {% if clients is defined and clients %}
+                            <td>
+                                {% if employee.employee_profile and employee.employee_profile.employee_code %}
+                                    <code>{{ employee.employee_profile.employee_code }}</code>
+                                {% else %}
+                                    <span class="text-muted">Not Set</span>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                            <td>{{ employee.username }}</td>
+                            <td>{{ employee.email }}</td>
+                            <td>{{ employee.employee_profile.get_full_name() if employee.employee_profile else 'N/A' }}</td>
+                            {% if clients is defined and clients %}
+                            <td>
+                                {% if employee.employee_profile and employee.employee_profile.client_id and employee.employee_profile|has_attr('client') and employee.employee_profile.client %}
+                                    {{ employee.employee_profile.client.name }}
+                                    <small class="text-muted">({{ employee.employee_profile.client.code }})</small>
+                                {% else %}
+                                    <span class="text-muted">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                            <td>{{ employee.employee_profile.department if employee.employee_profile else 'N/A' }}</td>
+                            <td>
+                                <span class="badge {% if employee.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ 'Active' if employee.is_active else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if employee.is_temporary_password %}bg-warning{% else %}bg-success{% endif %}">
+                                    {{ 'Temporary' if employee.is_temporary_password else 'Changed' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if employee.is_temporary_password and employee.initial_password %}
+                                    <code>{{ employee.initial_password }}</code>
+                                    <br>
+                                    <small class="text-muted">(Only visible if not changed)</small>
+                                {% else %}
+                                    <span class="text-muted">Not visible (changed by user)</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('main.admin_edit_employee', user_id=employee.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a href="{{ url_for('main.admin_toggle_employee_status', user_id=employee.id) }}" class="btn btn-sm btn-outline-danger">
+                                        {% if employee.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </a>
+                                    <a href="{{ url_for('main.admin_employee_documents', user_id=employee.id) }}" class="btn btn-sm btn-outline-info">Documents</a>
+                                    <a href="{{ url_for('main.admin_reset_password', user_id=employee.id) }}" class="btn btn-sm btn-outline-warning">Reset Password</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteEmployeeModal"
+                                            data-user-id="{{ employee.id }}"
+                                            data-user-name="{{ employee.employee_profile.get_full_name() if employee.employee_profile else employee.username }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Employee Modal -->
+    <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteEmployeeModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the employee <span id="employeeName" class="fw-bold"></span>?</p>
+                    <p class="text-danger">This action cannot be undone. All associated data will be permanently deleted.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteEmployeeForm" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteModal = document.getElementById('deleteEmployeeModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const userId = button.getAttribute('data-user-id');
+                const userName = button.getAttribute('data-user-name');
+
+                document.getElementById('employeeName').textContent = userName;
+                document.getElementById('deleteEmployeeForm').action = "{{ url_for('main.admin_remove_employee', user_id=0) }}".replace('0', userId);
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

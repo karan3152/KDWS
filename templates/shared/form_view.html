@@ -1,0 +1,73 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block title %}{{ form_title }} - {{ employee.first_name }} {{ employee.last_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    {% if current_user.is_employer() %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.employer_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.employer_employees') }}">Employees</a></li>
+                    {% elif current_user.is_admin() %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.admin_employees') }}">Employees</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.view_employee_profile', employee_id=employee.id) }}">{{ employee.first_name }} {{ employee.last_name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.employer_documents', employee_id=employee.id) if current_user.is_employer() else url_for('main.admin_employee_documents', user_id=employee.user_id) }}">Documents</a></li>
+                    <li class="breadcrumb-item active">{{ form_title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>{{ form_title }} - {{ employee.first_name }} {{ employee.last_name }}</h2>
+                <div>
+                    <a href="{{ url_for('main.employer_documents', employee_id=employee.id) if current_user.is_employer() else url_for('main.admin_employee_documents', user_id=employee.user_id) }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Documents
+                    </a>
+                    {% if document %}
+                    <a href="{{ url_for('main.view_document', document_id=document.id) }}" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-file-pdf me-2"></i>View Original PDF
+                    </a>
+                    <a href="{{ url_for('main.download_document', document_id=document.id) }}" class="btn btn-success">
+                        <i class="fas fa-download me-2"></i>Download
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ form_title }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if form_type == 'pf_form' %}
+                        {% include 'shared/forms/pf_form_view.html' %}
+                    {% elif form_type == 'form1' %}
+                        {% include 'shared/forms/form1_view.html' %}
+                    {% elif form_type == 'form11' %}
+                        {% include 'shared/forms/form11_view.html' %}
+                    {% elif form_type == 'joining_form' %}
+                        {% include 'shared/forms/joining_form_view.html' %}
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Form template not found.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

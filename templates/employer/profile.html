@@ -1,77 +1,352 @@
-
 {% extends "dashboard_layout.html" %}
 
-{% block title %}My Profile - Employer Dashboard{% endblock %}
+{% block title %}Employer Profile - KDWS{% endblock %}
 
-{% block dashboard_title %}My Profile{% endblock %}
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 2rem;
+        border: 3px solid var(--primary-color);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        color: #2C5282;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-role {
+        color: #718096;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #2D3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #E2E8F0;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25);
+    }
+
+    .admin-only {
+        background-color: #F7FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .admin-only h5 {
+        color: #2C5282;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .admin-only h5 i {
+        margin-right: 0.5rem;
+    }
+
+    .preview-image {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-top: 1rem;
+        display: none;
+        border: 3px solid var(--primary-color);
+    }
+
+    .profile-upload-container {
+        position: relative;
+        width: 200px;
+        margin: 0 auto 2rem;
+    }
+
+    .profile-photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--primary-color);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(44, 82, 130, 0.9);
+        padding: 10px;
+        border-bottom-left-radius: 100px;
+        border-bottom-right-radius: 100px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-overlay:hover {
+        background: rgba(44, 82, 130, 1);
+    }
+
+    .upload-overlay label {
+        color: white;
+        margin: 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .upload-overlay i {
+        margin-right: 5px;
+    }
+
+    #photo {
+        display: none;
+    }
+
+    .preview-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+    }
+
+    .preview-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .preview-image {
+        max-width: 300px;
+        max-height: 300px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+    }
+
+    .preview-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+</style>
+{% endblock %}
 
 {% block dashboard_content %}
-<div class="row">
-    <div class="col-md-10 offset-md-1">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">
-                    {% if current_user.is_admin and employer.user_id != current_user.id %}
-                        Employer Profile Details
-                    {% else %}
-                        Update Profile Information
-                    {% endif %}
-                </h4>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Employer Profile</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.employer_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Profile</li>
+    </ol>
+
+    <div class="profile-container">
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+
+            <div class="profile-upload-container">
+                {% if current_user.employer_profile and current_user.employer_profile.photo_path %}
+                    <img src="{{ url_for('static', filename=current_user.employer_profile.photo_path) }}"
+                         alt="Company Logo"
+                         class="profile-photo"
+                         id="currentPhoto"
+                         onerror="this.src='{{ url_for('static', filename='img/default-company.png') }}';">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/default-company.png') }}"
+                         alt="Default Company Logo"
+                         class="profile-photo"
+                         id="currentPhoto">
+                {% endif %}
+                <div class="upload-overlay">
+                    <label for="photo">
+                        <i class="fas fa-camera"></i> Change Logo
+                    </label>
+                    {{ form.photo(class="d-none") }}
+                </div>
             </div>
-            
-            <div class="card-body p-4">
-                <form class="needs-validation" method="POST" action="{{ url_for('employer_profile_page', employer_id=employer.id if employer else None) }}">
-                    {{ form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="company_name" class="form-label">Company Name</label>
-                                {{ form.company_name(class="form-control", id="company_name", placeholder="Enter company name") }}
-                                {% if form.company_name.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.company_name.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="department" class="form-label">Department</label>
-                                {{ form.department(class="form-control", id="department", placeholder="Enter department") }}
-                                {% if form.department.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.department.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group mt-3">
-                        <label for="contact_number" class="form-label">Contact Number</label>
-                        {{ form.contact_number(class="form-control", id="contact_number", placeholder="Enter contact number") }}
-                        {% if form.contact_number.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.contact_number.errors %}
-                                {{ error }}
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.company_name.label(class="form-label") }}
+                        {{ form.company_name(class="form-control") }}
+                        {% if form.company_name.errors %}
+                            {% for error in form.company_name.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
                             {% endfor %}
-                        </div>
                         {% endif %}
                     </div>
-                    
-                    <div class="form-group mt-4">
-                        {{ form.submit(class="btn btn-primary") }}
-                        <a href="{{ url_for('employer_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.company_email.label(class="form-label") }}
+                        {{ form.company_email(class="form-control") }}
+                        {% if form.company_email.errors %}
+                            {% for error in form.company_email.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
-                </form>
+                </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.company_phone.label(class="form-label") }}
+                        {{ form.company_phone(class="form-control") }}
+                        {% if form.company_phone.errors %}
+                            {% for error in form.company_phone.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.company_website.label(class="form-label") }}
+                        {{ form.company_website(class="form-control") }}
+                        {% if form.company_website.errors %}
+                            {% for error in form.company_website.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.industry.label(class="form-label") }}
+                        {{ form.industry(class="form-control") }}
+                        {% if form.industry.errors %}
+                            {% for error in form.industry.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.company_size.label(class="form-label") }}
+                        {{ form.company_size(class="form-control") }}
+                        {% if form.company_size.errors %}
+                            {% for error in form.company_size.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {{ form.company_address.label(class="form-label") }}
+                {{ form.company_address(class="form-control", rows=3) }}
+                {% if form.company_address.errors %}
+                    {% for error in form.company_address.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.department.label(class="form-label") }}
+                {{ form.department(class="form-control") }}
+                {% if form.department.errors %}
+                    {% for error in form.department.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="text-center mt-4">
+                {{ form.submit(class="btn btn-primary btn-lg px-5") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-container" id="previewContainer">
+    <div class="preview-content">
+        <img src="" alt="Preview" class="preview-image" id="previewImage">
+        <div class="preview-actions">
+            <button class="btn btn-secondary" onclick="closePreview()">Cancel</button>
+            <button class="btn btn-primary" onclick="confirmUpload()">Confirm</button>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('photo').addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('previewContainer').style.display = 'flex';
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    function closePreview() {
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('photo').value = '';
+    }
+
+    function confirmUpload() {
+        document.getElementById('currentPhoto').src = document.getElementById('previewImage').src;
+        document.getElementById('previewContainer').style.display = 'none';
+    }
+</script>
 {% endblock %}

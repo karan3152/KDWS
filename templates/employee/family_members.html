@@ -1,0 +1,314 @@
+{% extends "employee/dashboard.html" %}
+
+{% block title %}
+    {% if is_employer %}
+        {{ employee.first_name }} {{ employee.last_name }}'s Family Members
+    {% else %}
+        Family Members
+    {% endif %}
+{% endblock %}
+
+{% block dashboard_title %}
+    {% if is_employer %}
+        {{ employee.first_name }} {{ employee.last_name }}'s Family Members
+    {% else %}
+        Family Members
+    {% endif %}
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Success/Error Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Back to employee profile button for employers -->
+    {% if is_employer %}
+    <div class="mb-4">
+        <div class="d-flex justify-content-between">
+            <h5>Family details for {{ employee.first_name }} {{ employee.last_name }}</h5>
+            <div>
+                <a href="{{ url_for('main.document_center', employee_id=employee.id) }}" class="btn btn-primary">
+                    <i class="fas fa-file-alt"></i> View Documents
+                </a>
+                <a href="{{ url_for('main.view_employee_profile', employee_id=employee.id) }}" class="btn btn-info">
+                    <i class="fas fa-user"></i> View Profile
+                </a>
+                <a href="{{ url_for('main.employer_employees') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Employees
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Add Family Member Button -->
+    <div class="mb-4">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFamilyMemberModal">
+            <i class="fas fa-plus"></i> Add Family Member
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Family Members Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Photo</th>
+                            <th>Name</th>
+                            <th>Relationship</th>
+                            <th>Date of Birth</th>
+                            <th>Contact Number</th>
+                            {% if not is_employer %}
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if family_members %}
+                            {% for member in family_members %}
+                                <tr>
+                                    <td>
+                                        {% if member.photo_filename %}
+                                            <img src="{{ url_for('images.serve_image', filename=member.photo_filename) }}" 
+                                                 alt="{{ member.name }}" class="rounded-circle" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                                 alt="Default Avatar" class="rounded-circle" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ member.name }}</td>
+                                    <td>{{ member.relationship|title }}</td>
+                                    <td>{{ member.date_of_birth.strftime('%d-%m-%Y') if member.date_of_birth else 'Not provided' }}</td>
+                                    <td>{{ member.contact_number if member.contact_number else 'Not provided' }}</td>
+                                    {% if not is_employer %}
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary edit-member" 
+                                                data-member-id="{{ member.id }}"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editFamilyMemberModal">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-member" 
+                                                data-member-id="{{ member.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="{{ 6 if not is_employer else 5 }}" class="text-center">No family members added yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not is_employer %}
+<!-- Add Family Member Modal -->
+<div class="modal fade" id="addFamilyMemberModal" tabindex="-1" aria-labelledby="addFamilyMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFamilyMemberModalLabel">Add Family Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.add_family_member') }}" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                        {% if form.name.errors %}
+                            {% for error in form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.relationship.label(class="form-label") }}
+                        {{ form.relationship(class="form-select") }}
+                        {% if form.relationship.errors %}
+                            {% for error in form.relationship.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.date_of_birth.label(class="form-label") }}
+                        {{ form.date_of_birth(class="form-control", type="date") }}
+                        {% if form.date_of_birth.errors %}
+                            {% for error in form.date_of_birth.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.aadhar_id.label(class="form-label") }}
+                        {{ form.aadhar_id(class="form-control") }}
+                        {% if form.aadhar_id.errors %}
+                            {% for error in form.aadhar_id.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.contact_number.label(class="form-label") }}
+                        {{ form.contact_number(class="form-control") }}
+                        {% if form.contact_number.errors %}
+                            {% for error in form.contact_number.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.photo.label(class="form-label") }}
+                        {{ form.photo(class="form-control") }}
+                        {% if form.photo.errors %}
+                            {% for error in form.photo.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Family Member Modal -->
+<div class="modal fade" id="editFamilyMemberModal" tabindex="-1" aria-labelledby="editFamilyMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFamilyMemberModalLabel">Edit Family Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editFamilyMemberForm" method="POST" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                <div class="modal-body">
+                    <!-- Form fields will be populated dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Family Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete family member
+    document.querySelectorAll('.delete-member').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this family member?')) {
+                const memberId = this.getAttribute('data-member-id');
+                fetch(`{{ url_for('main.delete_family_member', member_id=0) }}`.replace('0', memberId), {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Error deleting family member');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting family member');
+                });
+            }
+        });
+    });
+
+    // Edit family member
+    document.querySelectorAll('.edit-member').forEach(button => {
+        button.addEventListener('click', function() {
+            const memberId = this.getAttribute('data-member-id');
+            fetch(`{{ url_for('main.get_family_member', member_id=0) }}`.replace('0', memberId))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const member = data.member;
+                        const form = document.getElementById('editFamilyMemberForm');
+                        form.action = `{{ url_for('main.update_family_member', member_id=0) }}`.replace('0', memberId);
+                        
+                        // Populate form fields
+                        const modalBody = form.querySelector('.modal-body');
+                        modalBody.innerHTML = `
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" name="name" class="form-control" value="${member.name}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Relationship</label>
+                                <select name="relationship" class="form-select" required>
+                                    <option value="spouse" ${member.relationship === 'spouse' ? 'selected' : ''}>Spouse</option>
+                                    <option value="child" ${member.relationship === 'child' ? 'selected' : ''}>Child</option>
+                                    <option value="parent" ${member.relationship === 'parent' ? 'selected' : ''}>Parent</option>
+                                    <option value="sibling" ${member.relationship === 'sibling' ? 'selected' : ''}>Sibling</option>
+                                    <option value="other" ${member.relationship === 'other' ? 'selected' : ''}>Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" name="date_of_birth" class="form-control" value="${member.date_of_birth || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Aadhar ID</label>
+                                <input type="text" name="aadhar_id" class="form-control" value="${member.aadhar_id || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Contact Number</label>
+                                <input type="text" name="contact_number" class="form-control" value="${member.contact_number || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Photo</label>
+                                <input type="file" name="photo" class="form-control">
+                                ${member.photo_filename ? '<p class="small text-muted">Current photo will be kept if no new photo is selected.</p>' : ''}
+                            </div>
+                        `;
+                    } else {
+                        alert('Error loading family member data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading family member data');
+                });
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endif %}
+
+{% endblock %} 

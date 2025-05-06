@@ -1,0 +1,513 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee Documents{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Employee Documents - {{ employee.get_full_name() }}</h5>
+                    <a href="{{ url_for('main.admin_employees') }}" class="btn btn-sm btn-light">Back to Employees</a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Employee ID:</strong> {{ employee.id }}</p>
+                            <p><strong>Name:</strong> {{ employee.get_full_name() }}</p>
+                            <p><strong>Email:</strong> {{ employee.user.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Department:</strong> {{ employee.department or 'Not specified' }}</p>
+                            <p><strong>Position:</strong> {{ employee.position or 'Not specified' }}</p>
+                            <p><strong>Phone:</strong> {{ employee.phone_number or 'Not specified' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Required Documents Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Required Documents</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- New Joining Form -->
+                                <tr>
+                                    <td>New Joining Form</td>
+                                    <td>
+                                        {% if 'new_joining_form' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['new_joining_form'].status] }}">
+                                                {{ document_dict['new_joining_form'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'new_joining_form' in document_dict %}
+                                            {{ document_dict['new_joining_form'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'new_joining_form' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['new_joining_form'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['new_joining_form'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['new_joining_form'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- PF Form -->
+                                <tr>
+                                    <td>PF Form</td>
+                                    <td>
+                                        {% if 'pf_form' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['pf_form'].status] }}">
+                                                {{ document_dict['pf_form'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'pf_form' in document_dict %}
+                                            {{ document_dict['pf_form'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'pf_form' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['pf_form'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['pf_form'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['pf_form'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- Form 1 Nomination -->
+                                <tr>
+                                    <td>Form 1 Nomination</td>
+                                    <td>
+                                        {% if 'form_1_nomination' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['form_1_nomination'].status] }}">
+                                                {{ document_dict['form_1_nomination'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'form_1_nomination' in document_dict %}
+                                            {{ document_dict['form_1_nomination'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'form_1_nomination' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['form_1_nomination'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['form_1_nomination'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['form_1_nomination'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- Form 11 -->
+                                <tr>
+                                    <td>Form 11</td>
+                                    <td>
+                                        {% if 'form_11' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['form_11'].status] }}">
+                                                {{ document_dict['form_11'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'form_11' in document_dict %}
+                                            {{ document_dict['form_11'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'form_11' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['form_11'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['form_11'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['form_11'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Identity Documents Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Identity Documents</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Aadhar Card -->
+                                <tr>
+                                    <td>Aadhar Card</td>
+                                    <td>
+                                        {% if 'aadhar_card' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['aadhar_card'].status] }}">
+                                                {{ document_dict['aadhar_card'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'aadhar_card' in document_dict %}
+                                            {{ document_dict['aadhar_card'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'aadhar_card' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['aadhar_card'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['aadhar_card'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['aadhar_card'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- PAN Card -->
+                                <tr>
+                                    <td>PAN Card</td>
+                                    <td>
+                                        {% if 'pan_card' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['pan_card'].status] }}">
+                                                {{ document_dict['pan_card'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'pan_card' in document_dict %}
+                                            {{ document_dict['pan_card'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'pan_card' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['pan_card'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['pan_card'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['pan_card'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- Photo -->
+                                <tr>
+                                    <td>Photo</td>
+                                    <td>
+                                        {% if 'photo' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['photo'].status] }}">
+                                                {{ document_dict['photo'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'photo' in document_dict %}
+                                            {{ document_dict['photo'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'photo' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['photo'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['photo'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['photo'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Other Documents Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Other Documents</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Police Verification -->
+                                <tr>
+                                    <td>Police Verification</td>
+                                    <td>
+                                        {% if 'police_verification' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['police_verification'].status] }}">
+                                                {{ document_dict['police_verification'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'police_verification' in document_dict %}
+                                            {{ document_dict['police_verification'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'police_verification' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['police_verification'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['police_verification'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['police_verification'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- Medical Certificate -->
+                                <tr>
+                                    <td>Medical Certificate</td>
+                                    <td>
+                                        {% if 'medical_certificate' in document_dict %}
+                                            <span class="badge bg-{{ status_colors[document_dict['medical_certificate'].status] }}">
+                                                {{ document_dict['medical_certificate'].status.title() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Uploaded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'medical_certificate' in document_dict %}
+                                            {{ document_dict['medical_certificate'].uploaded_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if 'medical_certificate' in document_dict %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('main.view_document', document_id=document_dict['medical_certificate'].id) }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                                <a href="{{ url_for('main.admin_approve_document', document_id=document_dict['medical_certificate'].id) }}" class="btn btn-sm btn-outline-success">Approve</a>
+                                                <a href="{{ url_for('main.admin_reject_document', document_id=document_dict['medical_certificate'].id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family Members Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Family Members</h5>
+                    <a href="{{ url_for('main.admin_view_family_details', employee_id=employee.id) }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-users me-1"></i> View Detailed Family Information
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if family_members %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Relationship</th>
+                                    <th>Date of Birth</th>
+                                    <th>Aadhar ID</th>
+                                    <th>Contact Number</th>
+                                    <th>Photo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in family_members %}
+                                <tr>
+                                    <td>{{ member.name }}</td>
+                                    <td>{{ member.relationship|title }}</td>
+                                    <td>{{ member.date_of_birth.strftime('%d-%m-%Y') if member.date_of_birth else '--' }}</td>
+                                    <td>{{ member.aadhar_id if member.aadhar_id else '--' }}</td>
+                                    <td>{{ member.contact_number if member.contact_number else '--' }}</td>
+                                    <td>
+                                        {% if member.photo_path %}
+                                        <img src="{{ url_for('static', filename=member.photo_path.replace('static/', '')) }}" alt="Family Member Photo" style="width: 40px; height: 40px; object-fit: cover;" class="img-thumbnail">
+                                        {% else %}
+                                        <span class="text-muted">No photo</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No family members have been added for this employee.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Documents Section -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">All Documents</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Uploaded Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in documents %}
+                                <tr>
+                                    <td>{{ document.id }}</td>
+                                    <td>{{ document.document_type.replace('_', ' ').title() }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ status_colors[document.status] }}">
+                                            {{ document.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            {% if document.document_type in ['pf_form', 'form1_nomination', 'form11', 'joining_form'] %}
+                                                {% set form_type = 'pf_form' if document.document_type == 'pf_form' else
+                                                                  'form1' if document.document_type == 'form1_nomination' else
+                                                                  'form11' if document.document_type == 'form11' else
+                                                                  'joining_form' %}
+                                                <a href="{{ url_for('main.admin_view_form', form_type=form_type, employee_id=employee.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-alt"></i> View Form
+                                                </a>
+                                            {% endif %}
+                                            <a href="{{ url_for('main.view_document', document_id=document.id) }}" class="btn btn-sm btn-outline-info" target="_blank">
+                                                <i class="fas fa-file-pdf"></i> View PDF
+                                            </a>
+                                            <a href="{{ url_for('main.download_document', document_id=document.id) }}" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                            <a href="{{ url_for('main.admin_approve_document', document_id=document.id) }}" class="btn btn-sm btn-outline-warning">Approve</a>
+                                            <a href="{{ url_for('main.admin_reject_document', document_id=document.id) }}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

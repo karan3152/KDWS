@@ -1,0 +1,199 @@
+/* Static Form Design - No 3D Effects */
+:root {
+    --primary-blue: #0056b3;
+    --secondary-blue: #4299E1;
+    --light-blue: #f0f5fa;
+    --white: #ffffff;
+    --gray-light: #f8f9fa;
+    --gray-medium: #ddd;
+    --text-dark: #333;
+    --text-medium: #555;
+}
+
+/* Override 3D effects from form.css */
+.dashboard-container {
+    min-height: auto;
+    padding: 20px;
+    background: var(--white);
+    background-image: none;
+}
+
+.registration-form {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 0;
+    border: 1px solid var(--gray-medium);
+    box-shadow: none;
+    transform-style: flat;
+    perspective: none;
+    transform: none;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.form-section {
+    background: var(--white);
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 0;
+    border: 1px solid var(--gray-medium);
+    box-shadow: none;
+    transform: none;
+    transition: none;
+}
+
+.form-section:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.section-header {
+    background: var(--gray-light);
+    color: var(--text-dark);
+    padding: 1rem;
+    border-radius: 0;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+    box-shadow: none;
+    position: static;
+    overflow: visible;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.section-header::after {
+    display: none;
+}
+
+.form-control {
+    border: 1px solid var(--gray-medium);
+    border-radius: 0;
+    padding: 0.6rem;
+    background: var(--white);
+    transition: none;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: none;
+    background: var(--white);
+}
+
+.form-label {
+    color: var(--text-medium);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.photo-upload-area {
+    border: 1px dashed var(--gray-medium);
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: 0;
+    text-align: center;
+    transition: none;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.photo-upload-area:hover {
+    background: var(--white);
+    border-style: dashed;
+    transform: none;
+    box-shadow: none;
+}
+
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.7rem 1rem;
+    border-radius: 0;
+    transition: none;
+    background: var(--white);
+    border: 1px solid var(--gray-medium);
+}
+
+.radio-label:hover {
+    background: var(--gray-light);
+    transform: none;
+}
+
+.btn-submit {
+    background: var(--primary-blue);
+    color: var(--white);
+    padding: 0.8rem 2rem;
+    border-radius: 0;
+    border: none;
+    font-weight: 600;
+    letter-spacing: normal;
+    box-shadow: none;
+    transition: none;
+    font-size: 1rem;
+}
+
+.btn-submit:hover {
+    transform: none;
+    box-shadow: none;
+    background: var(--secondary-blue);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: var(--white);
+    padding: 0.8rem 2rem;
+    border-radius: 0;
+    border: none;
+    font-weight: 600;
+    letter-spacing: normal;
+    box-shadow: none;
+    transition: none;
+    font-size: 1rem;
+}
+
+.btn-secondary:hover {
+    transform: none;
+    box-shadow: none;
+    background: #5a6268;
+}
+
+/* Remove animation */
+@keyframes shimmer {
+    0%, 100% {
+        transform: none;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 15px;
+    }
+    
+    .registration-form {
+        padding: 20px;
+    }
+    
+    .form-section {
+        padding: 15px;
+    }
+    
+    .section-header {
+        padding: 10px;
+    }
+    
+    .btn-submit, .btn-secondary {
+        width: 100%;
+        padding: 0.8rem;
+    }
+}

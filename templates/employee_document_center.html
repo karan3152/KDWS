@@ -14,6 +14,15 @@
                         <div class="col-md-8">
                             <h5>Welcome, {{ current_user.username }}</h5>
                             <p>Complete your document submission process by uploading all required documents and filling out the necessary forms.</p>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> File Requirements:
+                                <ul class="mb-0">
+                                    <li>Maximum file size: 5MB per document</li>
+                                    <li>Allowed formats: PDF, JPG, PNG</li>
+                                    <li>Documents must be clear and legible</li>
+                                    <li>All required fields must be filled</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-md-4 text-right">
                             <div class="document-progress">
@@ -35,7 +44,7 @@
                                     <i class="{% if documents[doc_type] %}fas fa-check{% else %}fas fa-clock{% endif %}"></i>
                                 </div>
                                 <div class="status-text">
-                                    <span class="status-name">{{ doc_type|title|replace_underscores }}</span>
+<span class="status-name">{{ doc_type|title|replace('_', ' ') }}</span>
                                     <span class="status-label {% if documents[doc_type] %}text-success{% else %}text-warning{% endif %}">
                                         {% if documents[doc_type] %}
                                             {% if documents[doc_type].status == 'pending' %}
@@ -55,1026 +64,236 @@
                         </div>
                     </div>
 
-                    <!-- Document Navigation Tabs -->
-                    <ul class="nav nav-tabs mb-4" id="documentTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link active" id="identity-tab" data-toggle="tab" href="#identity" role="tab">
-                                <i class="fas fa-id-card mr-1"></i> Identity Documents
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="financial-tab" data-toggle="tab" href="#financial" role="tab">
-                                <i class="fas fa-university mr-1"></i> Bank & Financial
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="forms-tab" data-toggle="tab" href="#forms" role="tab">
-                                <i class="fas fa-file-signature mr-1"></i> PF & Nomination Forms
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="verification-tab" data-toggle="tab" href="#verification" role="tab">
-                                <i class="fas fa-user-check mr-1"></i> Verification Documents
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="preview-tab" data-toggle="tab" href="#preview" role="tab">
-                                <i class="fas fa-eye mr-1"></i> Combined Preview
-                            </a>
-                        </li>
-                    </ul>
+                    <!-- Document Upload Section -->
+                    <div class="document-upload-section">
+                        <h5 class="card-title">Upload Documents</h5>
+                        <form id="documentUploadForm" method="POST" action="{{ url_for('main.upload_document') }}" enctype="multipart/form-data">
+                            <div class="row">
+                                {% for doc_type in document_types %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ doc_type|title|replace('_', ' ') }}</h6>
+                                            <div class="form-group">
+                                                <input type="file"
+                                                       class="form-control document-upload"
+                                                       name="{{ doc_type }}"
+                                                       accept=".pdf,.jpg,.jpeg,.png"
+                                                       data-max-size="5242880"
+                                                       {% if documents[doc_type] and documents[doc_type].status == 'approved' %}disabled{% endif %}
+                                                       onchange="console.log('File selected for {{ doc_type }}:', this.files.length > 0)">
 
-                    <!-- Tab Content -->
-                    <div class="tab-content" id="documentTabsContent">
-                        <!-- Identity Documents Tab -->
-                        <div class="tab-pane fade show active" id="identity" role="tabpanel">
-                            <div class="document-form-container">
-                                <div class="row">
-                                    <!-- Aadhar Card -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.aadhar %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Aadhar Card</h5>
-                                                {% if documents.aadhar %}
-                                                <span class="badge badge-{{ documents.aadhar.status }}">
-                                                    {{ documents.aadhar.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.aadhar %}
-                                                <div class="document-info">
-                                                    <p><strong>Aadhar Number:</strong> {{ documents.aadhar.document_number }}</p>
-                                                    <p><strong>Uploaded:</strong> {{ documents.aadhar.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.aadhar.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
+                                                {% if doc_type in ['aadhar_card', 'pan_card'] %}
+                                                <div class="mt-2">
+                                                    <input type="text"
+                                                           class="form-control"
+                                                           name="{{ doc_type }}_number"
+                                                           placeholder="Document Number"
+                                                           {% if documents[doc_type] and documents[doc_type].document_number %}
+                                                                value="{{ documents[doc_type].document_number }}"
+                                                           {% endif %}
+                                                           {% if documents[doc_type] and documents[doc_type].status == 'approved' %}disabled{% endif %}>
                                                 </div>
                                                 {% endif %}
-                                                
-                                                <form action="{{ url_for('upload_aadhar') }}" method="post" enctype="multipart/form-data" class="document-upload-form {% if documents.aadhar %}d-none{% endif %}">
-                                                    {{ aadhar_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ aadhar_form.document_number.label }}
-                                                        {{ aadhar_form.document_number(class="form-control") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ aadhar_form.document_file.label }}
-                                                        {{ aadhar_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF or image (JPG, PNG)</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                                
-                                                {% if documents.aadhar %}
-                                                <button type="button" class="btn btn-outline-secondary btn-sm mt-3 toggle-form-btn">
-                                                    <i class="fas fa-sync-alt mr-1"></i> Replace Document
-                                                </button>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- PAN Card -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.pan %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">PAN Card</h5>
-                                                {% if documents.pan %}
-                                                <span class="badge badge-{{ documents.pan.status }}">
-                                                    {{ documents.pan.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.pan %}
-                                                <div class="document-info">
-                                                    <p><strong>PAN Number:</strong> {{ documents.pan.document_number }}</p>
-                                                    <p><strong>Uploaded:</strong> {{ documents.pan.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.pan.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <form action="{{ url_for('upload_pan') }}" method="post" enctype="multipart/form-data" class="document-upload-form {% if documents.pan %}d-none{% endif %}">
-                                                    {{ pan_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ pan_form.document_number.label }}
-                                                        {{ pan_form.document_number(class="form-control") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ pan_form.document_file.label }}
-                                                        {{ pan_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF or image (JPG, PNG)</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                                
-                                                {% if documents.pan %}
-                                                <button type="button" class="btn btn-outline-secondary btn-sm mt-3 toggle-form-btn">
-                                                    <i class="fas fa-sync-alt mr-1"></i> Replace Document
-                                                </button>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Photo -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.photo %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Passport Size Photo</h5>
-                                                {% if documents.photo %}
-                                                <span class="badge badge-{{ documents.photo.status }}">
-                                                    {{ documents.photo.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.photo %}
-                                                <div class="document-info">
-                                                    <p><strong>Uploaded:</strong> {{ documents.photo.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.photo.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Photo
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <form action="{{ url_for('upload_photo') }}" method="post" enctype="multipart/form-data" class="document-upload-form {% if documents.photo %}d-none{% endif %}">
-                                                    {{ photo_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ photo_form.document_file.label }}
-                                                        {{ photo_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload image (JPG, PNG) - Passport size format</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                                
-                                                {% if documents.photo %}
-                                                <button type="button" class="btn btn-outline-secondary btn-sm mt-3 toggle-form-btn">
-                                                    <i class="fas fa-sync-alt mr-1"></i> Replace Photo
-                                                </button>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Financial Documents Tab -->
-                        <div class="tab-pane fade" id="financial" role="tabpanel">
-                            <div class="document-form-container">
-                                <!-- Bank Passbook/Statement -->
-                                <div class="card document-card mb-4 {% if documents.passbook %}document-complete{% endif %}">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Bank Passbook/Statement</h5>
-                                        {% if documents.passbook %}
-                                        <span class="badge badge-{{ documents.passbook.status }}">
-                                            {{ documents.passbook.status|title }}
-                                        </span>
-                                        {% else %}
-                                        <span class="badge badge-warning">Required</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                {% if documents.passbook %}
-                                                <div class="document-info">
-                                                    <p><strong>Account Number:</strong> {{ documents.passbook.document_number }}</p>
-                                                    <p><strong>Bank Name:</strong> {{ documents.passbook.bank_name }}</p>
-                                                    <p><strong>IFSC Code:</strong> {{ documents.passbook.ifsc_code }}</p>
-                                                    <p><strong>Uploaded:</strong> {{ documents.passbook.upload_date.strftime('%d %b %Y') }}</p>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <form action="{{ url_for('upload_passbook') }}" method="post" enctype="multipart/form-data" class="document-upload-form {% if documents.passbook %}d-none{% endif %}">
-                                                    {{ passbook_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ passbook_form.document_number.label }}
-                                                        {{ passbook_form.document_number(class="form-control") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ passbook_form.bank_name.label }}
-                                                        {{ passbook_form.bank_name(class="form-control") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ passbook_form.ifsc_code.label }}
-                                                        {{ passbook_form.ifsc_code(class="form-control") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ passbook_form.document_file.label }}
-                                                        {{ passbook_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF or image (JPG, PNG)</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                                
-                                                {% if documents.passbook %}
-                                                <button type="button" class="btn btn-outline-secondary btn-sm mt-3 toggle-form-btn">
-                                                    <i class="fas fa-sync-alt mr-1"></i> Replace Document
-                                                </button>
-                                                {% endif %}
-                                            </div>
-                                            
-                                            <div class="col-md-6">
-                                                {% if documents.passbook %}
-                                                <div class="document-preview text-center">
-                                                    <a href="{{ url_for('view_document', document_id=documents.passbook.id) }}" class="btn btn-outline-primary">
-                                                        <i class="fas fa-eye mr-1"></i> View Document
-                                                    </a>
-                                                </div>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                                <small class="form-text text-muted mt-2">
+                                                    {% if documents[doc_type] %}
+                                                        <div class="document-status">
+                                                            <span class="badge bg-{{ 'success' if documents[doc_type].status == 'approved' else 'warning' if documents[doc_type].status == 'pending' else 'danger' }}">
+                                                                {{ documents[doc_type].status|title }}
+                                                            </span>
+                                                        </div>
 
-                        <!-- PF & Nomination Forms Tab -->
-                        <div class="tab-pane fade" id="forms" role="tabpanel">
-                            <div class="document-form-container">
-                                <div class="row">
-                                    <!-- Joining Form -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.joining_form %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">New Joining Application</h5>
-                                                {% if documents.joining_form %}
-                                                <span class="badge badge-{{ documents.joining_form.status }}">
-                                                    {{ documents.joining_form.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.joining_form %}
-                                                <div class="document-info">
-                                                    <p><strong>Uploaded:</strong> {{ documents.joining_form.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.joining_form.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <div class="document-actions">
-                                                    <a href="{{ url_for('fill_joining_form') }}" class="btn btn-primary">
-                                                        <i class="fas fa-pen mr-1"></i> Fill Online Form
-                                                    </a>
-                                                    
-                                                    <button type="button" class="btn btn-link toggle-upload-btn">
-                                                        <i class="fas fa-upload mr-1"></i> Upload Existing PDF
-                                                    </button>
-                                                </div>
-                                                
-                                                <form action="{{ url_for('upload_joining_form') }}" method="post" enctype="multipart/form-data" class="document-upload-form mt-3 d-none">
-                                                    {{ joining_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ joining_form.document_file.label }}
-                                                        {{ joining_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF file only</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- PF Form -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.pf_form %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">PF Form 2 (Revised)</h5>
-                                                {% if documents.pf_form %}
-                                                <span class="badge badge-{{ documents.pf_form.status }}">
-                                                    {{ documents.pf_form.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.pf_form %}
-                                                <div class="document-info">
-                                                    <p><strong>Uploaded:</strong> {{ documents.pf_form.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.pf_form.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <div class="document-actions">
-                                                    <a href="{{ url_for('fill_pf_form') }}" class="btn btn-primary">
-                                                        <i class="fas fa-pen mr-1"></i> Fill Online Form
-                                                    </a>
-                                                    
-                                                    <button type="button" class="btn btn-link toggle-upload-btn">
-                                                        <i class="fas fa-upload mr-1"></i> Upload Existing PDF
-                                                    </button>
-                                                </div>
-                                                
-                                                <form action="{{ url_for('upload_pf_form') }}" method="post" enctype="multipart/form-data" class="document-upload-form mt-3 d-none">
-                                                    {{ pf_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ pf_form.document_file.label }}
-                                                        {{ pf_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF file only</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Form 1 -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.form1 %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Form 1 (Nomination & Declaration)</h5>
-                                                {% if documents.form1 %}
-                                                <span class="badge badge-{{ documents.form1.status }}">
-                                                    {{ documents.form1.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.form1 %}
-                                                <div class="document-info">
-                                                    <p><strong>Uploaded:</strong> {{ documents.form1.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.form1.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <div class="document-actions">
-                                                    <a href="{{ url_for('fill_form1') }}" class="btn btn-primary">
-                                                        <i class="fas fa-pen mr-1"></i> Fill Online Form
-                                                    </a>
-                                                    
-                                                    <button type="button" class="btn btn-link toggle-upload-btn">
-                                                        <i class="fas fa-upload mr-1"></i> Upload Existing PDF
-                                                    </button>
-                                                </div>
-                                                
-                                                <form action="{{ url_for('upload_form1') }}" method="post" enctype="multipart/form-data" class="document-upload-form mt-3 d-none">
-                                                    {{ form1_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ form1_form.document_file.label }}
-                                                        {{ form1_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF file only</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Form 11 -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.form11 %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Form 11 (Revised)</h5>
-                                                {% if documents.form11 %}
-                                                <span class="badge badge-{{ documents.form11.status }}">
-                                                    {{ documents.form11.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.form11 %}
-                                                <div class="document-info">
-                                                    <p><strong>Uploaded:</strong> {{ documents.form11.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.form11.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <div class="document-actions">
-                                                    <a href="{{ url_for('fill_form11') }}" class="btn btn-primary">
-                                                        <i class="fas fa-pen mr-1"></i> Fill Online Form
-                                                    </a>
-                                                    
-                                                    <button type="button" class="btn btn-link toggle-upload-btn">
-                                                        <i class="fas fa-upload mr-1"></i> Upload Existing PDF
-                                                    </button>
-                                                </div>
-                                                
-                                                <form action="{{ url_for('upload_form11') }}" method="post" enctype="multipart/form-data" class="document-upload-form mt-3 d-none">
-                                                    {{ form11_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ form11_form.document_file.label }}
-                                                        {{ form11_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF file only</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Verification Documents Tab -->
-                        <div class="tab-pane fade" id="verification" role="tabpanel">
-                            <div class="document-form-container">
-                                <div class="row">
-                                    <!-- Police Verification -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.police_verification %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Police Verification</h5>
-                                                {% if documents.police_verification %}
-                                                <span class="badge badge-{{ documents.police_verification.status }}">
-                                                    {{ documents.police_verification.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.police_verification %}
-                                                <div class="document-info">
-                                                    {% if documents.police_verification.document_number %}
-                                                    <p><strong>Certificate Number:</strong> {{ documents.police_verification.document_number }}</p>
+                                                        Current file: {{ documents[doc_type].document_name or documents[doc_type].document_type|replace('_', ' ')|title }}
+                                                        {% set file_path = documents[doc_type].file_path or documents[doc_type].get_file_path_from_description() %}
+                                                        {% if file_path %}
+                                                            {% set ext = file_path.split('.')[-1].lower() %}
+                                                            {% if ext in ['jpg', 'jpeg', 'png'] %}
+                                                                <div class="mt-2">
+                                                                    {% if 'static/' in file_path %}
+                                                                        <img src="{{ url_for('static', filename=file_path.split('static/')[-1]) }}" alt="Document Image" style="max-width: 100px; max-height: 100px; margin-top: 5px; border: 1px solid #ddd; padding: 2px;">
+                                                                    {% else %}
+                                                                        <img src="{{ url_for('static', filename=file_path) }}" alt="Document Image" style="max-width: 100px; max-height: 100px; margin-top: 5px; border: 1px solid #ddd; padding: 2px;">
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endif %}
                                                     {% endif %}
-                                                    {% if documents.police_verification.issue_date %}
-                                                    <p><strong>Issue Date:</strong> {{ documents.police_verification.issue_date.strftime('%d %b %Y') }}</p>
-                                                    {% endif %}
-                                                    <p><strong>Uploaded:</strong> {{ documents.police_verification.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.police_verification.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <form action="{{ url_for('upload_police_verification') }}" method="post" enctype="multipart/form-data" class="document-upload-form {% if documents.police_verification %}d-none{% endif %}">
-                                                    {{ police_verification_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ police_verification_form.document_number.label }}
-                                                        {{ police_verification_form.document_number(class="form-control") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ police_verification_form.issue_date.label }}
-                                                        {{ police_verification_form.issue_date(class="form-control", type="date") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ police_verification_form.document_file.label }}
-                                                        {{ police_verification_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF or image (JPG, PNG)</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                                
-                                                {% if documents.police_verification %}
-                                                <button type="button" class="btn btn-outline-secondary btn-sm mt-3 toggle-form-btn">
-                                                    <i class="fas fa-sync-alt mr-1"></i> Replace Document
-                                                </button>
-                                                {% endif %}
+                                                </small>
                                             </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Medical Certificate -->
-                                    <div class="col-md-6">
-                                        <div class="card document-card mb-4 {% if documents.medical_certificate %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Medical Certificate</h5>
-                                                {% if documents.medical_certificate %}
-                                                <span class="badge badge-{{ documents.medical_certificate.status }}">
-                                                    {{ documents.medical_certificate.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.medical_certificate %}
-                                                <div class="document-info">
-                                                    {% if documents.medical_certificate.issue_date %}
-                                                    <p><strong>Issue Date:</strong> {{ documents.medical_certificate.issue_date.strftime('%d %b %Y') }}</p>
-                                                    {% endif %}
-                                                    {% if documents.medical_certificate.expiry_date %}
-                                                    <p><strong>Valid Until:</strong> {{ documents.medical_certificate.expiry_date.strftime('%d %b %Y') }}</p>
-                                                    {% endif %}
-                                                    <p><strong>Uploaded:</strong> {{ documents.medical_certificate.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.medical_certificate.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <form action="{{ url_for('upload_medical_certificate') }}" method="post" enctype="multipart/form-data" class="document-upload-form {% if documents.medical_certificate %}d-none{% endif %}">
-                                                    {{ medical_certificate_form.hidden_tag() }}
-                                                    
-                                                    <div class="form-group">
-                                                        {{ medical_certificate_form.issue_date.label }}
-                                                        {{ medical_certificate_form.issue_date(class="form-control", type="date") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ medical_certificate_form.expiry_date.label }}
-                                                        {{ medical_certificate_form.expiry_date(class="form-control", type="date") }}
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        {{ medical_certificate_form.document_file.label }}
-                                                        {{ medical_certificate_form.document_file(class="form-control-file") }}
-                                                        <small class="form-text text-muted">Upload PDF or image (JPG, PNG)</small>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                                </form>
-                                                
-                                                {% if documents.medical_certificate %}
-                                                <button type="button" class="btn btn-outline-secondary btn-sm mt-3 toggle-form-btn">
-                                                    <i class="fas fa-sync-alt mr-1"></i> Replace Document
-                                                </button>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Family Details -->
-                                    <div class="col-md-12">
-                                        <div class="card document-card mb-4 {% if documents.family_details %}document-complete{% endif %}">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Family Details</h5>
-                                                {% if documents.family_details %}
-                                                <span class="badge badge-{{ documents.family_details.status }}">
-                                                    {{ documents.family_details.status|title }}
-                                                </span>
-                                                {% else %}
-                                                <span class="badge badge-warning">Required</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                {% if documents.family_details %}
-                                                <div class="document-info">
-                                                    <p><strong>Uploaded:</strong> {{ documents.family_details.upload_date.strftime('%d %b %Y') }}</p>
-                                                    <div class="document-preview mb-3">
-                                                        <a href="{{ url_for('view_document', document_id=documents.family_details.id) }}" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye mr-1"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <div class="document-actions">
-                                                    <a href="{{ url_for('manage_family_members') }}" class="btn btn-primary">
-                                                        <i class="fas fa-users mr-1"></i> Manage Family Members
+
+                                            <div class="mt-2">
+                                                {% if documents[doc_type] %}
+                                                    <a href="{{ url_for('main.view_document', document_id=documents[doc_type].id) }}"
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i> View Document
                                                     </a>
-                                                </div>
-                                                
-                                                {% if family_members %}
-                                                <div class="family-members-list mt-4">
-                                                    <h6>Added Family Members</h6>
-                                                    <div class="table-responsive">
-                                                        <table class="table table-sm table-hover">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Name</th>
-                                                                    <th>Relationship</th>
-                                                                    <th>Date of Birth</th>
-                                                                    <th>Aadhar ID</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {% for member in family_members %}
-                                                                <tr>
-                                                                    <td>{{ member.name }}</td>
-                                                                    <td>{{ member.relationship|title }}</td>
-                                                                    <td>{{ member.date_of_birth.strftime('%d %b %Y') if member.date_of_birth else 'Not provided' }}</td>
-                                                                    <td>{{ member.aadhar_id if member.aadhar_id else 'Not provided' }}</td>
-                                                                </tr>
-                                                                {% endfor %}
-                                                            </tbody>
-                                                        </table>
+
+                                                    {% if documents[doc_type].status == 'rejected' %}
+                                                    <div class="alert alert-danger mt-2 mb-0 p-2 small">
+                                                        <i class="fas fa-exclamation-circle"></i> This document was rejected. Please upload a new version.
                                                     </div>
-                                                </div>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                {% endfor %}
                             </div>
-                        </div>
-                        
-                        <!-- Combined Preview Tab -->
-                        <div class="tab-pane fade" id="preview" role="tabpanel">
-                            <div class="document-preview-container">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="card mb-4">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Combined Document Preview</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <p>Generate a combined PDF of all your submitted documents. This will create a single file containing all your documents in the following order:</p>
-                                                <ol>
-                                                    <li>New Joining Application</li>
-                                                    <li>PF Form 2 (Revised)</li>
-                                                    <li>Form 1 (Nomination & Declaration)</li>
-                                                    <li>Form 11 (Revised)</li>
-                                                    <li>Identity Documents (Aadhar, PAN)</li>
-                                                    <li>Bank Details</li>
-                                                    <li>Verification Documents</li>
-                                                </ol>
-                                                
-                                                <div class="text-center mt-4">
-                                                    <a href="{{ url_for('generate_combined_documents') }}" class="btn btn-primary" {% if completion_percentage < 100 %}disabled{% endif %}>
-                                                        <i class="fas fa-file-pdf mr-1"></i> Generate Combined PDF
-                                                    </a>
-                                                    
-                                                    {% if completion_percentage < 100 %}
-                                                    <div class="text-warning mt-2">
-                                                        <small>Upload all required documents to generate preview</small>
-                                                    </div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">Download Options</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="download-options">
-                                                    <a href="{{ url_for('download_all_documents') }}" class="btn btn-outline-primary btn-block mb-2">
-                                                        <i class="fas fa-download mr-1"></i> Download All Documents (ZIP)
-                                                    </a>
-                                                    
-                                                    <a href="{{ url_for('download_form_package') }}" class="btn btn-outline-primary btn-block">
-                                                        <i class="fas fa-file-archive mr-1"></i> Download Form Package
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-8">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">PDF Preview</h5>
-                                            </div>
-                                            <div class="card-body p-0">
-                                                <div class="pdf-preview-container">
-                                                    {% if has_combined_pdf %}
-                                                    <iframe src="{{ url_for('preview_combined_pdf') }}" class="pdf-preview-frame" frameborder="0"></iframe>
-                                                    {% else %}
-                                                    <div class="no-preview-message">
-                                                        <i class="fas fa-file-pdf preview-icon"></i>
-                                                        <p>No preview available. Generate a combined PDF to view here.</p>
-                                                    </div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-primary" id="uploadButton">
+                                    <i class="fas fa-upload"></i> Upload Documents
+                                </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Document Preview Modal -->
+<div class="modal fade" id="documentPreviewModal" tabindex="-1" role="dialog" aria-labelledby="documentPreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="documentPreviewModalLabel">Document Preview</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="documentPreviewContent" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="documentStatus" class="mr-auto"></div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="#" id="documentDownloadLink" class="btn btn-primary" download>
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    /* Document Center Styles */
-    .document-progress {
-        text-align: center;
-    }
-    
-    .progress-circle {
-        position: relative;
-        display: inline-block;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background-color: #f5f5f5;
-        box-shadow: inset 0 0 0 6px #e9ecef;
-    }
-    
-    .progress-circle:after {
-        content: '';
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        background-color: white;
-    }
-    
-    .progress-circle:before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: conic-gradient(#4299E1 calc(var(--percentage, 0) * 1%), transparent 0);
-    }
-    
-    .progress-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1;
-        font-size: 18px;
-        font-weight: bold;
-        color: #2D3748;
-    }
-    
-    .document-status-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
-    }
-    
-    .status-item {
-        display: flex;
-        align-items: center;
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 5px;
-    }
-    
-    .status-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 10px;
-    }
-    
-    .status-complete {
-        background-color: #48BB78;
-        color: white;
-    }
-    
-    .status-pending {
-        background-color: #ECC94B;
-        color: white;
-    }
-    
-    .status-text {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .status-name {
-        font-weight: 500;
-        font-size: 14px;
-    }
-    
-    .status-label {
-        font-size: 12px;
-    }
-    
-    .document-card {
-        height: 100%;
-        transition: all 0.3s ease;
-    }
-    
-    .document-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .document-complete {
-        border-left: 4px solid #48BB78;
-    }
-    
-    .document-card .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .badge-pending {
-        background-color: #ECC94B;
-        color: #744210;
-    }
-    
-    .badge-approved {
-        background-color: #48BB78;
-        color: #22543D;
-    }
-    
-    .badge-rejected {
-        background-color: #F56565;
-        color: #742A2A;
-    }
-    
-    .document-preview {
-        margin-top: 20px;
-    }
-    
-    .pdf-preview-container {
-        height: 600px;
-        background-color: #f5f5f5;
-        border-radius: 0 0 5px 5px;
-        overflow: hidden;
-    }
-    
-    .pdf-preview-frame {
-        width: 100%;
-        height: 100%;
-        border: none;
-    }
-    
-    .no-preview-message {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: #718096;
-    }
-    
-    .preview-icon {
-        font-size: 48px;
-        margin-bottom: 15px;
-        color: #CBD5E0;
-    }
-    
-    /* Form Toggle Buttons */
-    .toggle-form-btn, .toggle-upload-btn {
-        cursor: pointer;
-    }
-    
-    /* Tab Navigation Styles */
-    .nav-tabs .nav-link {
-        color: #4A5568;
-        border: none;
-        border-bottom: 2px solid transparent;
-        padding: 10px 15px;
-    }
-    
-    .nav-tabs .nav-link.active {
-        color: #2C5282;
-        border-bottom: 2px solid #2C5282;
-        background-color: transparent;
-    }
-    
-    .nav-tabs .nav-link:hover {
-        border-color: transparent;
-        border-bottom: 2px solid #CBD5E0;
-    }
-    
-    /* Family Members List */
-    .family-members-list {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-    }
-    
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .document-status-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        }
-        
-        .pdf-preview-container {
-            height: 400px;
-        }
-    }
-</style>
-{% endblock %}
-
-{% block extra_js %}
+{% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set progress circle percentage
-    const progressCircle = document.querySelector('.progress-circle');
-    if (progressCircle) {
-        const percentage = progressCircle.getAttribute('data-percentage');
-        progressCircle.style.setProperty('--percentage', percentage);
+    // File size validation
+    const fileInputs = document.querySelectorAll('.document-upload');
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const maxSize = parseInt(this.dataset.maxSize);
+            if (this.files[0] && this.files[0].size > maxSize) {
+                alert('File size exceeds 5MB limit');
+                this.value = '';
+            }
+        });
+    });
+
+    // Document preview
+    const previewButtons = document.querySelectorAll('.preview-document');
+    const viewDocumentLinks = document.querySelectorAll('a[href*="view_document"]');
+
+    // Function to handle document preview
+    function showDocumentPreview(documentId) {
+        const modal = document.getElementById('documentPreviewModal');
+        const previewContent = document.getElementById('documentPreviewContent');
+        const documentStatus = document.getElementById('documentStatus');
+        const downloadLink = document.getElementById('documentDownloadLink');
+
+        // Show loading spinner
+        previewContent.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>';
+
+        // Fetch document preview
+        fetch(`/employee/document-preview/${documentId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.preview_url) {
+                    // Set download link
+                    downloadLink.href = data.preview_url;
+                    downloadLink.setAttribute('download', data.document_name || 'document');
+
+                    // Set status badge
+                    let statusClass = 'secondary';
+                    if (data.status === 'approved') statusClass = 'success';
+                    else if (data.status === 'pending') statusClass = 'warning';
+                    else if (data.status === 'rejected') statusClass = 'danger';
+
+                    documentStatus.innerHTML = `<span class="badge bg-${statusClass}">${data.status.toUpperCase()}</span>`;
+
+                    // Display content based on content type
+                    if (data.content_type && data.content_type.startsWith('image/')) {
+                        previewContent.innerHTML = `<img src="${data.preview_url}" style="max-width:100%; max-height:500px;" alt="Document Preview">`;
+                    } else {
+                        previewContent.innerHTML = `<iframe src="${data.preview_url}" style="width:100%;height:500px;" frameborder="0"></iframe>`;
+                    }
+                } else {
+                    previewContent.innerHTML = '<div class="alert alert-warning">Preview not available</div>';
+                    documentStatus.innerHTML = '';
+                    downloadLink.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading preview:', error);
+                previewContent.innerHTML = '<div class="alert alert-danger">Error loading preview</div>';
+                documentStatus.innerHTML = '';
+                downloadLink.style.display = 'none';
+            });
+
+        $(modal).modal('show');
     }
-    
-    // Toggle document upload forms
-    const toggleFormBtns = document.querySelectorAll('.toggle-form-btn');
-    toggleFormBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const card = this.closest('.card-body');
-            const form = card.querySelector('.document-upload-form');
-            const info = card.querySelector('.document-info');
-            
-            if (form.classList.contains('d-none')) {
-                form.classList.remove('d-none');
-                if (info) info.classList.add('d-none');
-                btn.innerHTML = '<i class="fas fa-times mr-1"></i> Cancel';
-            } else {
-                form.classList.add('d-none');
-                if (info) info.classList.remove('d-none');
-                btn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Replace Document';
-            }
+
+    // Add click handlers for preview buttons
+    previewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const documentId = this.dataset.documentId;
+            showDocumentPreview(documentId);
         });
     });
-    
-    // Toggle upload vs online form options
-    const toggleUploadBtns = document.querySelectorAll('.toggle-upload-btn');
-    toggleUploadBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const card = this.closest('.card-body');
-            const form = card.querySelector('.document-upload-form');
-            
-            if (form.classList.contains('d-none')) {
-                form.classList.remove('d-none');
-                btn.innerHTML = '<i class="fas fa-times mr-1"></i> Hide Upload Form';
-            } else {
-                form.classList.add('d-none');
-                btn.innerHTML = '<i class="fas fa-upload mr-1"></i> Upload Existing PDF';
+
+    // Let view document links go to the full page view
+    viewDocumentLinks.forEach(link => {
+        // No need to prevent default - let the links work normally to go to the full page view
+    });
+
+    // Form submission with loading state
+    const form = document.getElementById('documentUploadForm');
+    const uploadButton = document.getElementById('uploadButton');
+
+    form.addEventListener('submit', function(e) {
+        // Check if any files are selected
+        let filesSelected = false;
+
+        // Debug: Log all file inputs
+        console.log('Checking file inputs...');
+
+        fileInputs.forEach(input => {
+            console.log(`Input name: ${input.name}, Has files: ${input.files && input.files.length > 0}`);
+            if (input.files && input.files.length > 0) {
+                filesSelected = true;
             }
         });
-    });
-    
-    // Handle tab navigation
-    const tabLinks = document.querySelectorAll('.nav-link');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-    
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+
+        console.log('Files selected:', filesSelected);
+
+        if (!filesSelected) {
             e.preventDefault();
-            
-            // Remove active class from all tabs
-            tabLinks.forEach(tab => tab.classList.remove('active'));
-            tabPanes.forEach(pane => pane.classList.remove('show', 'active'));
-            
-            // Add active class to current tab
-            this.classList.add('active');
-            const targetId = this.getAttribute('href').substring(1);
-            document.getElementById(targetId).classList.add('show', 'active');
-        });
+            alert('Please select at least one file to upload.');
+            return;
+        }
+
+        // If we get here, at least one file was selected
+        console.log('Form submission proceeding with files');
+        uploadButton.disabled = true;
+        uploadButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Uploading...';
     });
 });
 </script>

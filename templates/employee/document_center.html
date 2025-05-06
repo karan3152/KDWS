@@ -1,26 +1,55 @@
 {% extends "base.html" %}
 
-{% block title %}Document Center - HR Talent Solutions{% endblock %}
+{% block title %}
+    {% if current_user.is_employer() %}
+        {{ employee.first_name }} {{ employee.last_name }}'s Documents
+    {% else %}
+        Document Center - KDWS
+    {% endif %}
+{% endblock %}
+
+{% block head %}
+<!-- Add session timeout meta tag for JavaScript to read -->
+{% if current_user.is_employee() %}
+<meta name="session-timeout" content="{{ config.PERMANENT_SESSION_LIFETIME.total_seconds()|int }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h2 class="page-title mb-0">Document Center</h2>
-                <div class="progress-container">
-                    <div class="progress" style="height: 10px; width: 200px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ completion_percentage }}%;" 
-                            aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                {% if current_user.is_employer() %}
+                    <div>
+                        <h2 class="page-title mb-0">{{ employee.first_name }} {{ employee.last_name }}'s Documents</h2>
+                        <p class="text-muted small">View and manage employee documents</p>
                     </div>
-                    <div class="small text-muted text-center">{{ completion_percentage }}% Complete</div>
-                </div>
+                    <div>
+                    <a href="{{ url_for('main.view_employee_profile', employee_id=employee.id) }}" class="btn btn-primary">
+                            <i class="fas fa-user"></i> View Profile
+                        </a>
+                        <a href="{{ url_for('main.employer_employees') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Employee List
+                        </a>
+                    </div>
+                {% else %}
+                    <h2 class="page-title mb-0">Document Center</h2>
+                    <div class="progress-container">
+                        <div class="progress" style="height: 10px; width: 200px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ completion_percentage }}%;"
+                                aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="small text-muted text-center">{{ completion_percentage }}% Complete</div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Status Banner -->
-    {% if completion_percentage < 100 %}
+    {% if completion_percentage < 100 and not current_user.is_employer() %}
     <div class="alert alert-warning">
         <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Document Submission Incomplete</h5>
         <p class="mb-0">Please complete all required document submissions to finalize your onboarding process.</p>
@@ -32,7 +61,7 @@
         </ul>
         {% endif %}
     </div>
-    {% else %}
+    {% elif completion_percentage == 100 and not current_user.is_employer() %}
     <div class="alert alert-success">
         <h5 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Document Submission Complete</h5>
         <p class="mb-0">All required documents have been submitted. You can download the combined documents package below.</p>
@@ -40,6 +69,7 @@
     {% endif %}
 
     <!-- Quick Actions -->
+    {% if not current_user.is_employer() %}
     <div class="row mb-4">
         <div class="col-md-6 col-lg-3 mb-3">
             <div class="card h-100">
@@ -53,7 +83,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6 col-lg-3 mb-3">
             <div class="card h-100">
                 <div class="card-body text-center">
@@ -66,20 +96,20 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6 col-lg-3 mb-3">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-users fa-3x text-success mb-3"></i>
                     <h5>Family Members</h5>
                     <p class="small text-muted">Add or manage your family details</p>
-                    <a href="{{ url_for('manage_family_members') }}" class="btn btn-sm btn-success w-100">
-                        Manage Family
-                    </a>
+<a href="{{ url_for('main.manage_family_members') }}" class="btn btn-sm btn-success w-100">
+    Manage Family
+</a>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6 col-lg-3 mb-3">
             <div class="card h-100">
                 <div class="card-body text-center">
@@ -87,17 +117,68 @@
                     <h5>Download Documents</h5>
                     <p class="small text-muted">Get combined documents package</p>
                     <div class="btn-group w-100">
-                        <a href="{{ url_for('download_all_documents') }}" class="btn btn-sm btn-info">ZIP Package</a>
+                        <a href="{{ url_for('main.download_all_documents') }}" class="btn btn-sm btn-info">ZIP Package</a>
                         {% if has_combined_pdf %}
-                        <a href="{{ url_for('preview_combined_pdf') }}" target="_blank" class="btn btn-sm btn-outline-info">Preview PDF</a>
+<a href="{{ url_for('main.preview_combined_pdf') }}" target="_blank" class="btn btn-sm btn-outline-info">Preview PDF</a>
                         {% else %}
-                        <a href="{{ url_for('generate_combined_documents') }}" class="btn btn-sm btn-outline-info">Generate PDF</a>
+                        <a href="{{ url_for('main.generate_combined_documents') }}" class="btn btn-sm btn-outline-info">Generate PDF</a>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                    <h5>Delete All Documents</h5>
+                    <p class="small text-muted">Remove all documents to start fresh</p>
+                    <a href="{{ url_for('document_management.confirm_delete_all_documents') }}" class="btn btn-sm btn-danger w-100">
+                        Delete All
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
+    {% else %}
+    <!-- Employer Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-download text-primary me-2"></i>Download Documents</h5>
+                    <p class="small text-muted mb-3">Download all documents for this employee</p>
+                    <div class="btn-group">
+<a href="{{ url_for('main.download_all_documents', employee_id=employee.id) }}" class="btn btn-primary">
+                            <i class="fas fa-file-archive me-1"></i> ZIP Package
+                        </a>
+                        {% if has_combined_pdf %}
+<a href="{{ url_for('main.preview_combined_pdf') }}" target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-file-pdf me-1"></i> View PDF
+                        </a>
+                        {% else %}
+<a href="{{ url_for('main.generate_combined_documents', employee_id=employee.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-file-pdf me-1"></i> Generate PDF
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-users text-success me-2"></i>Family Information</h5>
+                    <p class="small text-muted mb-3">View employee's family members</p>
+<a href="{{ url_for('main.manage_family_members') }}" class="btn btn-success">
+                        <i class="fas fa-users me-1"></i> View Family Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Document Sections -->
     <div class="row">
@@ -131,13 +212,23 @@
                                 <td>{{ documents[doc_type].uploaded_at.strftime('%d %b %Y') }}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('view_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-primary">
+<a href="{{ url_for('main.view_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-primary">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        {% if documents[doc_type].status != 'approved' %}
-                                        <button type="button" class="btn btn-outline-danger" 
+                                        {% if documents[doc_type].status != 'approved' and not current_user.is_employer() %}
+                                        <button type="button" class="btn btn-outline-danger"
                                             onclick="confirmReplace('{{ doc_type }}', '{{ documents[doc_type].id }}')">
                                             <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                        {% endif %}
+                                        {% if current_user.is_employer() and documents[doc_type].status == 'pending' %}
+                                        <form action="{{ url_for('main.approve_document', document_id=documents[doc_type].id) }}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-outline-success" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-outline-danger" title="Reject" data-bs-toggle="modal" data-bs-target="#rejectDocumentModal" data-document-id="{{ documents[doc_type].id }}">
+                                            <i class="fas fa-times"></i>
                                         </button>
                                         {% endif %}
                                     </div>
@@ -146,10 +237,14 @@
                                 <td><span class="status-badge status-missing">Missing</span></td>
                                 <td>--</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-primary" 
+                                    {% if not current_user.is_employer() %}
+                                    <button type="button" class="btn btn-sm btn-primary"
                                         onclick="uploadDocument('{{ doc_type }}')">
                                         <i class="fas fa-upload"></i> Upload
                                     </button>
+                                    {% else %}
+                                    <span class="text-muted">Not uploaded</span>
+                                    {% endif %}
                                 </td>
                                 {% endif %}
                             </tr>
@@ -160,7 +255,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Bank Documents -->
         <div class="col-lg-6 mb-4">
             <div class="card">
@@ -191,14 +286,22 @@
                                 <td>{{ documents[doc_type].uploaded_at.strftime('%d %b %Y') }}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('view_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-success">
+<a href="{{ url_for('main.view_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-success">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        {% if documents[doc_type].status != 'approved' %}
-                                        <button type="button" class="btn btn-outline-danger"  
+                                        {% if documents[doc_type].status != 'approved' and not current_user.is_employer() %}
+                                        <button type="button" class="btn btn-outline-danger"
                                             onclick="confirmReplace('{{ doc_type }}', '{{ documents[doc_type].id }}')">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
+                                        {% endif %}
+                                        {% if current_user.is_employer() and documents[doc_type].status == 'pending' %}
+                                        <a href="{{ url_for('main.approve_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-success">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a href="{{ url_for('main.reject_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-danger">
+                                            <i class="fas fa-times"></i>
+                                        </a>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -206,10 +309,14 @@
                                 <td><span class="status-badge status-missing">Missing</span></td>
                                 <td>--</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-success" 
+                                    {% if not current_user.is_employer() %}
+                                    <button type="button" class="btn btn-sm btn-success"
                                         onclick="uploadDocument('{{ doc_type }}')">
                                         <i class="fas fa-upload"></i> Upload
                                     </button>
+                                    {% else %}
+                                    <span class="text-muted">Not uploaded</span>
+                                    {% endif %}
                                 </td>
                                 {% endif %}
                             </tr>
@@ -220,7 +327,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- PF Forms -->
         <div class="col-lg-12 mb-4">
             <div class="card">
@@ -249,13 +356,13 @@
                                 </td>
                                 <td>{{ documents['new_joining_form'].uploaded_at.strftime('%d %b %Y') }}</td>
                                 <td>
-                                    <a href="{{ url_for('fill_joining_form') }}" class="btn btn-sm btn-outline-info">
+<a href="{{ url_for('main.fill_joining_form') }}" class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-edit"></i> Edit Form
                                     </a>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('view_document', document_id=documents['new_joining_form'].id) }}" class="btn btn-outline-info">
+<a href="{{ url_for('main.view_document', document_id=documents['new_joining_form'].id) }}" class="btn btn-outline-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </div>
@@ -264,14 +371,14 @@
                                 <td><span class="status-badge status-missing">Missing</span></td>
                                 <td>--</td>
                                 <td>
-                                    <a href="{{ url_for('fill_joining_form') }}" class="btn btn-sm btn-info">
+<a href="{{ url_for('main.fill_joining_form') }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-edit"></i> Fill Online
                                     </a>
                                 </td>
                                 <td>--</td>
                                 {% endif %}
                             </tr>
-                            
+
                             <tr>
                                 <td>PF Form 2 (Revised)</td>
                                 {% if documents['pf_form'] %}
@@ -282,13 +389,13 @@
                                 </td>
                                 <td>{{ documents['pf_form'].uploaded_at.strftime('%d %b %Y') }}</td>
                                 <td>
-                                    <a href="{{ url_for('fill_pf_form') }}" class="btn btn-sm btn-outline-info">
+<a href="{{ url_for('main.fill_pf_form') }}" class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-edit"></i> Edit Form
                                     </a>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('view_document', document_id=documents['pf_form'].id) }}" class="btn btn-outline-info">
+<a href="{{ url_for('main.view_document', document_id=documents['pf_form'].id) }}" class="btn btn-outline-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </div>
@@ -297,14 +404,14 @@
                                 <td><span class="status-badge status-missing">Missing</span></td>
                                 <td>--</td>
                                 <td>
-                                    <a href="{{ url_for('fill_pf_form') }}" class="btn btn-sm btn-info">
+<a href="{{ url_for('main.fill_pf_form') }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-edit"></i> Fill Online
                                     </a>
                                 </td>
                                 <td>--</td>
                                 {% endif %}
                             </tr>
-                            
+
                             <tr>
                                 <td>Form 1 (Nomination & Declaration)</td>
                                 {% if documents['form_1_nomination'] %}
@@ -315,13 +422,13 @@
                                 </td>
                                 <td>{{ documents['form_1_nomination'].uploaded_at.strftime('%d %b %Y') }}</td>
                                 <td>
-                                    <a href="{{ url_for('fill_form1') }}" class="btn btn-sm btn-outline-info">
+<a href="{{ url_for('main.fill_form1') }}" class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-edit"></i> Edit Form
                                     </a>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('view_document', document_id=documents['form_1_nomination'].id) }}" class="btn btn-outline-info">
+<a href="{{ url_for('main.view_document', document_id=documents['form_1_nomination'].id) }}" class="btn btn-outline-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </div>
@@ -330,14 +437,14 @@
                                 <td><span class="status-badge status-missing">Missing</span></td>
                                 <td>--</td>
                                 <td>
-                                    <a href="{{ url_for('fill_form1') }}" class="btn btn-sm btn-info">
+<a href="{{ url_for('main.fill_form1') }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-edit"></i> Fill Online
                                     </a>
                                 </td>
                                 <td>--</td>
                                 {% endif %}
                             </tr>
-                            
+
                             <tr>
                                 <td>Form 11 (Revised)</td>
                                 {% if documents['form_11'] %}
@@ -348,13 +455,13 @@
                                 </td>
                                 <td>{{ documents['form_11'].uploaded_at.strftime('%d %b %Y') }}</td>
                                 <td>
-                                    <a href="{{ url_for('fill_form11') }}" class="btn btn-sm btn-outline-info">
+                                    <a href="{{ url_for('main.fill_form11') }}" class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-edit"></i> Edit Form
                                     </a>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('view_document', document_id=documents['form_11'].id) }}" class="btn btn-outline-info">
+<a href="{{ url_for('main.view_document', document_id=documents['form_11'].id) }}" class="btn btn-outline-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </div>
@@ -363,7 +470,7 @@
                                 <td><span class="status-badge status-missing">Missing</span></td>
                                 <td>--</td>
                                 <td>
-                                    <a href="{{ url_for('fill_form11') }}" class="btn btn-sm btn-info">
+                                    <a href="{{ url_for('main.fill_form11') }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-edit"></i> Fill Online
                                     </a>
                                 </td>
@@ -375,7 +482,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Other Documents -->
         <div class="col-lg-12 mb-4">
             <div class="card">
@@ -394,7 +501,7 @@
                         </thead>
                         <tbody>
                             {% for doc_type in document_types %}
-                            {% if doc_type not in ['aadhar_card', 'pan_card', 'passport', 'photo', 'bank_passbook', 'cancelled_cheque', 
+                            {% if doc_type not in ['aadhar_card', 'pan_card', 'passport', 'photo', 'bank_passbook', 'cancelled_cheque',
                                 'new_joining_form', 'pf_form', 'form_11', 'form_1_nomination'] %}
                             <tr>
                                 <td>{{ doc_type|replace('_',' ')|title }}</td>
@@ -407,11 +514,11 @@
                                 <td>{{ documents[doc_type].uploaded_at.strftime('%d %b %Y') }}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('view_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-secondary">
+                                        <a href="{{ url_for('main.view_document', document_id=documents[doc_type].id) }}" class="btn btn-outline-secondary">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         {% if documents[doc_type].status != 'approved' %}
-                                        <button type="button" class="btn btn-outline-danger" 
+                                        <button type="button" class="btn btn-outline-danger"
                                             onclick="confirmReplace('{{ doc_type }}', '{{ documents[doc_type].id }}')">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
@@ -422,7 +529,7 @@
                                 <td><span class="status-badge status-missing">Missing</span></td>
                                 <td>--</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-secondary" 
+                                    <button type="button" class="btn btn-sm btn-secondary"
                                         onclick="uploadDocument('{{ doc_type }}')">
                                         <i class="fas fa-upload"></i> Upload
                                     </button>
@@ -444,7 +551,7 @@
             <div class="card">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-users me-2"></i>Family Members</h5>
-                    <a href="{{ url_for('manage_family_members') }}" class="btn btn-sm btn-light">
+<a href="{{ url_for('main.manage_family_members') }}" class="btn btn-sm btn-light">
                         <i class="fas fa-plus"></i> Add Family Member
                     </a>
                 </div>
@@ -455,9 +562,8 @@
                                 <th>Name</th>
                                 <th>Relationship</th>
                                 <th>Date of Birth</th>
-                                <th>Aadhar Number</th>
                                 <th>Contact Number</th>
-                                <th>Photo</th>
+                                <th>Nominee</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -478,10 +584,10 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('manage_family_members') }}?edit={{ member.id }}" class="btn btn-outline-primary">
+<a href="{{ url_for('main.manage_family_members') }}?edit={{ member.id }}" class="btn btn-outline-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-outline-danger" 
+                                        <button type="button" class="btn btn-outline-danger"
                                             onclick="confirmRemoveFamilyMember('{{ member.id }}', '{{ member.name }}')">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -491,9 +597,9 @@
                             {% endfor %}
                             {% else %}
                             <tr>
-                                <td colspan="6" class="text-center py-4">
+                                <td colspan="7" class="text-center py-4">
                                     <p class="text-muted mb-0">No family members added yet.</p>
-                                    <a href="{{ url_for('manage_family_members') }}" class="btn btn-sm btn-primary mt-2">
+<a href="{{ url_for('main.manage_family_members') }}" class="btn btn-sm btn-primary mt-2">
                                         <i class="fas fa-plus"></i> Add Family Member
                                     </a>
                                 </td>
@@ -515,7 +621,7 @@
                 <h5 class="modal-title" id="uploadDocumentModalLabel">Upload Document</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ url_for('upload_document') }}" method="post" enctype="multipart/form-data">
+<form action="{{ url_for('main.upload_document') }}" method="post" enctype="multipart/form-data" id="uploadForm">
                 {{ upload_form.hidden_tag() }}
                 <div class="modal-body">
                     <div class="mb-3">
@@ -524,17 +630,18 @@
                     </div>
                     <div class="mb-3">
                         <label for="file" class="form-label">Document File (PDF, JPG, PNG)</label>
-                        {{ upload_form.file(class="form-control", id="file") }}
+                        {{ upload_form.document(class="form-control", id="file", onchange="checkFileSelected()") }}
                         <div class="form-text">Maximum file size: 5MB</div>
+                        <div id="fileError" class="text-danger" style="display: none;">Please select a file to upload</div>
                     </div>
                     <div class="mb-3">
-                        <label for="notes" class="form-label">Notes (Optional)</label>
-                        {{ upload_form.notes(class="form-control", id="notes", rows="3") }}
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        {{ upload_form.description(class="form-control", id="description", rows="3") }}
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Upload Document</button>
+                    <button type="submit" class="btn btn-primary" id="uploadBtn">Upload Document</button>
                 </div>
             </form>
         </div>
@@ -551,7 +658,7 @@
             </div>
             <div class="modal-body">
                 <div class="list-group">
-                    <a href="{{ url_for('fill_joining_form') }}" class="list-group-item list-group-item-action">
+<a href="{{ url_for('main.fill_joining_form') }}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">New Joining Application</h5>
                             {% if documents['new_joining_form'] %}
@@ -564,8 +671,8 @@
                         </div>
                         <p class="mb-1">Employment details, personal information and declarations</p>
                     </a>
-                    
-                    <a href="{{ url_for('fill_pf_form') }}" class="list-group-item list-group-item-action">
+
+<a href="{{ url_for('main.fill_pf_form') }}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">PF Form 2 (Revised)</h5>
                             {% if documents['pf_form'] %}
@@ -578,8 +685,8 @@
                         </div>
                         <p class="mb-1">Provident Fund nomination and declaration form</p>
                     </a>
-                    
-                    <a href="{{ url_for('fill_form1') }}" class="list-group-item list-group-item-action">
+
+<a href="{{ url_for('main.fill_form1') }}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">Form 1 (Nomination & Declaration)</h5>
                             {% if documents['form_1_nomination'] %}
@@ -592,8 +699,8 @@
                         </div>
                         <p class="mb-1">Nomination for employee benefits and declarations</p>
                     </a>
-                    
-                    <a href="{{ url_for('fill_form11') }}" class="list-group-item list-group-item-action">
+
+<a href="{{ url_for('main.fill_form11') }}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">Form 11 (Revised)</h5>
                             {% if documents['form_11'] %}
@@ -629,9 +736,15 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="replaceDocumentForm" action="{{ url_for('replace_document') }}" method="post">
+<form id="replaceDocumentForm" action="{{ url_for('main.replace_document') }}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="document_id" id="replaceDocumentId">
                     <input type="hidden" name="document_type" id="replaceDocumentType">
+                    <div class="mb-3">
+                        <label for="document" class="form-label">Select New Document File</label>
+                        <input type="file" class="form-control" id="document" name="document" required>
+                        <div class="form-text">Supported formats: PDF, JPG, JPEG, PNG</div>
+                    </div>
                     <button type="submit" class="btn btn-danger">Replace Document</button>
                 </form>
             </div>
@@ -649,17 +762,171 @@
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to remove <span id="familyMemberName"></span> from your family members list?</p>
-                <p>This action cannot be undone.</p>
+                <p class="text-danger">This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="removeFamilyMemberForm" method="post">
+<form id="removeFamilyMemberForm" action="{{ url_for('main.remove_family_member') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="member_id" id="removeMemberId">
                     <button type="submit" class="btn btn-danger">Remove Member</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+{% block scripts %}
+{{ super() }}
+<script>
+// Function to check if a file is selected
+function checkFileSelected() {
+    const fileInput = document.getElementById('file');
+    const fileError = document.getElementById('fileError');
+
+    if (fileInput && fileError) {
+        if (fileInput.files && fileInput.files.length > 0) {
+            fileError.style.display = 'none';
+            console.log('File selected:', fileInput.files[0].name);
+        } else {
+            fileError.style.display = 'block';
+            console.log('No file selected');
+        }
+    }
+}
+
+// Add form validation for the upload form
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('uploadForm');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('file');
+            const fileError = document.getElementById('fileError');
+
+            // Check if a file is selected
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                if (fileError) {
+                    fileError.style.display = 'block';
+                }
+                console.log('Form submission prevented: No file selected');
+                return false;
+            }
+
+            console.log('Form submission proceeding with file:', fileInput.files[0].name);
+            return true;
+        });
+    }
+});
+
+function uploadDocument(docType) {
+    const select = document.getElementById('document_type');
+    if (select) {
+        select.value = docType;
+    }
+    const modalElement = document.getElementById('uploadDocumentModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+function confirmReplace(docType, docId) {
+    const replaceTypeInput = document.getElementById('replaceDocumentType');
+    const replaceIdInput = document.getElementById('replaceDocumentId');
+    if (replaceTypeInput && replaceIdInput) {
+        replaceTypeInput.value = docType;
+        replaceIdInput.value = docId;
+    }
+    const modalElement = document.getElementById('confirmReplaceModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+function confirmRemoveFamilyMember(memberId, memberName) {
+    const removeMemberIdInput = document.getElementById('removeMemberId');
+    const familyMemberNameSpan = document.getElementById('familyMemberName');
+    if (removeMemberIdInput && familyMemberNameSpan) {
+        removeMemberIdInput.value = memberId;
+        familyMemberNameSpan.textContent = memberName;
+    }
+    const modalElement = document.getElementById('confirmRemoveFamilyMemberModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+</script>
+
+<!-- Reject Document Modal -->
+<div class="modal fade" id="rejectDocumentModal" tabindex="-1" aria-labelledby="rejectDocumentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="rejectDocumentForm" method="post" action="">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectDocumentModalLabel">Reject Document</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="feedback" class="form-label">Feedback (optional)</label>
+            <textarea class="form-control" id="feedback" name="feedback" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Reject Document</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+var rejectDocumentModal = document.getElementById('rejectDocumentModal');
+rejectDocumentModal.addEventListener('show.bs.modal', function (event) {
+  var button = event.relatedTarget;
+  var documentId = button.getAttribute('data-document-id');
+  var form = document.getElementById('rejectDocumentForm');
+  form.action = "{{ url_for('main.reject_document', document_id=0) }}".replace('/0', '/' + documentId);
+});
+</script>
+
+<!-- Delete All Documents Confirmation Modal -->
+<div class="modal fade" id="deleteAllDocumentsModal" tabindex="-1" aria-labelledby="deleteAllDocumentsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteAllDocumentsModalLabel">Confirm Delete All Documents</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Warning:</strong> This action cannot be undone!
+        </div>
+        <p>Are you sure you want to delete <strong>ALL</strong> your documents? This will:</p>
+        <ul>
+          <li>Remove all document records from the system</li>
+          <li>Delete all uploaded files</li>
+          <li>Reset your document submission progress</li>
+        </ul>
+        <p>You will need to re-upload all required documents after this action.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a href="{{ url_for('document_management.confirm_delete_all_documents') }}" class="btn btn-danger">
+          <i class="fas fa-trash-alt me-2"></i>Yes, Continue to Confirmation
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
 {% endblock %}
 
 {% block extra_css %}
@@ -671,85 +938,49 @@
         font-weight: 500;
         border-radius: 0.25rem;
     }
-    
+
     .status-approved {
         background-color: #d1e7dd;
         color: #0f5132;
     }
-    
+
     .status-pending {
         background-color: #fff3cd;
         color: #856404;
     }
-    
+
     .status-rejected {
         background-color: #f8d7da;
         color: #842029;
     }
-    
+
     .status-missing {
         background-color: #e9ecef;
         color: #6c757d;
     }
-    
+
     .progress-container {
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-    
+
     .card {
         border: none;
         box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     }
-    
+
     .card:hover {
         transform: translateY(-5px);
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
-    
+
     .table th {
         font-weight: 600;
         background-color: rgba(0, 0, 0, 0.03);
     }
 </style>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    // Pre-select document type in upload modal
-    function uploadDocument(docType) {
-        const selectElement = document.getElementById('document_type');
-        for(let i = 0; i < selectElement.options.length; i++) {
-            if(selectElement.options[i].value === docType) {
-                selectElement.selectedIndex = i;
-                break;
-            }
-        }
-        
-        // Show the modal
-        var uploadModal = new bootstrap.Modal(document.getElementById('uploadDocumentModal'));
-        uploadModal.show();
-    }
-    
-    // Confirm document replacement
-    function confirmReplace(docType, docId) {
-        document.getElementById('replaceDocumentType').value = docType;
-        document.getElementById('replaceDocumentId').value = docId;
-        
-        var replaceModal = new bootstrap.Modal(document.getElementById('confirmReplaceModal'));
-        replaceModal.show();
-    }
-    
-    // Confirm family member removal
-    function confirmRemoveFamilyMember(memberId, memberName) {
-        document.getElementById('familyMemberName').textContent = memberName;
-        const form = document.getElementById('removeFamilyMemberForm');
-        form.action = "{{ url_for('remove_family_member', member_id=0) }}".replace('0', memberId);
-        
-        var removeModal = new bootstrap.Modal(document.getElementById('confirmRemoveFamilyMemberModal'));
-        removeModal.show();
-    }
-</script>
+<!-- Session management is now handled in the base template -->
 {% endblock %}

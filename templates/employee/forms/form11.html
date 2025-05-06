@@ -1,35 +1,843 @@
+{% extends "base.html" %}
 
-{% extends "dashboard_layout.html" %}
+{% block title %}Form 11 - EPF Registration{% endblock %}
 
-{% block title %}Form 11{% endblock %}
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    /* Reset all Bootstrap styles */
+    .btn, .card, .form-control, .form-select {
+        all: initial;
+        font-family: Arial, sans-serif;
+        box-sizing: border-box;
+    }
 
-{% block dashboard_content %}
-<div class="container">
-    <h2>Form 11 (Revised)</h2>
-    <form method="POST" class="needs-validation" novalidate>
-        {{ form.hidden_tag() }}
-        
-        <div class="form-group">
-            <label>Employee Name</label>
-            <input type="text" name="employee_name" class="form-control" required>
+    /* Base styles */
+    body {
+        background-color: #f5f5f5;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Container styles */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    /* Form container */
+    .registration-form {
+        background-color: white;
+        border: 1px solid #e0e0e0;
+        padding: 30px;
+    }
+
+    /* Section styles */
+    .card {
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+        background-color: white;
+    }
+
+    .card-header {
+        background-color: #1e88e5;
+        color: white;
+        padding: 12px 15px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .card-header.bg-info {
+        background-color: #0288d1;
+    }
+
+    .card-header.bg-success {
+        background-color: #43a047;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    /* Form header */
+    .form-header {
+        text-align: center;
+        margin-bottom: 25px;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .form-header img {
+        max-height: 80px;
+        margin-bottom: 15px;
+    }
+
+    .form-title {
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 5px;
+        color: #1e88e5;
+    }
+
+    .form-subtitle {
+        font-size: 16px;
+        color: #616161;
+    }
+
+    /* Form controls */
+    .form-label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #424242;
+    }
+
+    .form-control, .form-select {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #bdbdbd;
+        background-color: white;
+        font-size: 14px;
+        color: #212121;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #1e88e5;
+        outline: none;
+    }
+
+    /* Radio and checkbox styles */
+    .radio-group {
+        display: flex;
+        gap: 15px;
+    }
+
+    .radio-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .form-check-input[type="radio"] {
+        border-radius: 50%;
+    }
+
+    /* Photo upload */
+    .photo-container {
+        width: 150px;
+        height: 180px;
+        border: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+
+    .photo-preview {
+        width: 100%;
+        height: 100%;
+        display: none;
+        object-fit: cover;
+    }
+
+    #uploadText {
+        text-align: center;
+        font-size: 12px;
+    }
+
+    /* Grid system */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+
+    .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-md-9, .col-md-12 {
+        position: relative;
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    @media (min-width: 768px) {
+        .col-md-3 {
+            flex: 0 0 25%;
+            max-width: 25%;
+        }
+        .col-md-4 {
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+        }
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+        .col-md-8 {
+            flex: 0 0 66.666667%;
+            max-width: 66.666667%;
+        }
+        .col-md-9 {
+            flex: 0 0 75%;
+            max-width: 75%;
+        }
+        .col-md-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .mt-3 {
+        margin-top: 1rem;
+    }
+
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    /* Button styles - completely flat */
+    .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        line-height: 1.5;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+
+    .btn-primary {
+        background-color: #1e88e5;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #43a047;
+        color: white;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem;
+    }
+
+    /* Hide navigation for this page */
+    .sidebar {
+        display: none;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* Print styles */
+    @media print {
+        .no-print {
+            display: none;
+        }
+        body {
+            background-color: white;
+        }
+        .registration-form {
+            border: none;
+            padding: 0;
+        }
+        .btn {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="registration-form">
+        <div class="form-header">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <img src="/api/placeholder/80/80" alt="EPFO Logo" />
+                </div>
+                <div class="col-md-9">
+                    <div class="form-title">EMPLOYEES' PROVIDENT FUND ORGANIZATION</div>
+                    <div class="form-subtitle">THE EMPLOYEES' PROVIDENT FUNDS SCHEME, 1952 (PARAGRAPH-34 & 57) & THE EMPLOYEES' PENSION SCHEME, 1995 (PARAGRAPH-24)</div>
+                    <h2 class="mt-3">Form No. 11 (New)</h2>
+                    <p>DECLARATION BY A PERSON TAKING UP EMPLOYMENT IN AN ESTABLISHMENT ON WHICH EMPLOYEES' PROVIDENT FUND SCHEME, 1952 AND/OR EMPLOYEES' PENSION SCHEME, 1995 IS APPLICABLE.</p>
+                    <p class="text-muted">(To be retained by the Employer for future reference)</p>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Date of Joining EPF Scheme</label>
-            <input type="date" name="epf_join_date" class="form-control" required>
-        </div>
+        <form method="POST" enctype="multipart/form-data" id="form11">
+            {{ form.hidden_tag() }}
 
-        <div class="form-group">
-            <label>Previous PF Account Number (if any)</label>
-            <input type="text" name="previous_pf_number" class="form-control">
-        </div>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">1. Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 text-center">
+                            <div class="photo-container" onclick="document.getElementById('photoInput').click()">
+                                <img id="photoPreview" class="photo-preview" alt="Your photo">
+                                <span id="uploadText">AFFIX YOUR LATEST<br>PASSPORT SIZE<br>PHOTOGRAPH</span>
+                                <input type="file" id="photoInput" name="photo" style="display:none;" onchange="previewPhoto(event)">
+                            </div>
 
-        <div class="form-group">
-            <label>Date of Exit from Previous Employment</label>
-            <input type="date" name="previous_exit_date" class="form-control">
-        </div>
+<script>
+function previewPhoto(event) {
+    const preview = document.getElementById('photoPreview');
+    const uploadText = document.getElementById('uploadText');
+    const file = event.target.files[0];
 
-        <button type="submit" class="btn btn-primary">Submit Form</button>
-    </form>
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+            uploadText.style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Title</label>
+                                    <div class="radio-group">
+                                        <div class="radio-container">
+                                            <input type="radio" id="title-mr" name="title" value="MR" class="form-check-input">
+                                            <label for="title-mr" class="form-check-label">MR.</label>
+                                        </div>
+                                        <div class="radio-container">
+                                            <input type="radio" id="title-ms" name="title" value="MS" class="form-check-input">
+                                            <label for="title-ms" class="form-check-label">MS.</label>
+                                        </div>
+                                        <div class="radio-container">
+                                            <input type="radio" id="title-mrs" name="title" value="MRS" class="form-check-input">
+                                            <label for="title-mrs" class="form-check-label">MRS.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" name="name" class="form-control" placeholder="Enter Full Name" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" name="date_of_birth" class="form-control" required>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Father's/Husband's Name</label>
+                                    <input type="text" name="father_husband_name" class="form-control" placeholder="Enter Father's/Husband's Name" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Relationship</label>
+                            <div class="radio-group">
+                                <div class="radio-container">
+                                    <input type="radio" id="rel-father" name="relationship" value="FATHER" class="form-check-input">
+                                    <label for="rel-father" class="form-check-label">FATHER</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="rel-husband" name="relationship" value="HUSBAND" class="form-check-input">
+                                    <label for="rel-husband" class="form-check-label">HUSBAND</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Gender</label>
+                            <div class="radio-group">
+                                <div class="radio-container">
+                                    <input type="radio" id="gender-male" name="gender" value="MALE" class="form-check-input">
+                                    <label for="gender-male" class="form-check-label">MALE</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="gender-female" name="gender" value="FEMALE" class="form-check-input">
+                                    <label for="gender-female" class="form-check-label">FEMALE</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="gender-transgender" name="gender" value="TRANSGENDER" class="form-check-input">
+                                    <label for="gender-transgender" class="form-check-label">TRANSGENDER</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Marital Status</label>
+                            <select name="marital_status" class="form-select">
+                                <option value="" selected disabled>Select Status</option>
+                                <option value="MARRIED">MARRIED</option>
+                                <option value="UNMARRIED">UNMARRIED</option>
+                                <option value="WIDOW/WIDOWER">WIDOW/WIDOWER</option>
+                                <option value="DIVORCEE">DIVORCEE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mobile Number</label>
+                            <input type="tel" name="mobile_number" class="form-control" placeholder="Enter Mobile Number">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email ID</label>
+                            <input type="email" name="email" class="form-control" placeholder="Enter Email ID">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">2. Previous Employment Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Earlier a member of EPF Scheme, 1952?</label>
+                            <div class="radio-group">
+                                <div class="radio-container">
+                                    <input type="radio" id="epf-yes" name="is_epf_member" value="YES" class="form-check-input">
+                                    <label for="epf-yes" class="form-check-label">YES</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="epf-no" name="is_epf_member" value="NO" class="form-check-input">
+                                    <label for="epf-no" class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Earlier a member of EPS Scheme, 1995?</label>
+                            <div class="radio-group">
+                                <div class="radio-container">
+                                    <input type="radio" id="eps-yes" name="is_eps_member" value="YES" class="form-check-input">
+                                    <label for="eps-yes" class="form-check-label">YES</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="eps-no" name="is_eps_member" value="NO" class="form-check-input">
+                                    <label for="eps-no" class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="previous-employment-details" class="mt-3" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Universal Account Number (UAN)</label>
+                                <input type="text" name="uan" class="form-control" placeholder="Enter UAN if available">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Previous PF Member ID</label>
+                                <div class="row g-2">
+                                    <div class="col-2">
+                                        <input type="text" name="region_code" class="form-control" placeholder="Region">
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="text" name="office_code" class="form-control" placeholder="Office">
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" name="establishment_id" class="form-control" placeholder="Estab ID">
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="text" name="extension" class="form-control" placeholder="Ext">
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" name="account_number" class="form-control" placeholder="Acc No">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Date of Exit for Previous Member ID</label>
+                                <input type="date" name="date_of_exit" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Scheme Certificate Number (if issued)</label>
+                                <input type="text" name="scheme_certificate" class="form-control" placeholder="Enter certificate number">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">PPO Number (if issued)</label>
+                                <input type="text" name="ppo_number" class="form-control" placeholder="Enter PPO number">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">3. Other Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">International Worker</label>
+                            <div class="radio-group">
+                                <div class="radio-container">
+                                    <input type="radio" id="intl-yes" name="is_international_worker" value="YES" class="form-check-input">
+                                    <label for="intl-yes" class="form-check-label">YES</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="intl-no" name="is_international_worker" value="NO" class="form-check-input">
+                                    <label for="intl-no" class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Educational Qualification</label>
+                            <select name="education" class="form-select">
+                                <option value="" selected disabled>Select Qualification</option>
+                                <option value="ILLITERATE">ILLITERATE</option>
+                                <option value="NON-MATRIC">NON-MATRIC</option>
+                                <option value="MATRIC">MATRIC</option>
+                                <option value="SENIOR SECONDARY">SENIOR SECONDARY</option>
+                                <option value="GRADUATE">GRADUATE</option>
+                                <option value="POST GRADUATE">POST GRADUATE</option>
+                                <option value="DOCTOR">DOCTOR</option>
+                                <option value="TECHNICAL/PROFESSIONAL">TECHNICAL/PROFESSIONAL</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Specially Abled</label>
+                            <div class="radio-group">
+                                <div class="radio-container">
+                                    <input type="radio" id="abled-yes" name="is_specially_abled" value="YES" class="form-check-input">
+                                    <label for="abled-yes" class="form-check-label">YES</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="abled-no" name="is_specially_abled" value="NO" class="form-check-input">
+                                    <label for="abled-no" class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="international-worker-details" class="mt-3" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Country of Origin</label>
+                                <div class="radio-group">
+                                    <div class="radio-container">
+                                        <input type="radio" id="country-india" name="country_of_origin" value="INDIA" class="form-check-input">
+                                        <label for="country-india" class="form-check-label">INDIA</label>
+                                    </div>
+                                    <div class="radio-container">
+                                        <input type="radio" id="country-other" name="country_of_origin" value="OTHER" class="form-check-input">
+                                        <label for="country-other" class="form-check-label">OTHER THAN INDIA</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="other-country-field" style="display: none;">
+                                <label class="form-label">Specify Country</label>
+                                <input type="text" name="other_country" class="form-control" placeholder="Enter country name">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Passport Number</label>
+                                <input type="text" name="passport_number" class="form-control" placeholder="Enter passport number">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Passport Valid From</label>
+                                <input type="date" name="passport_valid_from" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Passport Valid To</label>
+                                <input type="date" name="passport_valid_to" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="specially-abled-details" class="mt-3" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Disability Category</label>
+                                <div class="radio-group">
+                                    <div class="radio-container">
+                                        <input type="checkbox" id="disability-locomotive" name="disability_type" value="LOCOMOTIVE" class="form-check-input">
+                                        <label for="disability-locomotive" class="form-check-label">LOCOMOTIVE</label>
+                                    </div>
+                                    <div class="radio-container">
+                                        <input type="checkbox" id="disability-visual" name="disability_type" value="VISUAL" class="form-check-input">
+                                        <label for="disability-visual" class="form-check-label">VISUAL</label>
+                                    </div>
+                                    <div class="radio-container">
+                                        <input type="checkbox" id="disability-hearing" name="disability_type" value="HEARING" class="form-check-input">
+                                        <label for="disability-hearing" class="form-check-label">HEARING</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">4. KYC Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Bank Account Number*</label>
+                            <input type="text" name="bank_account" class="form-control" placeholder="Enter Bank Account Number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">IFSC Code*</label>
+                            <input type="text" name="ifsc_code" class="form-control" placeholder="Enter IFSC Code" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">NPR/AADHAAR</label>
+                            <input type="text" name="aadhaar" class="form-control" placeholder="Enter Aadhaar Number">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">PAN</label>
+                            <input type="text" name="pan" class="form-control" placeholder="Enter PAN Number">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Passport</label>
+                            <input type="text" name="passport" class="form-control" placeholder="Enter Passport Number">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Driving License</label>
+                            <input type="text" name="driving_license" class="form-control" placeholder="Enter Driving License Number">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Election Card</label>
+                            <input type="text" name="election_card" class="form-control" placeholder="Enter Election Card Number">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Ration Card</label>
+                            <input type="text" name="ration_card" class="form-control" placeholder="Enter Ration Card Number">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">ESIC Card</label>
+                            <input type="text" name="esic_card" class="form-control" placeholder="Enter ESIC Card Number">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-muted">
+                            * Mandatory Field (NOTE: BANK ACCOUNT NUMBER (ALONG WITH IFSC CODE) IS MANDATORY.
+                            YOU ARE HOWEVER ADVISED TO PROVIDE ALL KYC DOCUMENTS AVAILABLE WITH YOU IN ADDITION
+                            TO MANDATORY KYCS TO AVAIL BETTER SERVICES. SELF-ATTESTED PHOTOCOPIES OF THE DOCUMENTS
+                            MUST BE ATTACHED WITH THIS FORM.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">5. Undertaking</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="agree-terms" name="agree_terms" required>
+                        <label class="form-check-label" for="agree-terms">
+                            I CERTIFY THAT ALL THE INFORMATION GIVEN ABOVE IS TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="agree-transfer" name="agree_transfer">
+                        <label class="form-check-label" for="agree-transfer">
+                            IN CASE, EARLIER A MEMBER OF EPF SCHEME, 1952 AND/OR EPS, 1995, THIS MAY ALSO BE TREATED AS MY
+                            REQUEST FOR TRANSFER OF FUNDS AND SERVICE DETAILS IF APPLICABLE FROM THE PREVIOUS ACCOUNT AS
+                            DECLARED ABOVE TO THE PRESENT P.F. ACCOUNT.
+                        </label>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="declaration_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Place</label>
+                            <input type="text" name="declaration_place" class="form-control" placeholder="Enter Place" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-save me-2"></i>Submit Form
+                </button>
+                <button type="button" class="btn btn-success" onclick="generatePDF()">
+                    <i class="fas fa-download me-2"></i>Download PDF
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Disable all CSS animations and transitions
+    const disableAnimations = () => {
+        const css = document.createElement('style');
+        css.type = 'text/css';
+        css.innerHTML = `
+            * {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+                box-shadow: none !important;
+            }
+            .btn, .card, .form-control, .form-select, input, select, button {
+                transition: none !important;
+                transform: none !important;
+                box-shadow: none !important;
+            }
+            .btn:hover, .btn:active, .btn:focus {
+                transform: none !important;
+                box-shadow: none !important;
+                position: static !important;
+            }
+        `;
+        document.head.appendChild(css);
+    };
+
+    // Call the function to disable animations
+    disableAnimations();
+
+    // Toggle previous employment section
+    const epfYes = document.getElementById('epf-yes');
+    const epsYes = document.getElementById('eps-yes');
+    const epfNo = document.getElementById('epf-no');
+    const epsNo = document.getElementById('eps-no');
+    const prevEmploymentSection = document.getElementById('previous-employment-details');
+
+    function togglePrevEmploymentSection() {
+        if (epfYes.checked || epsYes.checked) {
+            prevEmploymentSection.style.display = 'block';
+        } else {
+            prevEmploymentSection.style.display = 'none';
+        }
+    }
+
+    epfYes.addEventListener('change', togglePrevEmploymentSection);
+    epsYes.addEventListener('change', togglePrevEmploymentSection);
+    epfNo.addEventListener('change', togglePrevEmploymentSection);
+    epsNo.addEventListener('change', togglePrevEmploymentSection);
+
+    // Toggle international worker section
+    const intlYes = document.getElementById('intl-yes');
+    const intlNo = document.getElementById('intl-no');
+    const intlSection = document.getElementById('international-worker-details');
+
+    function toggleIntlSection() {
+        if (intlYes.checked) {
+            intlSection.style.display = 'block';
+        } else {
+            intlSection.style.display = 'none';
+        }
+    }
+
+    intlYes.addEventListener('change', toggleIntlSection);
+    intlNo.addEventListener('change', toggleIntlSection);
+
+    // Toggle other country field
+    const countryIndia = document.getElementById('country-india');
+    const countryOther = document.getElementById('country-other');
+    const otherCountryField = document.getElementById('other-country-field');
+
+    function toggleOtherCountryField() {
+        if (countryOther.checked) {
+            otherCountryField.style.display = 'block';
+        } else {
+            otherCountryField.style.display = 'none';
+        }
+    }
+
+    countryIndia.addEventListener('change', toggleOtherCountryField);
+    countryOther.addEventListener('change', toggleOtherCountryField);
+
+    // Toggle specially abled section
+    const abledYes = document.getElementById('abled-yes');
+    const abledNo = document.getElementById('abled-no');
+    const abledSection = document.getElementById('specially-abled-details');
+
+    function toggleAbledSection() {
+        if (abledYes.checked) {
+            abledSection.style.display = 'block';
+        } else {
+            abledSection.style.display = 'none';
+        }
+    }
+
+    abledYes.addEventListener('change', toggleAbledSection);
+    abledNo.addEventListener('change', toggleAbledSection);
+
+    // Set current date as default for declaration date
+    const today = new Date();
+    const formattedDate = today.toISOString().substr(0, 10);
+    document.querySelector('input[name="declaration_date"]').value = formattedDate;
+});
+
+function generatePDF() {
+    const element = document.querySelector('.registration-form');
+    const opt = {
+        margin: 10,
+        filename: 'form11.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Hide buttons before generating PDF
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(btn => btn.style.display = 'none');
+
+    // Generate PDF
+    html2pdf().set(opt).from(element).save().then(() => {
+        // Show buttons again after PDF generation
+        buttons.forEach(btn => btn.style.display = 'inline-block');
+    });
+}
+</script>
 {% endblock %}

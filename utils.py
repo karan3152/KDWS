@@ -7,7 +7,6 @@ from flask import current_app, request
 from PIL import Image
 import io
 
-from app import app
 from models import Document, DocumentTypes
 
 
@@ -27,7 +26,7 @@ def send_password_reset_email(user, token):
     # In production, would send an actual email
     # send_email(
     #     subject='Password Reset Request',
-    #     sender=app.config['MAIL_DEFAULT_SENDER'],
+    #     sender=current_app.config['MAIL_DEFAULT_SENDER'],
     #     recipients=[user.email],
     #     text_body=f'Please use the following link to reset your password: {reset_url}',
     #     html_body=f'<p>Please use the following link to reset your password:</p><p><a href="{reset_url}">{reset_url}</a></p>'
@@ -47,7 +46,7 @@ def save_document(file, user_id, subfolder=None):
         The relative path to the saved file
     """
     # Ensure uploads directory exists
-    uploads_dir = os.path.join(app.root_path, 'static', 'uploads', str(user_id))
+    uploads_dir = os.path.join(current_app.root_path, 'static', 'uploads', str(user_id))
     if subfolder:
         uploads_dir = os.path.join(uploads_dir, subfolder)
     os.makedirs(uploads_dir, exist_ok=True)

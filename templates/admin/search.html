@@ -1,105 +1,260 @@
-{% extends "dashboard_layout.html" %}
+{% extends "base.html" %}
 
-{% block title %}Admin Search - Employee Data Management System{% endblock %}
+{% block title %}Admin Search{% endblock %}
 
-{% block dashboard_content %}
-<div class="container-fluid px-4">
-    <h1 class="mt-4">User Search</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
-        <li class="breadcrumb-item active">Search Users</li>
-    </ol>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-search me-1"></i>
-            Search for Employees or Employers
+{% block extra_css %}
+<style>
+    .search-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .table-container {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+    }
+
+    .profile-img-sm {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+
+    .status-active {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-inactive {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-action {
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.125rem;
+    }
+
+    .btn-delete {
+        background-color: #fee2e2;
+        color: #dc2626;
+        border: none;
+    }
+
+    .btn-delete:hover {
+        background-color: #fecaca;
+        color: #b91c1c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="search-container">
+        <h2 class="mb-4">Search Users</h2>
+        <form method="GET" action="{{ url_for('admin_search') }}" class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search by name, email, ID..." value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="type" class="form-select">
+                    <option value="all" {% if search_type == 'all' %}selected{% endif %}>All Users</option>
+                    <option value="employee" {% if search_type == 'employee' %}selected{% endif %}>Employees Only</option>
+                    <option value="employer" {% if search_type == 'employer' %}selected{% endif %}>Employers Only</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    {% if search_type in ['all', 'employee'] %}
+    <div class="table-container">
+        <h3 class="mb-3">Employees</h3>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr>
+                        <td>
+                            {% if employee.photo_path %}
+                            <img src="{{ url_for('static', filename=employee.photo_path) }}" alt="Profile" class="profile-img-sm">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='img/default-profile.png') }}" alt="Default Profile" class="profile-img-sm">
+                            {% endif %}
+                        </td>
+                        <td>{{ employee.employee_id }}</td>
+                        <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                        <td>{{ employee.user.email }}</td>
+                        <td>{{ employee.department or 'N/A' }}</td>
+                        <td>{{ employee.position or 'N/A' }}</td>
+                        <td>
+                            <span class="status-badge {% if employee.user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                {{ 'Active' if employee.user.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('edit_employee', employee_id=employee.id) }}" class="btn btn-sm btn-primary btn-action">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('employer_view_employee', employee_id=employee.employee_id) }}" class="btn btn-sm btn-info btn-action">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-delete btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal"
+                                    data-user-type="employee"
+                                    data-user-id="{{ employee.id }}"
+                                    data-user-name="{{ employee.first_name }} {{ employee.last_name }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No employees found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <div class="card-body">
-            <form method="GET" action="{{ url_for('admin_search') }}" class="mb-4">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <input type="text" name="query" class="form-control" placeholder="Search by name, email, ID..." value="{{ query }}" required>
-                            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Search</button>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <label class="input-group-text" for="search_type">Search By</label>
-                            <select name="search_type" id="search_type" class="form-select">
-                                <option value="all" {% if request.args.get('search_type') == 'all' %}selected{% endif %}>All Fields</option>
-                                <option value="name" {% if request.args.get('search_type') == 'name' %}selected{% endif %}>Name</option>
-                                <option value="email" {% if request.args.get('search_type') == 'email' %}selected{% endif %}>Email</option>
-                                <option value="employee_id" {% if request.args.get('search_type') == 'employee_id' %}selected{% endif %}>Employee ID</option>
-                                <option value="aadhar" {% if request.args.get('search_type') == 'aadhar' %}selected{% endif %}>Aadhar Number</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </form>
+    </div>
+    {% endif %}
 
-            {% if search_performed %}
-                {% if results %}
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Details</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for result in results %}
-                                <tr>
-                                    <td>{{ result.username }}</td>
-                                    <td>{{ result.email }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ 'primary' if result.role == 'admin' else 'success' if result.role == 'employer' else 'info' }}">
-                                            {{ result.role|capitalize }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {% if result.profile_type == 'employee' %}
-                                            <strong>Name:</strong> {{ result.name }}<br>
-                                            <strong>Employee ID:</strong> {{ result.employee_id }}<br>
-                                            <strong>Aadhar ID:</strong> {{ result.aadhar_id }}
-                                        {% elif result.profile_type == 'employer' %}
-                                            <strong>Company:</strong> {{ result.company_name }}<br>
-                                            <strong>Company ID:</strong> {{ result.company_id }}
-                                        {% else %}
-                                            <em>Admin Account</em>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if result.profile_type == 'employee' %}
-                                            <a href="{{ url_for('employer_view_employee', employee_id=result.employee_id) }}" class="btn btn-sm btn-primary">View Profile</a>
-                                        {% elif result.profile_type == 'employer' %}
-                                            <a href="{{ url_for('employer_profile_page', employer_id=result.id) }}" class="btn btn-sm btn-primary">View Profile</a>
-                                        {% endif %}
-                                        <a href="#" class="btn btn-sm btn-outline-danger">Reset Password</a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        No results found for "{{ query }}". Try a different search term or criteria.
-                    </div>
-                {% endif %}
-            {% else %}
-                <div class="alert alert-light border">
-                    <i class="fas fa-search me-2"></i>
-                    Enter a search term above to find users, employees, or employers in the system.
+    {% if search_type in ['all', 'employer'] %}
+    <div class="table-container">
+        <h3 class="mb-3">Employers</h3>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Company Name</th>
+                        <th>Department</th>
+                        <th>Email</th>
+                        <th>Contact Number</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employer in employers %}
+                    <tr>
+                        <td>
+                            {% if employer.photo_path %}
+                            <img src="{{ url_for('static', filename=employer.photo_path) }}" alt="Profile" class="profile-img-sm">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='img/default-profile.png') }}" alt="Default Profile" class="profile-img-sm">
+                            {% endif %}
+                        </td>
+                        <td>{{ employer.company_name }}</td>
+                        <td>{{ employer.department or 'N/A' }}</td>
+                        <td>{{ employer.user.email }}</td>
+                        <td>{{ employer.contact_number or 'N/A' }}</td>
+                        <td>
+                            <span class="status-badge {% if employer.user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                {{ 'Active' if employer.user.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('employer_profile_page', employer_id=employer.id) }}" class="btn btn-sm btn-primary btn-action">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-delete btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal"
+                                    data-user-type="employer"
+                                    data-user-id="{{ employer.id }}"
+                                    data-user-name="{{ employer.company_name }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">No employers found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            {% endif %}
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <span id="deleteUserName"></span>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="POST" style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteForm');
+    const deleteUserName = document.getElementById('deleteUserName');
+
+    deleteModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const userType = button.getAttribute('data-user-type');
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+
+        deleteUserName.textContent = userName;
+        deleteForm.action = `/admin/delete/${userType}/${userId}`;
+    });
+});
+</script>
+{% endblock %}
+
 {% endblock %}
