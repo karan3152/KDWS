@@ -87,7 +87,3 @@ This application can be deployed to various platforms:
 
 4. **PythonAnywhere** - A simple platform for Python web applications
    - Upload your code and set up a WSGI configuration
-
-## License
-
-[MIT](LICENSE)
